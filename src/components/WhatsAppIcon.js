@@ -3,10 +3,13 @@
 import { FaWhatsapp } from 'react-icons/fa';
 import { useSettings } from '@/lib/SettingsContext';
 
-export default function WhatsAppIcon() {
+export default function WhatsAppIcon({ projectName }) {
     const { whatsappNumber } = useSettings();
-    const phone = (whatsappNumber || '919108292463').replace(/\D/g, '');
-    const message = 'Hi! I would like to know more about your services.';
+    const phone = (whatsappNumber || '').replace(/\D/g, '');
+    if (!phone) return null;
+    const message = projectName
+        ? `Hi! I would like to know more about ${projectName}.`
+        : 'Hi! I would like to know more about your services.';
     const whatsappLink = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
     return (
