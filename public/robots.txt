@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 
-Sitemap: https://Saturnrealcon.com/sitemap.xml
+Sitemap: https://tangledupingreen.in/sitemap.xml

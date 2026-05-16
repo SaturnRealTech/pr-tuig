@@ -5,8 +5,10 @@ import EnquireNowProvider from '@/components/EnquireNowProvider';
 
 export const dynamic = 'force-dynamic';
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://tangledupingreen.in';
+
 export const metadata = {
-  metadataBase: new URL("https://SaturnRealcon.com"),
+  metadataBase: new URL(SITE_URL),
 
   title: "SaturnRealcon — Launch Your SaaS in 45 Days | Fixed Scope, Fixed Timeline",
 
@@ -30,19 +32,19 @@ export const metadata = {
   ],
 
   alternates: {
-    canonical: "https://SaturnRealcon.com/",
+    canonical: `${SITE_URL}/`,
   },
 
   openGraph: {
     title: "SaturnRealcon — Launch Your SaaS in 45 Days",
     description:
       "A fixed-scope, fixed-timeline SaaS launch system for founders who want speed without chaos. Launch Your SaaS in 45 Days.",
-    url: "https://SaturnRealcon.com/",
+    url: `${SITE_URL}/`,
     siteName: "SaturnRealcon",
     type: "website",
     images: [
       {
-        url: "https://SaturnRealcon.com/logos/SaturnRealcon.png",
+        url: `${SITE_URL}/logos/SaturnRealcon.png`,
         width: 1200,
         height: 630,
         alt: "SaturnRealcon — 45-Day SaaS Launch System",
@@ -55,7 +57,7 @@ export const metadata = {
     title: "SaturnRealcon — Launch Your SaaS in 45 Days",
     description:
       "A 45-day SaaS launch system built for founders who value speed, clarity, and execution.",
-    images: ["https://SaturnRealcon.com/logos/SaturnRealcon.png"],
+    images: [`${SITE_URL}/logos/SaturnRealcon.png`],
   },
 
   robots: {
@@ -133,7 +135,7 @@ export default async function RootLayout({ children }) {
                 "@type": "Offer",
                 availability: "https://schema.org/InStock",
                 priceCurrency: "USD",
-                url: "https://SaturnRealcon.com/contact",
+                url: `${SITE_URL}/contact`,
               },
               audience: {
                 "@type": "Audience",

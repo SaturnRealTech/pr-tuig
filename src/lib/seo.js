@@ -1,4 +1,4 @@
-export const SITE_URL = 'https://SaturnRealcon.com';
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://tangledupingreen.in';
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/logos/SaturnRealcon.png`;
 
 function toAbsoluteUrl(path) {

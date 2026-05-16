@@ -90,7 +90,7 @@ export default function BlogDetailPage({ post }) {
                     {post.content && <ProjectContent html={post.content} />}
                     {/* Share Buttons - Horizontal Social Icons (before author bio) */}
                     <div className="flex flex-row gap-4 py-8 justify-center">
-                        <ShareButtons url={`https://SaturnRealcon.com/blog/${post.slug || post._id}`} title={post.title} />
+                        <ShareButtons url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://tangledupingreen.in'}/blog/${post.slug || post._id}`} title={post.title} />
                     </div>
                     {/* Related Posts */}
                     <div className="mb-16">

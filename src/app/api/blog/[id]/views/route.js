@@ -9,7 +9,7 @@ export async function POST(request, { params }) {
         const { id } = resolvedParams;
 
         const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
+        const db = client.db(process.env.DB_NAME || 'qwiklylaunch');
 
         // Try to find by slug first, then by ID, then by ObjectId
         let query = { slug: id };

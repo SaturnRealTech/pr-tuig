@@ -2,7 +2,7 @@
 import ProjectDetailPage from '@/features/projects/ProjectDetailPage';
 import clientPromise from '@/lib/mongodb';
 
-const siteUrl = 'https://SaturnRealcon.com';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tangledupingreen.in';
 
 
 const homeSchema = {
