@@ -25,6 +25,15 @@ export async function GET() {
                 footerTagline: doc?.footerTagline || '',
                 footerDescription: doc?.footerDescription || '',
                 footerTrustText: doc?.footerTrustText || '',
+                smtpHost: doc?.smtpHost || '',
+                smtpPort: doc?.smtpPort || '465',
+                smtpSecure: doc?.smtpSecure !== false,
+                smtpUser: doc?.smtpUser || '',
+                smtpPass: doc?.smtpPass || '',
+                mailFromName: doc?.mailFromName || '',
+                mailFrom: doc?.mailFrom || '',
+                mailTo: doc?.mailTo || '',
+                mailSubject: doc?.mailSubject || '',
             },
         });
     } catch (error) {
@@ -34,7 +43,14 @@ export async function GET() {
 
 export async function PUT(request) {
     try {
-        const { primaryColor, primaryDark, primaryLight, siteName, siteLogo, contactPhone, whatsappNumber, cinNumber, copyrightText, footerTagline, footerDescription, footerTrustText } = await request.json();
+        const body = await request.json();
+        const {
+            primaryColor, primaryDark, primaryLight,
+            siteName, siteLogo, contactPhone, whatsappNumber,
+            cinNumber, copyrightText, footerTagline, footerDescription, footerTrustText,
+            smtpHost, smtpPort, smtpSecure, smtpUser, smtpPass,
+            mailFromName, mailFrom, mailTo, mailSubject,
+        } = body;
         const db = await getDb();
         await db.collection('settings').updateOne(
             { type: 'brand' },
@@ -51,6 +67,15 @@ export async function PUT(request) {
                     footerTagline: footerTagline || '',
                     footerDescription: footerDescription || '',
                     footerTrustText: footerTrustText || '',
+                    smtpHost: smtpHost || '',
+                    smtpPort: smtpPort || '465',
+                    smtpSecure: smtpSecure !== false,
+                    smtpUser: smtpUser || '',
+                    smtpPass: smtpPass || '',
+                    mailFromName: mailFromName || '',
+                    mailFrom: mailFrom || '',
+                    mailTo: mailTo || '',
+                    mailSubject: mailSubject || '',
                     updatedAt: new Date(),
                 }
             },

@@ -148,6 +148,65 @@ function GalleryImageItem({ item, onUpdate, onRemove }) {
     );
 }
 
+function DetailedOverviewItem({ item, index, onUpdate, onRemove }) {
+    const [showPicker, setShowPicker] = useState(false);
+    return (
+        <div className="border border-gray-200 rounded-xl p-5 bg-gray-50 space-y-4 relative">
+            <button type="button" onClick={onRemove}
+                className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition">✕</button>
+
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Block #{index + 1}</p>
+
+            <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+                <input type="text" value={item.title} onChange={e => onUpdate('title', e.target.value)}
+                    placeholder="e.g. Why Choose This Project?"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+            </div>
+
+            <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Content</label>
+                <TipTapEditor
+                    content={item.content}
+                    onChange={html => onUpdate('content', html)}
+                />
+            </div>
+
+            <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Image</label>
+                {item.image ? (
+                    <div className="relative group rounded-xl overflow-hidden border border-gray-200">
+                        <img src={item.image} alt={item.imageAlt || 'overview'} className="w-full h-48 object-cover" />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
+                            <button type="button" onClick={() => setShowPicker(true)}
+                                className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-[#fef9e7] transition">Change</button>
+                            <button type="button" onClick={() => onUpdate('image', '')}
+                                className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition">Remove</button>
+                        </div>
+                    </div>
+                ) : (
+                    <button type="button" onClick={() => setShowPicker(true)}
+                        className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                        <MdImage size={32} className="text-gray-300 mb-2" />
+                        <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
+                    </button>
+                )}
+                <input type="text" value={item.imageAlt || ''} onChange={e => onUpdate('imageAlt', e.target.value)}
+                    placeholder="Image Alt Text"
+                    className="w-full mt-2 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-800 text-sm" />
+            </div>
+
+            {showPicker && (
+                <MediaPicker
+                    returnMeta
+                    onSelect={({ url, alt }) => { onUpdate('image', url); if (alt && !item.imageAlt) onUpdate('imageAlt', alt); setShowPicker(false); }}
+                    onClose={() => setShowPicker(false)}
+                />
+            )}
+        </div>
+    );
+}
+
 function SectionToggle({ checked, onChange }) {
     return (
         <label className="flex items-center gap-2 cursor-pointer select-none flex-shrink-0">
@@ -226,6 +285,8 @@ export default function EditProject() {
         hideFAQs: false,
         hideBlogs: false,
         isHomePage: false,
+        detailedOverview: [],
+        hideDetailedOverview: false,
     });
 
     useEffect(() => {
@@ -300,6 +361,8 @@ export default function EditProject() {
                 hideFAQs: p.hideFAQs || false,
                 hideBlogs: p.hideBlogs || false,
                 isHomePage: p.isHomePage || false,
+                detailedOverview: p.detailedOverview || [],
+                hideDetailedOverview: p.hideDetailedOverview || false,
             });
         } catch (e) {
             console.error(e);
@@ -370,6 +433,10 @@ export default function EditProject() {
     const updateFloorPlan = (i, field, val) => updateMFP('floorPlans', formData.masterFloorPlan.floorPlans.map((p, idx) => idx === i ? { ...p, [field]: val } : p));
 
     const updateLocation = (field, val) => setFormData(prev => ({ ...prev, location: { ...prev.location, [field]: val } }));
+
+    const addDetailedOverview = () => setFormData(prev => ({ ...prev, detailedOverview: [...prev.detailedOverview, { title: '', content: '', image: '', imageAlt: '' }] }));
+    const removeDetailedOverview = (i) => setFormData(prev => ({ ...prev, detailedOverview: prev.detailedOverview.filter((_, idx) => idx !== i) }));
+    const updateDetailedOverview = (i, field, val) => setFormData(prev => ({ ...prev, detailedOverview: prev.detailedOverview.map((item, idx) => idx === i ? { ...item, [field]: val } : item) }));
 
     const updatePS = (field, val) => setFormData(prev => ({ ...prev, projectSpecifications: { ...prev.projectSpecifications, [field]: val } }));
     const addSpec = () => setFormData(prev => ({ ...prev, projectSpecifications: { ...prev.projectSpecifications, specs: [...prev.projectSpecifications.specs, { title: '', content: '' }] } }));
@@ -570,6 +637,35 @@ export default function EditProject() {
                                             />
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Project Detailed Overview */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <div className="flex items-center justify-between mb-5">
+                                        <h3 className="text-lg font-bold text-gray-800">Project Detailed Overview</h3>
+                                        <div className="flex items-center gap-3">
+                                            <SectionToggle checked={!formData.hideDetailedOverview} onChange={e => setFormData(prev => ({ ...prev, hideDetailedOverview: !e.target.checked }))} />
+                                            <button type="button" onClick={addDetailedOverview}
+                                                className="px-3 py-1.5 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002] transition">
+                                                + Add More
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {formData.detailedOverview.length === 0 ? (
+                                        <p className="text-sm text-gray-400 italic py-4">No overview blocks added yet. Click "+ Add More" to get started.</p>
+                                    ) : (
+                                        <div className="space-y-5">
+                                            {formData.detailedOverview.map((item, i) => (
+                                                <DetailedOverviewItem
+                                                    key={i}
+                                                    item={item}
+                                                    index={i}
+                                                    onUpdate={(field, val) => updateDetailedOverview(i, field, val)}
+                                                    onRemove={() => removeDetailedOverview(i)}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* SEO */}

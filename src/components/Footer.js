@@ -33,10 +33,10 @@ export default function Footer() {
         <footer className="bg-black text-white py-16 px-6 border-t-2 border-[#b27e02]">
             <div className="max-w-7xl mx-auto">
                 {/* Top Section — Brand + one col per group + Get In Touch */}
-                <div className="flex flex-wrap gap-10 mb-12">
+                {/* <div className="flex flex-wrap gap-10 mb-12"> */}
 
-                    {/* Brand */}
-                    <div className="w-full md:w-52 flex-shrink-0">
+                {/* Brand */}
+                {/* <div className="w-full md:w-52 flex-shrink-0">
                         <div className="mb-4">
                             <span className="text-2xl font-bold text-white">
                                 {siteName || 'Saturn RealCon'}
@@ -57,10 +57,10 @@ export default function Footer() {
                                 {footerTrustText || 'Trusted by 1000+ families across India'}
                             </p>
                         )}
-                    </div>
+                    </div> */}
 
-                    {/* Latest Blogs */}
-                    {blogs.length > 0 && (
+                {/* Latest Blogs */}
+                {/* {blogs.length > 0 && (
                         <div className="w-full md:w-auto md:min-w-[180px]">
                             <h4 className="text-white font-bold mb-3 text-sm uppercase tracking-wide">Latest Blogs</h4>
                             <ul className="space-y-2">
@@ -76,10 +76,10 @@ export default function Footer() {
                                 ))}
                             </ul>
                         </div>
-                    )}
+                    )} */}
 
-                    {/* Blog Categories */}
-                    {blogCategories.length > 0 && (
+                {/* Blog Categories */}
+                {/* {blogCategories.length > 0 && (
                         <div className="w-full md:w-auto md:min-w-[130px]">
                             <h4 className="text-white font-bold mb-3 text-sm uppercase tracking-wide">Blog Categories</h4>
                             <ul className="space-y-2">
@@ -95,10 +95,10 @@ export default function Footer() {
                                 ))}
                             </ul>
                         </div>
-                    )}
+                    )} */}
 
-                    {/* Get In Touch */}
-                    <div className="min-w-[180px] md:ml-auto">
+                {/* Get In Touch */}
+                {/* <div className="min-w-[180px] md:ml-auto">
                         <h4 className="text-white font-bold mb-4">Get In Touch</h4>
                         <div className="space-y-3">
                             <a
@@ -118,53 +118,25 @@ export default function Footer() {
                                 </a>
                             )}
                         </div>
-                    </div>
-
-                    {/* Quick Links */}
-                    {/* <div className="w-full md:w-auto md:min-w-[130px]">
-                        <h4 className="text-white font-bold mb-3 text-sm uppercase tracking-wide">Quick Links</h4>
-                        <ul className="space-y-2">
-                            <li><a href="/blog" className="text-gray-400 hover:text-[#b27e02] transition text-sm">Blog</a></li>
-                            <li><a href="/careers" className="text-gray-400 hover:text-[#b27e02] transition text-sm">Careers</a></li>
-                            <li><a href="/contact" className="text-gray-400 hover:text-[#b27e02] transition text-sm">Contact Us</a></li>
-                        </ul>
                     </div> */}
 
-                    {/* Legal */}
-                    {/* <div className="w-full md:w-auto md:min-w-[150px]">
-                        <h4 className="text-white font-bold mb-3 text-sm uppercase tracking-wide">Legal</h4>
-                        <ul className="space-y-2">
-                            <li><a href="/privacy" className="text-gray-400 hover:text-[#b27e02] transition text-sm">Privacy Policy</a></li>
-                            <li><a href="/terms" className="text-gray-400 hover:text-[#b27e02] transition text-sm">Terms &amp; Conditions</a></li>
-                            <li><a href="/cookies" className="text-gray-400 hover:text-[#b27e02] transition text-sm">Cookie Policy</a></li>
-                        </ul>
-                    </div> */}
-                </div>
+                {/* Quick Links */}
+
+                {/* Legal */}
+                {/* </div> */}
 
                 {/* Divider */}
                 <div className="w-full h-px bg-[#b27e02]/30 mb-8" />
 
                 {/* Bottom Section */}
                 <div className="text-center">
-                    {/* <div className="flex flex-wrap justify-center gap-4 text-sm mb-3">
-                        <a href="/about" className="text-gray-300 hover:text-[#b27e02] transition">About Us</a>
-                        <span className="text-gray-600">•</span>
-                        <a href="/blog" className="text-gray-300 hover:text-[#b27e02] transition">Blog</a>
-                        <span className="text-gray-600">•</span>
-                        <a href="/privacy" className="text-gray-300 hover:text-[#b27e02] transition">Privacy Policy</a>
-                        <span className="text-gray-600">•</span>
-                        <a href="/terms" className="text-gray-300 hover:text-[#b27e02] transition">Terms &amp; Conditions</a>
-                        <span className="text-gray-600">•</span>
-                        <a href="/cookies" className="text-gray-300 hover:text-[#b27e02] transition">Cookie Policy</a>
-                        <span className="text-gray-600">•</span>
-                        <a href="/contact" className="text-gray-300 hover:text-[#b27e02] transition">Contact</a>
-                    </div> */}
+
                     <p className="text-gray-400 text-xs mt-4">
                         {copyrightText || `© ${new Date().getFullYear()} ${siteName || 'Saturn RealCon'}`}
                     </p>
                     {cinNumber && (
                         <p className="text-gray-500 text-xs mt-1">
-                            CIN: {cinNumber}
+                            {cinNumber}
                         </p>
                     )}
                 </div>

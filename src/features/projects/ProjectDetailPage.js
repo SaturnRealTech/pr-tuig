@@ -31,6 +31,58 @@ export default function ProjectDetailPage({ project, isHome = false }) {
     const [isLocationExpanded, setIsLocationExpanded] = useState(false);
     const [blogs, setBlogs] = useState([]);
     const [visibleBlogs, setVisibleBlogs] = useState(30);
+    const [activeSection, setActiveSection] = useState('');
+
+    const toBlockId = (title) =>
+        (title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    const detailedBlocks = (!project?.hideDetailedOverview && project?.detailedOverview?.length > 0)
+        ? project.detailedOverview
+            .filter(b => b.title || b.content || b.image)
+            .map((b, i) => ({ id: b.title ? toBlockId(b.title) : `block-${i}`, label: b.title || 'Section' }))
+        : [];
+
+    const sectionNav = [
+        ...detailedBlocks.map(b => ({ ...b, show: true })),
+        { id: 'faqs', label: 'FAQs', show: !project?.hideFAQs && project?.faqs?.length > 0 },
+        { id: 'blogs', label: 'Blogs', show: isHome && !project?.hideBlogs },
+    ].filter(item => item.show);
+
+    const scrollToSection = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const mainNav = document.querySelector('nav');
+        const navBar = document.getElementById('section-sticky-nav');
+        const offset = (mainNav ? mainNav.offsetHeight : 64) + (navBar ? navBar.offsetHeight : 49) + 16;
+        const top = el.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+        window.history.pushState(null, '', `#${id}`);
+        setActiveSection(id);
+    };
+
+    useEffect(() => {
+        const ids = [
+            'overview',
+            ...(project?.detailedOverview?.filter(b => b.title || b.content || b.image)
+                .map((b, i) => b.title ? toBlockId(b.title) : `block-${i}`) || []),
+            'faqs',
+            'blogs',
+        ];
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        setActiveSection(entry.target.id);
+                        window.history.replaceState(null, '', `#${entry.target.id}`);
+                    }
+                });
+            },
+            { rootMargin: '-15% 0px -75% 0px', threshold: 0 }
+        );
+        ids.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+        return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         fetch('/api/blog')
@@ -130,7 +182,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
             <section className="py-20 bg-white">
                 <div className="w-[90%] mx-auto">
                     {!project.hideContent && (project.contentTitle || project.contentImage || project.content) && (
-                        <>
+                        <div id="overview">
                             {project.contentTitle && (
                                 <div className="text-center mb-8">
                                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{project.contentTitle}</h2>
@@ -174,12 +226,12 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                     )}
                                 </>
                             )}
-                        </>
+                        </div>
                     )}
 
                     {/* Key Highlights */}
                     {!project.hideKeyHighlights && hasContent(project.keyHighlights) && (
-                        <div className="mt-16 mb-16">
+                        <div id="key-highlights" className="mt-16 mb-16">
                             <div className="text-center mb-8">
                                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                                     {project.keyHighlightsTitle || 'Key Highlights'}
@@ -208,7 +260,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
 
                     {/* Walkthrough Video */}
                     {!project.hideWalkthrough && project.walkthroughUrl && getYouTubeEmbedUrl(project.walkthroughUrl) && (
-                        <div className="mb-16">
+                        <div id="walkthrough" className="mb-16">
                             <div className="text-center mb-8">
                                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                                     {project.walkthroughTitle || 'Walkthrough Video'}
@@ -232,7 +284,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
 
                     {/* Configurations */}
                     {!project.hideConfigurations && hasContent(project.configurations) && (
-                        <div className="mb-16">
+                        <div id="configurations" className="mb-16">
                             <div className="text-center mb-8">
                                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                                     {project.configurationsTitle || 'Configurations'}
@@ -259,7 +311,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
 
                     {/* Amenities */}
                     {!project.hideAmenities && (project.amenities?.length > 0 || hasContent(project.amenitiesContent)) && (
-                        <div className="mb-16">
+                        <div id="amenities" className="mb-16">
                             <div className="text-center mb-10">
                                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                                     {project.amenitiesTitle || 'Amenities'}
@@ -335,7 +387,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                         };
 
                         return (
-                            <div className="mb-16">
+                            <div id="master-floor-plan" className="mb-16">
                                 <div className="text-center mb-10">
                                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                                         {mfp.title || 'Master Plan & Floor Plan'}
@@ -445,7 +497,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             }
                         };
                         return (
-                            <div className="mb-16">
+                            <div id="gallery" className="mb-16">
                                 <div className="text-center mb-8">
                                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                                         {gallery.title || 'Gallery'}
@@ -527,7 +579,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                         const validSpecs = ps.specs?.filter(s => s.title || hasContent(s.content)) || [];
                         if (!validSpecs.length && !ps.ctaLabel && !hasContent(ps.content)) return null;
                         return (
-                            <div className="mb-16">
+                            <div id="specifications" className="mb-16">
                                 <div className="text-center mb-8">
                                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                                         {ps.title || 'Project Specifications'}
@@ -588,7 +640,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             ? `https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(project.lng) - 0.008},${parseFloat(project.lat) - 0.008},${parseFloat(project.lng) + 0.008},${parseFloat(project.lat) + 0.008}&layer=mapnik`
                             : null;
                         return (
-                            <div className="mb-16">
+                            <div id="location" className="mb-16">
                                 <div className="text-center mb-8">
                                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                                         {loc.title || 'Location and Connectivity'}
@@ -689,8 +741,57 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             </div>
                         </div>
                     )}
+                    {/* Project Detailed Overview — section nav + blocks */}
+                    {isHome && !project.hideDetailedOverview && sectionNav.length > 0 && (
+                        <div
+                            id="section-sticky-nav"
+                            className="border-t border-b border-gray-200 mb-12"
+                        >
+                            <div className="flex overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                {sectionNav.map(item => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => scrollToSection(item.id)}
+                                        className={`flex-shrink-0 px-5 py-4 text-sm font-semibold border-b-2 transition-colors duration-200 whitespace-nowrap ${activeSection === item.id ? 'border-[#b27e02] text-[#b27e02]' : 'border-transparent text-gray-600 hover:text-[#b27e02] hover:border-[#b27e02]/40'}`}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {!project.hideDetailedOverview && project.detailedOverview?.map((block, i) => {
+                        if (!block.title && !hasContent(block.content) && !block.image) return null;
+                        const blockId = block.title ? toBlockId(block.title) : `block-${i}`;
+                        return (
+                            <div key={i} id={blockId} className="mb-16">
+                                {block.title && (
+                                    <div className="text-center mb-6">
+                                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{block.title}</h2>
+                                        <div className="mt-3 mx-auto w-16 h-1 rounded-full bg-[#b27e02]" />
+                                    </div>
+                                )}
+                                {block.image && (
+                                    <div className="mb-8 rounded-xl overflow-hidden shadow-md">
+                                        <img
+                                            src={block.image}
+                                            alt={block.imageAlt || block.title || ''}
+                                            className="w-full h-72 md:h-[480px] object-cover"
+                                        />
+                                    </div>
+                                )}
+                                {hasContent(block.content) && (
+                                    <div
+                                        className="rich-content text-gray-800 text-base md:text-lg leading-relaxed"
+                                        dangerouslySetInnerHTML={{ __html: block.content }}
+                                    />
+                                )}
+                            </div>
+                        );
+                    })}
+
                     {!project.hideFAQs && project.faqs && project.faqs.length > 0 && (
-                        <div className="mb-16">
+                        <div id="faqs" className="mb-16">
                             <h3 className="text-2xl md:text-3xl font-bold text-black mb-8">Frequently Asked Questions</h3>
                             <div className="space-y-4">
                                 {project.faqs.map((faq, index) => (
@@ -726,7 +827,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                     )}
                     {/* Latest Blogs — home page only */}
                     {isHome && !project.hideBlogs && blogs.length > 0 && (
-                        <div className="mb-16">
+                        <div id="blogs" className="mb-16">
                             <div className="text-center mb-8">
                                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Latest Blog</h2>
                                 <div className="mt-3 mx-auto w-16 h-1 rounded-full bg-[#b27e02]" />
