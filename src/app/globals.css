@@ -1,0 +1,505 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans:
+    "Optima", "Candara", "Gill Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+*,
+*::before,
+*::after {
+  font-family:
+    "Optima", "Candara", "Gill Sans", "Segoe UI", Helvetica, Arial, sans-serif !important;
+  font-weight: inherit;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-weight: 400;
+}
+
+/* Restore bold only where explicitly intended */
+strong,
+b {
+  font-weight: 600 !important;
+}
+
+/* Rich text: normal weight for all tags, semi-bold only on strong/b */
+.rich-content,
+.rich-content p,
+.rich-content li,
+.rich-content td,
+.rich-content th {
+  font-weight: 400;
+}
+
+.rich-content strong,
+.rich-content b {
+  font-weight: 600 !important;
+}
+
+/* Rich text content styles (TipTap / dangerouslySetInnerHTML) */
+.rich-content p {
+  text-align: justify;
+  line-height: 1.8;
+  margin-bottom: 0.5rem;
+}
+.rich-content h1,
+.rich-content h2,
+.rich-content h3,
+.rich-content h4 {
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+.rich-content strong,
+.rich-content b {
+  font-weight: 700;
+}
+.rich-content em,
+.rich-content i {
+  font-style: italic;
+}
+.rich-content ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+.rich-content ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+.rich-content li {
+  margin-bottom: 0.4rem;
+  line-height: 1.7;
+}
+.rich-content a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.rich-content blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 1rem;
+  color: #555;
+  font-style: italic;
+  margin: 1rem 0;
+}
+.rich-content table {
+  border-collapse: collapse !important;
+  width: 100%;
+  margin: 0.5rem 0;
+  table-layout: auto;
+}
+.rich-content th,
+.rich-content td {
+  border: 1px solid #d1d5db !important;
+  padding: 0.5rem 0.5rem !important;
+  vertical-align: top;
+  text-align: left;
+}
+.rich-content th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+/* ── Dynamic brand-colour overrides ─────────────────────────────────────
+   Tailwind compiles arbitrary-value classes to hardcoded hex at build time.
+   These rules target those exact class names and replace the value with a
+   CSS custom property so the admin colour picker applies site-wide.
+   Placed after @import "tailwindcss" → wins in cascade without rebuild.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ── PRIMARY (#b27e02) ── */
+.bg-\[\#b27e02\] {
+  background-color: var(--primary) !important;
+}
+.bg-\[\#b27e02\]\/5 {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 5%,
+    transparent
+  ) !important;
+}
+.bg-\[\#b27e02\]\/8 {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 8%,
+    transparent
+  ) !important;
+}
+.bg-\[\#b27e02\]\/10 {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 10%,
+    transparent
+  ) !important;
+}
+.bg-\[\#b27e02\]\/20 {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 20%,
+    transparent
+  ) !important;
+}
+.bg-\[\#b27e02\]\/30 {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 30%,
+    transparent
+  ) !important;
+}
+.bg-\[\#b27e02\]\/90 {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 90%,
+    transparent
+  ) !important;
+}
+
+.text-\[\#b27e02\] {
+  color: var(--primary) !important;
+}
+.text-\[\#b27e02\]\/40 {
+  color: color-mix(in srgb, var(--primary) 40%, transparent) !important;
+}
+
+.border-\[\#b27e02\] {
+  border-color: var(--primary) !important;
+}
+.border-\[\#b27e02\]\/20 {
+  border-color: color-mix(in srgb, var(--primary) 20%, transparent) !important;
+}
+.border-\[\#b27e02\]\/30 {
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent) !important;
+}
+.border-\[\#b27e02\]\/50 {
+  border-color: color-mix(in srgb, var(--primary) 50%, transparent) !important;
+}
+
+.from-\[\#b27e02\] {
+  --tw-gradient-from: var(--primary) !important ;
+}
+.from-\[\#b27e02\]\/10 {
+  --tw-gradient-from: color-mix(
+    in srgb,
+    var(--primary) 10%,
+    transparent
+  ) !important ;
+}
+.to-\[\#b27e02\] {
+  --tw-gradient-to: var(--primary) !important ;
+}
+.to-\[\#b27e02\]\/5 {
+  --tw-gradient-to: color-mix(
+    in srgb,
+    var(--primary) 5%,
+    transparent
+  ) !important ;
+}
+.via-\[\#b27e02\] {
+  --tw-gradient-via: var(--primary) !important ;
+}
+.via-\[\#b27e02\]\/40 {
+  --tw-gradient-via: color-mix(
+    in srgb,
+    var(--primary) 40%,
+    transparent
+  ) !important ;
+}
+
+.shadow-\[\#b27e02\]\/30 {
+  --tw-shadow-color: color-mix(
+    in srgb,
+    var(--primary) 30%,
+    transparent
+  ) !important ;
+}
+.accent-\[\#b27e02\] {
+  accent-color: var(--primary) !important;
+}
+
+/* hover */
+.hover\:text-white:hover {
+  color: #ffffff !important;
+}
+.hover\:bg-transparent:hover {
+  background-color: transparent !important;
+}
+.hover\:bg-\[\#b27e02\]:hover {
+  background-color: var(--primary) !important;
+}
+.hover\:bg-\[\#b27e02\]\/8:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 8%,
+    transparent
+  ) !important;
+}
+.hover\:text-\[\#b27e02\]:hover {
+  color: var(--primary) !important;
+}
+.hover\:border-\[\#b27e02\]:hover {
+  border-color: var(--primary) !important;
+}
+.hover\:shadow-\[\#b27e02\]\/15:hover {
+  --tw-shadow-color: color-mix(
+    in srgb,
+    var(--primary) 15%,
+    transparent
+  ) !important ;
+}
+.hover\:shadow-\[\#b27e02\]\/50:hover {
+  --tw-shadow-color: color-mix(
+    in srgb,
+    var(--primary) 50%,
+    transparent
+  ) !important ;
+}
+
+/* focus */
+.focus\:border-\[\#b27e02\]:focus {
+  border-color: var(--primary) !important;
+}
+.focus\:ring-\[\#b27e02\]\/20:focus {
+  --tw-ring-color: color-mix(
+    in srgb,
+    var(--primary) 20%,
+    transparent
+  ) !important ;
+}
+
+/* group-hover */
+.group:hover .group-hover\:bg-\[\#b27e02\] {
+  background-color: var(--primary) !important;
+}
+.group:hover .group-hover\:border-\[\#b27e02\] {
+  border-color: var(--primary) !important;
+}
+.group:hover .group-hover\:text-\[\#b27e02\] {
+  color: var(--primary) !important;
+}
+
+/* ── PRIMARY DARK (#8a6002 / #6b4a01) ── */
+.bg-\[\#8a6002\] {
+  background-color: var(--primary-dark) !important;
+}
+.bg-\[\#6b4a01\] {
+  background-color: var(--primary-dark) !important;
+}
+.text-\[\#8a6002\] {
+  color: var(--primary-dark) !important;
+}
+.text-\[\#6b4a01\] {
+  color: var(--primary-dark) !important;
+}
+.border-\[\#8a6002\] {
+  border-color: var(--primary-dark) !important;
+}
+.from-\[\#8a6002\] {
+  --tw-gradient-from: var(--primary-dark) !important ;
+}
+.from-\[\#6b4a01\] {
+  --tw-gradient-from: var(--primary-dark) !important ;
+}
+.to-\[\#8a6002\] {
+  --tw-gradient-to: var(--primary-dark) !important ;
+}
+.to-\[\#6b4a01\] {
+  --tw-gradient-to: var(--primary-dark) !important ;
+}
+
+.hover\:bg-\[\#8a6002\]:hover {
+  background-color: var(--primary-dark) !important;
+}
+.hover\:text-\[\#8a6002\]:hover {
+  color: var(--primary-dark) !important;
+}
+.hover\:text-\[\#6b4a01\]:hover {
+  color: var(--primary-dark) !important;
+}
+.hover\:border-\[\#8a6002\]:hover {
+  border-color: var(--primary-dark) !important;
+}
+.group:hover .group-hover\:bg-\[\#8a6002\] {
+  background-color: var(--primary-dark) !important;
+}
+
+/* ── PRIMARY LIGHT (#d4a030 / #c49a20 / #c99010) ── */
+.bg-\[\#d4a030\] {
+  background-color: var(--primary-light) !important;
+}
+.text-\[\#c49a20\] {
+  color: var(--primary-light) !important;
+}
+.from-\[\#d4a030\] {
+  --tw-gradient-from: var(--primary-light) !important ;
+}
+.from-\[\#c99010\] {
+  --tw-gradient-from: var(--primary-light) !important ;
+}
+.to-\[\#c99010\] {
+  --tw-gradient-to: var(--primary-light) !important ;
+}
+.via-\[\#c99010\] {
+  --tw-gradient-via: var(--primary-light) !important ;
+}
+.disabled\:bg-\[\#d4a030\]:disabled {
+  background-color: var(--primary-light) !important;
+}
+.focus\:ring-\[\#c99010\]:focus {
+  --tw-ring-color: var(--primary-light) !important ;
+}
+.group:hover .group-hover\:text-\[\#d4a030\] {
+  color: var(--primary-light) !important;
+}
+.bg-\[\#c99010\]\/10 {
+  background-color: color-mix(
+    in srgb,
+    var(--primary-light) 10%,
+    transparent
+  ) !important;
+}
+
+/* ── LIGHT TINTS (derived from primary) ── */
+.bg-\[\#faf0d0\] {
+  background-color: color-mix(in srgb, var(--primary) 18%, white) !important;
+}
+.bg-\[\#faf0d0\]\/20 {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 4%,
+    transparent
+  ) !important;
+}
+.bg-\[\#fef9e7\] {
+  background-color: color-mix(in srgb, var(--primary) 8%, white) !important;
+}
+.bg-\[\#fef9e7\]\/20 {
+  background-color: color-mix(
+    in srgb,
+    var(--primary) 2%,
+    transparent
+  ) !important;
+}
+
+.text-\[\#f0d090\] {
+  color: color-mix(in srgb, var(--primary) 55%, white) !important;
+}
+.text-\[\#faf0d0\] {
+  color: color-mix(in srgb, var(--primary) 18%, white) !important;
+}
+.text-\[\#fef9e7\] {
+  color: color-mix(in srgb, var(--primary) 8%, white) !important;
+}
+
+.border-\[\#f0d090\] {
+  border-color: color-mix(in srgb, var(--primary) 55%, white) !important;
+}
+
+.from-\[\#f0d090\] {
+  --tw-gradient-from: color-mix(in srgb, var(--primary) 55%, white) !important ;
+}
+.from-\[\#faf0d0\]\/50 {
+  --tw-gradient-from: color-mix(
+    in srgb,
+    var(--primary) 9%,
+    transparent
+  ) !important ;
+}
+.from-\[\#fef9e7\] {
+  --tw-gradient-from: color-mix(in srgb, var(--primary) 8%, white) !important ;
+}
+.to-\[\#f0d090\] {
+  --tw-gradient-to: color-mix(in srgb, var(--primary) 55%, white) !important ;
+}
+.to-\[\#faf0d0\] {
+  --tw-gradient-to: color-mix(in srgb, var(--primary) 18%, white) !important ;
+}
+.to-\[\#faf0d0\]\/30 {
+  --tw-gradient-to: color-mix(
+    in srgb,
+    var(--primary) 5%,
+    transparent
+  ) !important ;
+}
+.to-\[\#fef9e7\]\/50 {
+  --tw-gradient-to: color-mix(
+    in srgb,
+    var(--primary) 4%,
+    transparent
+  ) !important ;
+}
+.to-\[\#fae8a0\] {
+  --tw-gradient-to: color-mix(in srgb, var(--primary) 35%, white) !important ;
+}
+
+.shadow-\[\#faf0d0\]\/50 {
+  --tw-shadow-color: color-mix(
+    in srgb,
+    var(--primary) 9%,
+    transparent
+  ) !important ;
+}
+.focus\:ring-\[\#faf0d0\]:focus {
+  --tw-ring-color: color-mix(in srgb, var(--primary) 18%, white) !important ;
+}
+.focus\:ring-\[\#e8b060\]:focus {
+  --tw-ring-color: color-mix(in srgb, var(--primary) 50%, white) !important ;
+}
+
+.hover\:bg-\[\#faf0d0\]:hover {
+  background-color: color-mix(in srgb, var(--primary) 18%, white) !important;
+}
+.hover\:bg-\[\#fef9e7\]:hover {
+  background-color: color-mix(in srgb, var(--primary) 8%, white) !important;
+}
+.hover\:from-\[\#faf0d0\]:hover {
+  --tw-gradient-from: color-mix(in srgb, var(--primary) 18%, white) !important ;
+}
+.hover\:to-\[\#faf0d0\]\/50:hover {
+  --tw-gradient-to: color-mix(
+    in srgb,
+    var(--primary) 9%,
+    transparent
+  ) !important ;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+/* Footer category scrollbar — hairline, always visible, primary color */
+.footer-cat-scroll {
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) #2a2a2a;
+}
+.footer-cat-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.footer-cat-scroll::-webkit-scrollbar-track {
+  border-left: 7px solid transparent;
+  background-clip: content-box;
+  background-color: #2a2a2a;
+}
+.footer-cat-scroll::-webkit-scrollbar-thumb {
+  border-left: 7px solid transparent;
+  background-clip: content-box;
+  background-color: var(--primary);
+  min-height: 24px;
+}

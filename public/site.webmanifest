@@ -1,0 +1,21 @@
+{
+  "name": "SaturnRealcon",
+  "short_name": "SaturnRealcon",
+  "description": "Launch Your SaaS in 45 Days",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/qwikly.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/qwikly.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
