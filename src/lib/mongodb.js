@@ -7,13 +7,19 @@ if (!process.env.MONGODB_URI) {
 const uri = process.env.MONGODB_URI;
 const options = {
     tls: true,
-    tlsAllowInvalidCertificates: true, // Allow invalid certificates for development
-    tlsAllowInvalidHostnames: true,
-    serverSelectionTimeoutMS: 10000,
-    socketTimeoutMS: 45000,
-    connectTimeoutMS: 10000,
-    maxPoolSize: 10,
-    minPoolSize: 2,
+    // tlsAllowInvalidCertificates: true, 
+    // tlsAllowInvalidHostnames: true,
+    serverSelectionTimeoutMS: 60000,
+
+    socketTimeoutMS: 60000,
+
+    connectTimeoutMS: 60000,
+
+    maxPoolSize: 20,
+
+    minPoolSize: 5,
+
+    family: 4,
 };
 
 let client;
