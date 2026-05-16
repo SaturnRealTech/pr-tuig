@@ -14,7 +14,7 @@ export default function AdminLogin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [siteName, setSiteName] = useState('QwiklyLaunch');
+    const [siteName, setSiteName] = useState('');
 
     useEffect(() => {
         const fetchSettings = async () => {
