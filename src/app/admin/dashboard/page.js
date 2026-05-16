@@ -25,6 +25,7 @@ export default function AdminDashboard() {
         primaryColor: '#b27e02',
         primaryDark: '#8a6002',
         primaryLight: '#d4a030',
+        headerScrollBg: '#ffffff',
     });
     const [colorSaving, setColorSaving] = useState(false);
     const [colorSaved, setColorSaved] = useState(false);
@@ -63,6 +64,7 @@ export default function AdminDashboard() {
                     primaryColor: result.data.primaryColor,
                     primaryDark: result.data.primaryDark,
                     primaryLight: result.data.primaryLight,
+                    headerScrollBg: result.data.headerScrollBg || '#ffffff',
                 });
                 setSiteSettings({
                     siteName: result.data.siteName || '',
@@ -264,11 +266,12 @@ export default function AdminDashboard() {
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[
                                 { key: 'primaryColor', label: 'Primary', hint: 'Main brand color — buttons, links, accents' },
                                 { key: 'primaryDark', label: 'Primary Dark', hint: 'Hover states and gradients' },
                                 { key: 'primaryLight', label: 'Primary Light', hint: 'Backgrounds and highlights' },
+                                { key: 'headerScrollBg', label: 'Header Scroll BG', hint: 'Navbar background color when page is scrolled' },
                             ].map(({ key, label, hint }) => (
                                 <div key={key} className="space-y-2">
                                     <label className="block text-sm font-semibold text-gray-700">{label}</label>

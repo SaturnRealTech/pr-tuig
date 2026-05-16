@@ -7,7 +7,7 @@ export default function NavbarClient() {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [projects, setProjects] = useState([]);
-    const { siteName, siteLogo, contactPhone } = useSettings();
+    const { siteName, siteLogo, contactPhone, headerScrollBg } = useSettings();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -41,11 +41,14 @@ export default function NavbarClient() {
 
     return (
         <>
-            <nav className={`fixed w-full top-0 left-0 z-50 transition-all duration-500 ${
-                scrolled
-                    ? 'bg-white/95 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.12)] border-b border-gray-100'
-                    : 'bg-gradient-to-b from-black/50 to-transparent'
-            }`}>
+            <nav
+                className={`fixed w-full top-0 left-0 z-50 transition-all duration-500 ${
+                    scrolled
+                        ? 'backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.12)] border-b border-gray-100'
+                        : 'bg-gradient-to-b from-black/50 to-transparent'
+                }`}
+                style={scrolled ? { backgroundColor: headerScrollBg || '#ffffff' } : undefined}
+            >
                 <div className="w-[90%] mx-auto py-3">
                     <div className="flex items-center gap-6">
 

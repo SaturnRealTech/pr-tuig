@@ -12,6 +12,7 @@ export const SettingsContext = createContext({
     footerTagline: '',
     footerDescription: '',
     footerTrustText: '',
+    headerScrollBg: '#ffffff',
 });
 
 export function useSettings() {

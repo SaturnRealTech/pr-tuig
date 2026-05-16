@@ -16,6 +16,7 @@ export async function GET() {
                 primaryColor: doc?.primaryColor || '#b27e02',
                 primaryDark: doc?.primaryDark || '#8a6002',
                 primaryLight: doc?.primaryLight || '#d4a030',
+                headerScrollBg: doc?.headerScrollBg || '#ffffff',
                 siteName: doc?.siteName || '',
                 siteLogo: doc?.siteLogo || '',
                 contactPhone: doc?.contactPhone || '',
@@ -45,7 +46,7 @@ export async function PUT(request) {
     try {
         const body = await request.json();
         const {
-            primaryColor, primaryDark, primaryLight,
+            primaryColor, primaryDark, primaryLight, headerScrollBg,
             siteName, siteLogo, contactPhone, whatsappNumber,
             cinNumber, copyrightText, footerTagline, footerDescription, footerTrustText,
             smtpHost, smtpPort, smtpSecure, smtpUser, smtpPass,
@@ -58,6 +59,7 @@ export async function PUT(request) {
                 $set: {
                     type: 'brand',
                     primaryColor, primaryDark, primaryLight,
+                    headerScrollBg: headerScrollBg || '#ffffff',
                     siteName: siteName || '',
                     siteLogo: siteLogo || '',
                     contactPhone: contactPhone || '',

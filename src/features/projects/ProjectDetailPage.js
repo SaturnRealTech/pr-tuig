@@ -117,7 +117,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
 
             {/* Hero Banner */}
             {hasBanner ? (
-                <div className="relative w-full h-screen overflow-hidden bg-black">
+                <div className="relative w-full h-[85vh] overflow-hidden bg-black">
                     {/* Mobile: show mobileBanner, fallback to desktopBanner */}
                     {mobileBanner ? (
                         <img

@@ -94,6 +94,7 @@ async function getSettings() {
       primary: doc?.primaryColor || '#b27e02',
       primaryDark: doc?.primaryDark || '#8a6002',
       primaryLight: doc?.primaryLight || '#d4a030',
+      headerScrollBg: doc?.headerScrollBg || '#ffffff',
       siteName: doc?.siteName || '',
       siteLogo: doc?.siteLogo || '',
       contactPhone: doc?.contactPhone || '',
@@ -105,7 +106,7 @@ async function getSettings() {
       footerTrustText: doc?.footerTrustText || '',
     };
   } catch {
-    return { primary: '#b27e02', primaryDark: '#8a6002', primaryLight: '#d4a030', siteName: '', siteLogo: '', contactPhone: '', whatsappNumber: '', cinNumber: '', copyrightText: '', footerTagline: '', footerDescription: '', footerTrustText: '' };
+    return { primary: '#b27e02', primaryDark: '#8a6002', primaryLight: '#d4a030', headerScrollBg: '#ffffff', siteName: '', siteLogo: '', contactPhone: '', whatsappNumber: '', cinNumber: '', copyrightText: '', footerTagline: '', footerDescription: '', footerTrustText: '' };
   }
 }
 
@@ -147,7 +148,7 @@ export default async function RootLayout({ children }) {
 
       </head>
       <body className="antialiased">
-        <SettingsProvider settings={{ siteName: settings.siteName, siteLogo: settings.siteLogo, contactPhone: settings.contactPhone, whatsappNumber: settings.whatsappNumber, cinNumber: settings.cinNumber, copyrightText: settings.copyrightText, footerTagline: settings.footerTagline, footerDescription: settings.footerDescription, footerTrustText: settings.footerTrustText }}>
+        <SettingsProvider settings={{ siteName: settings.siteName, siteLogo: settings.siteLogo, contactPhone: settings.contactPhone, whatsappNumber: settings.whatsappNumber, cinNumber: settings.cinNumber, copyrightText: settings.copyrightText, footerTagline: settings.footerTagline, footerDescription: settings.footerDescription, footerTrustText: settings.footerTrustText, headerScrollBg: settings.headerScrollBg }}>
           <EnquireNowProvider>
             {children}
           </EnquireNowProvider>
