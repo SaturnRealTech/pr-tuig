@@ -7,18 +7,30 @@ if (!process.env.MONGODB_URI) {
 const uri = process.env.MONGODB_URI;
 
 const options = {
-    serverSelectionTimeoutMS: 10000,
-    socketTimeoutMS: 30000,
-    connectTimeoutMS: 10000,
+    serverSelectionTimeoutMS: 60000,
+    socketTimeoutMS: 60000,
+    connectTimeoutMS: 60000,
+
+    maxPoolSize: 20,
+    minPoolSize: 5,
+
+    family: 4,
 };
 
 let clientPromise;
 
 if (!global._mongoClientPromise) {
     const client = new MongoClient(uri, options);
+
     global._mongoClientPromise = client.connect()
-        .then((c) => { console.log('✅ MongoDB Connected'); return c; })
-        .catch((err) => { console.error('❌ MongoDB Connection Error:', err.message); throw err; });
+        .then((c) => {
+            console.log('✅ MongoDB Connected');
+            return c;
+        })
+        .catch((err) => {
+            console.error('❌ MongoDB Connection Error:', err);
+            throw err;
+        });
 }
 
 clientPromise = global._mongoClientPromise;
