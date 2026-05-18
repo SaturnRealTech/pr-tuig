@@ -58,7 +58,7 @@ export default function NavbarClient() {
                                 <img
                                     src={siteLogo}
                                     alt={siteName || 'Logo'}
-                                    className="h-9 w-auto object-contain"
+                                    className="h-8 md:h-10 w-auto max-w-[140px] md:max-w-[200px] object-contain"
                                 />
                             ) : (
                                 <>

@@ -82,17 +82,15 @@ export default async function Page() {
   let project = null;
   let siteName = '';
   let siteLogo = '';
-  let projectCount = 0;
 
   try {
     const client = await clientPromise;
     const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
 
-    const [doc, settings, count] = await Promise.all([
+    const [doc, settings] = await Promise.all([
       db.collection('projects').findOne({ publishStatus: 'published', isHomePage: true })
         .then(d => d || db.collection('projects').findOne({ publishStatus: 'published' }, { sort: { createdAt: 1 } })),
       db.collection('settings').findOne({ type: 'brand' }),
-      db.collection('projects').countDocuments({ publishStatus: 'published' }),
     ]);
 
     if (doc) {
@@ -104,7 +102,6 @@ export default async function Page() {
     }
     siteName = settings?.siteName || '';
     siteLogo = settings?.siteLogo || '';
-    projectCount = count || 0;
   } catch (error) {
     console.error('[home] Failed to fetch project:', error.message);
   }
@@ -151,27 +148,11 @@ export default async function Page() {
     ],
   };
 
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: `${siteUrl}/` },
-      { '@type': 'ListItem', position: 2, name: `Properties (${projectCount})`, item: `${siteUrl}/projects` },
-      { '@type': 'ListItem', position: 3, name: 'Builders', item: `${siteUrl}/builders` },
-      { '@type': 'ListItem', position: 4, name: 'Blog', item: `${siteUrl}/blog` },
-      { '@type': 'ListItem', position: 5, name: 'Contact', item: `${siteUrl}/contact` },
-    ],
-  };
-
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <ProjectDetailPage project={project} isHome={true} />
     </>
