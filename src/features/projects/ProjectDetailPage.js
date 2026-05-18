@@ -127,7 +127,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
             {/* Hero Banner */}
             {hasBanner ? (
                 <div className="relative w-full h-[85vh] overflow-hidden bg-black">
-                    {/* Mobile: show mobileBanner, fallback to desktopBanner */}
+                    {/* Mobile: LCP image — priority + high quality */}
                     {mobileBanner ? (
                         <Image
                             src={mobileBanner}
@@ -135,6 +135,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             fill
                             priority
                             fetchpriority="high"
+                            quality={65}
                             sizes="100vw"
                             className="block md:hidden object-cover"
                         />
@@ -144,17 +145,20 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             alt={project.title}
                             fill
                             priority
+                            fetchpriority="high"
+                            quality={65}
                             sizes="100vw"
                             className="block md:hidden object-cover"
                         />
                     )}
-                    {/* Desktop: show desktopBanner, fallback to mobileBanner */}
+                    {/* Desktop: lazy — not visible on mobile, no need to block LCP */}
                     {desktopBanner ? (
                         <Image
                             src={desktopBanner}
                             alt={project.title}
                             fill
-                            priority
+                            loading="lazy"
+                            quality={75}
                             sizes="(min-width: 768px) 100vw, 0vw"
                             className="hidden md:block object-cover"
                         />
@@ -163,7 +167,8 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             src={mobileBanner}
                             alt={project.title}
                             fill
-                            priority
+                            loading="lazy"
+                            quality={75}
                             sizes="(min-width: 768px) 100vw, 0vw"
                             className="hidden md:block object-cover"
                         />
