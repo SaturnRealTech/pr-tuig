@@ -114,8 +114,8 @@ export default async function Page() {
     // Always inject live fields from dashboard so schema is never empty
     const hasContent = base['@type'] || base.name || brandSettings?.siteName || project?.title;
     if (hasContent) {
-      if (!base['@context']) base['@context'] = 'https://schema.org';
-      if (!base['@type']) base['@type'] = 'RealEstateAgent';
+      base['@context'] = 'https://schema.org';
+      base['@type'] = 'RealEstateAgent';
       if (!base.name) base.name = brandSettings?.siteName || project?.title || '';
       if (!base.url) base.url = siteUrl + '/';
       if (brandSettings?.contactPhone) base.telephone = brandSettings.contactPhone;
