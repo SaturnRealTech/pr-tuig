@@ -21,6 +21,7 @@ export default function HomePageManagement() {
     const [saving, setSaving] = useState(false);
 
     const [schemaError, setSchemaError] = useState('');
+    const [orgSchemaError, setOrgSchemaError] = useState('');
 
     const [formData, setFormData] = useState({
         heroTitle: '',
@@ -42,6 +43,7 @@ export default function HomePageManagement() {
         keywords: '',
         featuredProjects: [],
         localBusinessSchema: '',
+        organizationSchema: '',
     });
 
     const [projects, setProjects] = useState([]);
@@ -121,6 +123,12 @@ export default function HomePageManagement() {
         setFormData(prev => ({ ...prev, localBusinessSchema: val }));
         if (!val.trim()) { setSchemaError(''); return; }
         try { JSON.parse(val); setSchemaError(''); } catch { setSchemaError('Invalid JSON — please fix before saving.'); }
+    };
+
+    const handleOrgSchemaChange = (val) => {
+        setFormData(prev => ({ ...prev, organizationSchema: val }));
+        if (!val.trim()) { setOrgSchemaError(''); return; }
+        try { JSON.parse(val); setOrgSchemaError(''); } catch { setOrgSchemaError('Invalid JSON — please fix before saving.'); }
     };
 
     const handleSubmit = async (e) => {
@@ -351,6 +359,22 @@ export default function HomePageManagement() {
                                 </div>
                             </div>
 
+                            {/* Organization Schema */}
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h3 className="text-lg font-bold text-gray-800 mb-1">Organization Schema (JSON-LD)</h3>
+                                <p className="text-sm text-gray-400 mb-4">Configure your Organization schema. Name, URL, logo and telephone are auto-filled from brand settings — add extra fields like <code>sameAs</code>, <code>email</code>, <code>description</code> here.</p>
+                                <textarea
+                                    value={formData.organizationSchema}
+                                    onChange={e => handleOrgSchemaChange(e.target.value)}
+                                    rows={10}
+                                    spellCheck={false}
+                                    className={`w-full px-4 py-3 border rounded-lg font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[#faf0d0] text-gray-900 resize-y ${orgSchemaError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-[#b27e02]'}`}
+                                    placeholder={`{\n  "description": "Leading real estate consultancy in India",\n  "email": "info@example.com",\n  "sameAs": [\n    "https://facebook.com/yourpage",\n    "https://instagram.com/yourpage",\n    "https://linkedin.com/company/yourpage"\n  ]\n}`}
+                                />
+                                {orgSchemaError && <p className="mt-2 text-xs text-red-500 font-medium">{orgSchemaError}</p>}
+                                {formData.organizationSchema && !orgSchemaError && <p className="mt-2 text-xs text-green-600 font-medium">JSON is valid</p>}
+                            </div>
+
                             {/* Local Business / Product Schema */}
                             <div className="bg-white rounded-xl shadow-lg p-6">
                                 <h3 className="text-lg font-bold text-gray-800 mb-1">Local Business Schema (JSON-LD)</h3>
@@ -373,7 +397,7 @@ export default function HomePageManagement() {
 
                             {/* Actions */}
                             <div className="flex gap-3">
-                                <button type="submit" disabled={saving || !!schemaError}
+                                <button type="submit" disabled={saving || !!schemaError || !!orgSchemaError}
                                     className="flex-1 px-6 py-3 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
                                     <MdSave size={18} />
                                     {saving ? 'Saving...' : 'Save Changes'}

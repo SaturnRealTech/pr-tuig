@@ -254,6 +254,15 @@ export default function EditProject() {
         schemaPossession: '',
         schemaRatingValue: '',
         schemaRatingCount: '',
+        orgSchemaName: '',
+        orgSchemaDescription: '',
+        orgSchemaEmail: '',
+        orgSchemaSameAs: '',
+        orgSchemaStreetAddress: '',
+        orgSchemaAddressLocality: '',
+        orgSchemaAddressRegion: '',
+        orgSchemaPostalCode: '',
+        orgSchemaAddressCountry: 'IN',
         desktopBanner: '',
         mobileBanner: '',
         publishStatus: 'draft',
@@ -336,6 +345,15 @@ export default function EditProject() {
                 schemaPossession: p.schemaPossession || p.possession || '',
                 schemaRatingValue: p.schemaRatingValue || '',
                 schemaRatingCount: p.schemaRatingCount || '',
+                orgSchemaName: p.orgSchemaName || '',
+                orgSchemaDescription: p.orgSchemaDescription || '',
+                orgSchemaEmail: p.orgSchemaEmail || '',
+                orgSchemaSameAs: Array.isArray(p.orgSchemaSameAs) ? p.orgSchemaSameAs.join('\n') : (p.orgSchemaSameAs || ''),
+                orgSchemaStreetAddress: p.orgSchemaStreetAddress || '',
+                orgSchemaAddressLocality: p.orgSchemaAddressLocality || '',
+                orgSchemaAddressRegion: p.orgSchemaAddressRegion || '',
+                orgSchemaPostalCode: p.orgSchemaPostalCode || '',
+                orgSchemaAddressCountry: p.orgSchemaAddressCountry || 'IN',
                 desktopBanner: p.desktopBanner || '',
                 mobileBanner: p.mobileBanner || '',
                 publishStatus: p.publishStatus || 'draft',
@@ -382,6 +400,7 @@ export default function EditProject() {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+
 
     const handleTitleChange = (e) => {
         const val = e.target.value;
@@ -775,6 +794,73 @@ export default function EditProject() {
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
                                                     placeholder="e.g. 128" />
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Organization Schema */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-1">Organization Schema</h3>
+                                    <p className="text-xs text-gray-400 mb-4">Name, URL, logo and telephone are auto-filled from brand settings — fill below to override or extend.</p>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Organization Name</label>
+                                            <input type="text" name="orgSchemaName" value={formData.orgSchemaName} onChange={handleChange}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                placeholder="Auto from brand settings" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                                            <textarea name="orgSchemaDescription" value={formData.orgSchemaDescription} onChange={handleChange} rows={3}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                placeholder="e.g. Leading real estate consultancy in India" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
+                                            <input type="email" name="orgSchemaEmail" value={formData.orgSchemaEmail} onChange={handleChange}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                placeholder="e.g. info@yourcompany.com" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Street Address</label>
+                                            <input type="text" name="orgSchemaStreetAddress" value={formData.orgSchemaStreetAddress} onChange={handleChange}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                placeholder="e.g. 12 MG Road, Sector 5" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">City (addressLocality)</label>
+                                                <input type="text" name="orgSchemaAddressLocality" value={formData.orgSchemaAddressLocality} onChange={handleChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    placeholder="e.g. Pune" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">State (addressRegion)</label>
+                                                <input type="text" name="orgSchemaAddressRegion" value={formData.orgSchemaAddressRegion} onChange={handleChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    placeholder="e.g. Maharashtra" />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Postal Code</label>
+                                                <input type="text" name="orgSchemaPostalCode" value={formData.orgSchemaPostalCode} onChange={handleChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    placeholder="e.g. 411001" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Country (addressCountry)</label>
+                                                <input type="text" name="orgSchemaAddressCountry" value={formData.orgSchemaAddressCountry} onChange={handleChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    placeholder="e.g. IN" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Social Media Links (sameAs)</label>
+                                            <p className="text-xs text-gray-400 mb-1">One URL per line</p>
+                                            <textarea name="orgSchemaSameAs" value={formData.orgSchemaSameAs} onChange={handleChange} rows={4}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                placeholder={"https://facebook.com/yourpage\nhttps://instagram.com/yourpage\nhttps://linkedin.com/company/yourpage"} />
                                         </div>
                                     </div>
                                 </div>

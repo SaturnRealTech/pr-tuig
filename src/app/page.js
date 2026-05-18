@@ -81,6 +81,7 @@ export async function generateMetadata() {
 export default async function Page() {
   let project = null;
   let localBusinessSchema = null;
+  let organizationSchema = null;
 
   try {
     const client = await clientPromise;
@@ -98,6 +99,46 @@ export default async function Page() {
         ...doc,
         _id: doc._id?.toString?.() || doc._id,
         slug: doc.slug || doc._id?.toString?.(),
+      };
+    }
+
+    // Build Organization schema from project structured fields + brand settings
+    // Falls back to homepage-admin JSON textarea for any fields not set on the project
+    let orgBase = {};
+    if (homepageSettings?.organizationSchema) {
+      try { orgBase = JSON.parse(homepageSettings.organizationSchema); } catch (e) {
+        console.error('[home] Invalid organizationSchema JSON:', e.message);
+      }
+    }
+    const orgName = project?.orgSchemaName || orgBase.name || brandSettings?.siteName || '';
+    const sameAsRaw = project?.orgSchemaSameAs || orgBase.sameAs || '';
+    const sameAs = Array.isArray(sameAsRaw)
+      ? sameAsRaw
+      : sameAsRaw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+    const hasAddress = project?.orgSchemaStreetAddress || project?.orgSchemaAddressLocality ||
+      project?.orgSchemaAddressRegion || project?.orgSchemaPostalCode || project?.orgSchemaAddressCountry;
+    if (orgName) {
+      organizationSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        '@id': `${siteUrl}/#organization`,
+        name: orgName,
+        url: siteUrl + '/',
+        ...(brandSettings?.siteLogo ? { logo: { '@type': 'ImageObject', url: brandSettings.siteLogo } } : {}),
+        ...(brandSettings?.contactPhone ? { telephone: brandSettings.contactPhone } : {}),
+        ...(project?.orgSchemaEmail || orgBase.email ? { email: project?.orgSchemaEmail || orgBase.email } : {}),
+        ...(project?.orgSchemaDescription || orgBase.description ? { description: project?.orgSchemaDescription || orgBase.description } : {}),
+        ...(hasAddress ? {
+          address: {
+            '@type': 'PostalAddress',
+            ...(project?.orgSchemaStreetAddress ? { streetAddress: project.orgSchemaStreetAddress } : {}),
+            ...(project?.orgSchemaAddressLocality ? { addressLocality: project.orgSchemaAddressLocality } : {}),
+            ...(project?.orgSchemaAddressRegion ? { addressRegion: project.orgSchemaAddressRegion } : {}),
+            ...(project?.orgSchemaPostalCode ? { postalCode: project.orgSchemaPostalCode } : {}),
+            ...(project?.orgSchemaAddressCountry ? { addressCountry: project.orgSchemaAddressCountry } : {}),
+          },
+        } : (orgBase.address ? { address: orgBase.address } : {})),
+        ...(sameAs.length ? { sameAs } : {}),
       };
     }
 
@@ -171,6 +212,12 @@ export default async function Page() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+        />
+      )}
+      {organizationSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       )}
       {localBusinessSchema && (

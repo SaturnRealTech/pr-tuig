@@ -115,8 +115,41 @@ export default async function SlugPage({ params }) {
                 { $inc: { views: 1 } }
             ).catch(() => { });
 
+            const brandSettings = await db.collection('settings').findOne({ type: 'brand' }).catch(() => null);
+
             const projectPath = `/${slug}`;
             const publishedAt = toIsoDate(project.publishedAt || project.createdAt || project.date);
+
+            // Build Organization schema from structured fields + brand settings
+            const orgName = project.orgSchemaName || brandSettings?.siteName || '';
+            const sameAsRaw = project.orgSchemaSameAs || '';
+            const sameAs = (Array.isArray(sameAsRaw)
+                ? sameAsRaw
+                : sameAsRaw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean));
+            const hasAddress = project.orgSchemaStreetAddress || project.orgSchemaAddressLocality ||
+                project.orgSchemaAddressRegion || project.orgSchemaPostalCode || project.orgSchemaAddressCountry;
+            const organizationSchema = orgName ? {
+                '@context': 'https://schema.org',
+                '@type': 'Organization',
+                '@id': `${SITE_URL}/#organization`,
+                name: orgName,
+                url: SITE_URL + '/',
+                ...(brandSettings?.siteLogo ? { logo: { '@type': 'ImageObject', url: brandSettings.siteLogo } } : {}),
+                ...(brandSettings?.contactPhone ? { telephone: brandSettings.contactPhone } : {}),
+                ...(project.orgSchemaEmail ? { email: project.orgSchemaEmail } : {}),
+                ...(project.orgSchemaDescription ? { description: project.orgSchemaDescription } : {}),
+                ...(hasAddress ? {
+                    address: {
+                        '@type': 'PostalAddress',
+                        ...(project.orgSchemaStreetAddress ? { streetAddress: project.orgSchemaStreetAddress } : {}),
+                        ...(project.orgSchemaAddressLocality ? { addressLocality: project.orgSchemaAddressLocality } : {}),
+                        ...(project.orgSchemaAddressRegion ? { addressRegion: project.orgSchemaAddressRegion } : {}),
+                        ...(project.orgSchemaPostalCode ? { postalCode: project.orgSchemaPostalCode } : {}),
+                        ...(project.orgSchemaAddressCountry ? { addressCountry: project.orgSchemaAddressCountry } : {}),
+                    },
+                } : {}),
+                ...(sameAs.length ? { sameAs } : {}),
+            } : null;
 
             const projectGraphItems = [
                 // createOrganizationSchema({ sameAs: ['https://www.linkedin.com/company/SaturnRealcon/'] }),
@@ -178,6 +211,9 @@ export default async function SlugPage({ params }) {
             return (
                 <>
                     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+                    {organizationSchema && (
+                        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+                    )}
                     <ProjectDetailPage project={project} />
                 </>
             );

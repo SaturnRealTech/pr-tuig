@@ -80,6 +80,7 @@ export async function POST(request) {
             keywords,
             featuredProjects,
             localBusinessSchema,
+            organizationSchema,
         } = body;
 
         const client = await clientPromise;
@@ -105,6 +106,7 @@ export async function POST(request) {
             keywords: keywords || '',
             featuredProjects: Array.isArray(featuredProjects) ? featuredProjects : [],
             localBusinessSchema: localBusinessSchema || '',
+            organizationSchema: organizationSchema || '',
             updatedAt: new Date(),
         };
 
