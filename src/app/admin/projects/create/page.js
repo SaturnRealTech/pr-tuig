@@ -194,6 +194,8 @@ export default function CreateProject() {
         schemaAvailability: 'InStock',
         schemaLocation: '',
         schemaPossession: '',
+        schemaRatingValue: '',
+        schemaRatingCount: '',
         desktopBanner: '',
         mobileBanner: '',
         amenities: [],
@@ -584,6 +586,20 @@ export default function CreateProject() {
                                             <input type="text" name="schemaPossession" value={formData.schemaPossession} onChange={handleChange}
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
                                                 placeholder="Auto from possession (e.g. Dec 2026)" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Aggregate Rating Value</label>
+                                                <input type="number" step="0.1" min="1" max="5" name="schemaRatingValue" value={formData.schemaRatingValue} onChange={handleChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    placeholder="e.g. 4.5" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Review Count</label>
+                                                <input type="number" min="1" name="schemaRatingCount" value={formData.schemaRatingCount} onChange={handleChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    placeholder="e.g. 128" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

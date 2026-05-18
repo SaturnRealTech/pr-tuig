@@ -80,19 +80,17 @@ export async function generateMetadata() {
 
 export default async function Page() {
   let project = null;
-  let siteName = '';
-  let siteLogo = '';
   let localBusinessSchema = null;
 
   try {
     const client = await clientPromise;
     const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
 
-    const [doc, settings, homepageSettings] = await Promise.all([
+    const [doc, homepageSettings, brandSettings] = await Promise.all([
       db.collection('projects').findOne({ publishStatus: 'published', isHomePage: true })
         .then(d => d || db.collection('projects').findOne({ publishStatus: 'published' }, { sort: { createdAt: 1 } })),
-      db.collection('settings').findOne({ type: 'brand' }),
       db.collection('homepage').findOne({}),
+      db.collection('settings').findOne({ type: 'brand' }),
     ]);
 
     if (doc) {
@@ -102,12 +100,20 @@ export default async function Page() {
         slug: doc.slug || doc._id?.toString?.(),
       };
     }
-    siteName = settings?.siteName || '';
-    siteLogo = settings?.siteLogo || '';
 
     if (homepageSettings?.localBusinessSchema) {
       try {
-        localBusinessSchema = JSON.parse(homepageSettings.localBusinessSchema);
+        const parsed = JSON.parse(homepageSettings.localBusinessSchema);
+        // Auto-inject live dashboard fields so admin doesn't have to duplicate them
+        if (brandSettings?.contactPhone) parsed.telephone = brandSettings.contactPhone;
+        if (project?.price) parsed.priceRange = project.price;
+        if (project?.projectAddress && !parsed.address) {
+          parsed.address = {
+            '@type': 'PostalAddress',
+            streetAddress: project.projectAddress,
+          };
+        }
+        localBusinessSchema = parsed;
       } catch {
         // ignore malformed JSON saved in DB
       }
@@ -116,47 +122,6 @@ export default async function Page() {
     console.error('[home] Failed to fetch project:', error.message);
   }
 
-  const homeSchema = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'WebSite',
-        '@id': `${siteUrl}/#website`,
-        url: `${siteUrl}/`,
-        name: siteName,
-        inLanguage: 'en',
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: `${siteUrl}/projects?search={search_term_string}`,
-          },
-          'query-input': 'required name=search_term_string',
-        },
-      },
-      {
-        '@type': 'Organization',
-        '@id': `${siteUrl}/#organization`,
-        name: siteName,
-        url: `${siteUrl}/`,
-        ...(siteLogo && { logo: { '@type': 'ImageObject', url: siteLogo } }),
-        contactPoint: {
-          '@type': 'ContactPoint',
-          contactType: 'customer service',
-          areaServed: 'IN',
-          availableLanguage: ['English', 'Hindi'],
-        },
-      },
-      {
-        '@type': 'RealEstateAgent',
-        '@id': `${siteUrl}/#realestate`,
-        name: siteName,
-        url: `${siteUrl}/`,
-        ...(siteLogo && { image: siteLogo }),
-        areaServed: { '@type': 'Country', name: 'India' },
-      },
-    ],
-  };
 
   // Build Product schema from the homepage project if schema fields are present
   let productSchema = null;
@@ -189,15 +154,20 @@ export default async function Page() {
         ...((project.schemaLocation || project.projectAddress) ? [{ '@type': 'PropertyValue', name: 'Location', value: project.schemaLocation || project.projectAddress }] : []),
         ...((project.schemaPossession || project.possession) ? [{ '@type': 'PropertyValue', name: 'Possession', value: project.schemaPossession || project.possession }] : []),
       ],
+      ...(project.schemaRatingValue && project.schemaRatingCount ? {
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: String(project.schemaRatingValue),
+          reviewCount: String(project.schemaRatingCount),
+          bestRating: '5',
+          worstRating: '1',
+        },
+      } : {}),
     };
   }
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSchema) }}
-      />
       {productSchema && (
         <script
           type="application/ld+json"

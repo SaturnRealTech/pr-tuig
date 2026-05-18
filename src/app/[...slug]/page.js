@@ -147,6 +147,15 @@ export default async function SlugPage({ params }) {
                         ...((project.schemaLocation || project.projectAddress) ? [{ '@type': 'PropertyValue', name: 'Location', value: project.schemaLocation || project.projectAddress }] : []),
                         ...((project.schemaPossession || project.possession) ? [{ '@type': 'PropertyValue', name: 'Possession', value: project.schemaPossession || project.possession }] : []),
                     ],
+                    ...(project.schemaRatingValue && project.schemaRatingCount ? {
+                        aggregateRating: {
+                            '@type': 'AggregateRating',
+                            ratingValue: String(project.schemaRatingValue),
+                            reviewCount: String(project.schemaRatingCount),
+                            bestRating: '5',
+                            worstRating: '1',
+                        },
+                    } : {}),
                 },
             ];
 
