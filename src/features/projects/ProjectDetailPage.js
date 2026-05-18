@@ -807,7 +807,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                     </div>
                                 )}
                                 {block.image && (
-                                    <div className="mb-8 rounded-xl overflow-hidden shadow-md bg-gray-50 flex items-center justify-center h-72 md:h-[480px]">
+                                    <div className="mb-8 flex items-center justify-center h-72 md:h-[480px]">
                                         <img
                                             src={block.image}
                                             alt={block.imageAlt || block.title || ''}
