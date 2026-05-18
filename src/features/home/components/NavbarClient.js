@@ -20,8 +20,16 @@ export default function NavbarClient() {
             .then(r => r.json())
             .then(d => {
                 if (d.success && Array.isArray(d.data)) {
-                    const nonHome = d.data.filter(p => !p.isHomePage);
-                    setProjects(nonHome.map(p => ({ label: p.title, href: `/${p.slug}` })));
+                    const toTs = (p) => {
+                        const val = p.createdDate || p.createdAt;
+                        if (!val) return 0;
+                        const t = new Date(val).getTime();
+                        return isNaN(t) ? 0 : t;
+                    };
+                    const sorted = d.data
+                        .filter(p => !p.isHomePage)
+                        .sort((a, b) => toTs(b) - toTs(a));
+                    setProjects(sorted.map(p => ({ label: p.title, href: `/${p.slug}` })));
                 }
             })
             .catch(() => {});

@@ -807,11 +807,12 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                     </div>
                                 )}
                                 {block.image && (
-                                    <div className="mb-8 rounded-xl overflow-hidden shadow-md">
+                                    <div className="mb-8 rounded-xl overflow-hidden shadow-md bg-gray-50 flex items-center justify-center h-72 md:h-[480px]">
                                         <img
                                             src={block.image}
                                             alt={block.imageAlt || block.title || ''}
-                                            className="w-full h-72 md:h-[480px] object-cover"
+                                            loading="lazy"
+                                            className="w-full h-full object-contain"
                                         />
                                     </div>
                                 )}
