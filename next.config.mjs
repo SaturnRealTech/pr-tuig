@@ -2,7 +2,7 @@
 const nextConfig = {
   /* config options here */
   reactCompiler: true,
-  trailingSlash: true,
+  trailingSlash: false,
 };
 
 export default nextConfig;

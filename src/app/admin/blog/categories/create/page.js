@@ -79,6 +79,43 @@ export default function CreateBlogCategory() {
         setFormData(prev => ({ ...prev, name, slug: generateSlug(name) }));
     };
 
+    const handleJsonUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.name.endsWith('.json')) {
+            Swal.fire('Invalid File', 'Please upload a .json file.', 'error');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const json = JSON.parse(event.target.result);
+                const pick = (...keys) => { for (const k of keys) { if (json[k] !== undefined && json[k] !== null && json[k] !== '') return json[k]; } return undefined; };
+                const name = pick('name', 'title') || '';
+                const keywords = pick('keywords', 'tags');
+                setFormData(prev => ({
+                    ...prev,
+                    ...(name && { name }),
+                    slug: pick('slug') || (name ? generateSlug(name) : prev.slug),
+                    ...(pick('description', 'excerpt', 'summary') !== undefined && { description: pick('description', 'excerpt', 'summary') }),
+                    ...(pick('content', 'body', 'html') !== undefined && { content: pick('content', 'body', 'html') }),
+                    ...(pick('metaTitle', 'seoTitle') !== undefined && { metaTitle: pick('metaTitle', 'seoTitle') }),
+                    ...(pick('metaDescription', 'seoDescription') !== undefined && { metaDescription: pick('metaDescription', 'seoDescription') }),
+                    ...(keywords !== undefined && { keywords: Array.isArray(keywords) ? keywords.join(', ') : keywords }),
+                    ...(pick('heroImage', 'image', 'desktopBanner', 'featuredImage') !== undefined && { heroImage: pick('heroImage', 'image', 'desktopBanner', 'featuredImage') }),
+                    ...(pick('heroImageAlt', 'imageAlt', 'alt') !== undefined && { heroImageAlt: pick('heroImageAlt', 'imageAlt', 'alt') }),
+                    ...(pick('mobileBanner', 'mobileImage') !== undefined && { mobileBanner: pick('mobileBanner', 'mobileImage') }),
+                    ...(pick('mobileBannerAlt', 'mobileAlt') !== undefined && { mobileBannerAlt: pick('mobileBannerAlt', 'mobileAlt') }),
+                }));
+                Swal.fire({ icon: 'success', title: 'JSON Imported', text: 'Matching fields have been filled.', timer: 1500, showConfirmButton: false });
+            } catch {
+                Swal.fire('Parse Error', 'Invalid JSON file. Please check the format.', 'error');
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.name || !formData.slug) {
@@ -124,6 +161,64 @@ export default function CreateBlogCategory() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+
+                        {/* JSON Import */}
+                        <div className="bg-white rounded-xl shadow-sm border-2 border-dashed border-[#b27e02] p-6">
+                            <h2 className="text-lg font-bold text-gray-800 mb-1">Import from JSON</h2>
+                            <p className="text-sm text-gray-500 mb-4">Upload any JSON file — matching fields will be auto-filled automatically.</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-2">Accepted Key Names</p>
+                                    <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-600 space-y-1.5">
+                                        {[
+                                            ['Name', 'name, title'],
+                                            ['Slug', 'slug'],
+                                            ['Description', 'description, excerpt, summary'],
+                                            ['Content', 'content, body, html'],
+                                            ['Meta Title', 'metaTitle, seoTitle'],
+                                            ['Meta Description', 'metaDescription, seoDescription'],
+                                            ['Keywords', 'keywords, tags (string or array)'],
+                                            ['Desktop Banner', 'heroImage, image, desktopBanner, featuredImage'],
+                                            ['Desktop Alt', 'heroImageAlt, imageAlt, alt'],
+                                            ['Mobile Banner', 'mobileBanner, mobileImage'],
+                                            ['Mobile Alt', 'mobileBannerAlt, mobileAlt'],
+                                        ].map(([label, keys]) => (
+                                            <div key={label} className="flex gap-2">
+                                                <span className="font-semibold text-gray-700 w-32 shrink-0">{label}:</span>
+                                                <span className="text-gray-500">{keys}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-2">Example JSON Format</p>
+                                    <pre className="bg-gray-900 text-green-400 rounded-lg p-4 text-xs overflow-auto max-h-64">{`{
+  "name": "Market Updates",
+  "slug": "market-updates",
+  "description": "Latest real estate market news.",
+  "content": "<p>Category page content...</p>",
+  "metaTitle": "Market Updates | Blog",
+  "metaDescription": "Stay updated with real estate trends.",
+  "keywords": ["real estate", "market", "news"],
+  "heroImage": "https://example.com/banner.jpg",
+  "heroImageAlt": "Market updates banner",
+  "mobileBanner": "https://example.com/mobile.jpg",
+  "mobileBannerAlt": "Mobile banner"
+}`}</pre>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                                <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    Choose JSON File
+                                    <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
+                                </label>
+                                <span className="text-sm text-gray-400">or fill the form manually below</span>
+                            </div>
+                        </div>
 
                         {/* Basic Info */}
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

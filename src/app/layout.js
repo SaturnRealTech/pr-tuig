@@ -116,35 +116,6 @@ export default async function RootLayout({ children }) {
     <html lang="en">
       <head>
         <style dangerouslySetInnerHTML={{ __html: `:root{--primary:${settings.primary};--primary-dark:${settings.primaryDark};--primary-light:${settings.primaryLight};}` }} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Service",
-              name: "SaturnRealcon – 45-Day SaaS Launch System",
-              description:
-                "SaturnRealcon is a fixed-scope, fixed-timeline SaaS launch system helping founders design, build, and deploy production-ready SaaS products. Launch Your SaaS in 45 Days.",
-              provider: {
-                "@type": "Organization",
-                name: "Dharmsy Innovations Pvt. Ltd.",
-                url: "https://dharmsy.com",
-              },
-              areaServed: "Worldwide",
-              serviceType: "SaaS Development",
-              offers: {
-                "@type": "Offer",
-                availability: "https://schema.org/InStock",
-                priceCurrency: "USD",
-                url: `${SITE_URL}/contact`,
-              },
-              audience: {
-                "@type": "Audience",
-                audienceType: "B2B SaaS Founders",
-              },
-            }),
-          }}
-        />
 
       </head>
       <body className="antialiased">

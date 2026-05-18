@@ -130,6 +130,44 @@ export default function CreateBlog() {
         }
     };
 
+    const handleJsonUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.name.endsWith('.json')) {
+            Swal.fire('Invalid File', 'Please upload a .json file.', 'error');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const json = JSON.parse(event.target.result);
+                const pick = (...keys) => { for (const k of keys) { if (json[k] !== undefined && json[k] !== null && json[k] !== '') return json[k]; } return undefined; };
+                const title = pick('title') || '';
+                const content = pick('content', 'body', 'html') || '';
+                const keywords = pick('keywords', 'tags');
+                setFormData(prev => ({
+                    ...prev,
+                    ...(title && { title }),
+                    slug: pick('slug') || (title ? generateSlug(title) : prev.slug),
+                    ...(pick('excerpt', 'description', 'summary') !== undefined && { excerpt: pick('excerpt', 'description', 'summary') }),
+                    ...(pick('category') !== undefined && { category: pick('category') }),
+                    ...(pick('author', 'authorName') !== undefined && { author: pick('author', 'authorName') }),
+                    ...(content && { content, readTime: pick('readTime') || calculateReadTime(content) }),
+                    ...(pick('seoTitle', 'metaTitle', 'seo.title') !== undefined && { seoTitle: pick('seoTitle', 'metaTitle') || json.seo?.title || '' }),
+                    ...(pick('seoDescription', 'metaDescription') !== undefined && { seoDescription: pick('seoDescription', 'metaDescription') || json.seo?.description || '' }),
+                    ...(keywords !== undefined && { keywords: Array.isArray(keywords) ? keywords.join(', ') : keywords }),
+                    ...(pick('heroImage', 'image', 'thumbnail', 'featuredImage') !== undefined && { heroImage: pick('heroImage', 'image', 'thumbnail', 'featuredImage') }),
+                    ...(pick('heroImageAlt', 'imageAlt', 'alt') !== undefined && { heroImageAlt: pick('heroImageAlt', 'imageAlt', 'alt') }),
+                }));
+                Swal.fire({ icon: 'success', title: 'JSON Imported', text: 'Matching fields have been filled.', timer: 1500, showConfirmButton: false });
+            } catch {
+                Swal.fire('Parse Error', 'Invalid JSON file. Please check the format.', 'error');
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -205,6 +243,66 @@ export default function CreateBlog() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* JSON Import */}
+                        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02]">
+                            <h2 className="text-xl font-bold text-gray-800 mb-1">Import from JSON</h2>
+                            <p className="text-sm text-gray-500 mb-4">Upload any JSON file — matching fields will be auto-filled automatically.</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+                                {/* Key Hints */}
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-2">Accepted Key Names</p>
+                                    <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-600 space-y-1.5">
+                                        {[
+                                            ['Title', 'title'],
+                                            ['Slug', 'slug'],
+                                            ['Excerpt', 'excerpt, description, summary'],
+                                            ['Content', 'content, body, html'],
+                                            ['Category', 'category'],
+                                            ['Author', 'author, authorName'],
+                                            ['Keywords', 'keywords, tags (string or array)'],
+                                            ['Hero Image', 'heroImage, image, thumbnail, featuredImage'],
+                                            ['Image Alt', 'heroImageAlt, imageAlt, alt'],
+                                            ['SEO Title', 'seoTitle, metaTitle'],
+                                            ['SEO Description', 'seoDescription, metaDescription'],
+                                        ].map(([label, keys]) => (
+                                            <div key={label} className="flex gap-2">
+                                                <span className="font-semibold text-gray-700 w-28 shrink-0">{label}:</span>
+                                                <span className="text-gray-500">{keys}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Example JSON */}
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-2">Example JSON Format</p>
+                                    <pre className="bg-gray-900 text-green-400 rounded-lg p-4 text-xs overflow-auto max-h-64">{`{
+  "title": "My Blog Post Title",
+  "slug": "my-blog-post-title",
+  "excerpt": "Short description of the blog.",
+  "category": "Real Estate",
+  "author": "John Doe",
+  "content": "<p>Full blog content here...</p>",
+  "keywords": ["real estate", "property"],
+  "heroImage": "https://example.com/image.jpg",
+  "heroImageAlt": "Blog hero image",
+  "seoTitle": "SEO Optimized Title",
+  "seoDescription": "Meta description for search engines."
+}`}</pre>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4">
+                                <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    Choose JSON File
+                                    <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
+                                </label>
+                                <span className="text-sm text-gray-400">or fill the form manually below</span>
+                            </div>
+                        </div>
+
                         {/* Basic Information */}
                         <div className="bg-white rounded-xl shadow-lg p-6">
                             <h2 className="text-xl font-bold text-gray-800 mb-4">Basic Information</h2>

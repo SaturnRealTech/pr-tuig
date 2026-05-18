@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import ProjectContent from '@/components/ProjectContent';
 import WhatsAppIcon from '@/components/WhatsAppIcon';
 import Footer from '@/components/Footer';
 import NavbarClient from '@/features/home/components/NavbarClient';
@@ -11,6 +10,14 @@ import { useEnquireNow } from '@/lib/EnquireNowContext';
 function hasContent(html) {
     if (!html) return false;
     return html.replace(/<[^>]*>/g, '').trim().length > 0;
+}
+
+function wrapTables(html) {
+    if (!html) return html;
+    return html.replace(
+        /(<table[\s\S]*?<\/table>)/gi,
+        '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;margin:0.5rem 0;">$1</div>'
+    );
 }
 
 function getYouTubeEmbedUrl(url) {
@@ -28,10 +35,10 @@ export default function ProjectDetailPage({ project, isHome = false }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [expandedFAQs, setExpandedFAQs] = useState({});
     const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
-    const [isLocationExpanded, setIsLocationExpanded] = useState(false);
     const [blogs, setBlogs] = useState([]);
     const [visibleBlogs, setVisibleBlogs] = useState(30);
     const [activeSection, setActiveSection] = useState('');
+
 
     const toBlockId = (title) =>
         (title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -147,7 +154,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                         />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 w-[90%] mx-auto pb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+                    <div className="absolute bottom-0 left-0 right-0 w-full md:w-[77%] mx-auto pb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
                         <div>
                             <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">{project.title}</h1>
                             <div className="flex items-center gap-3 flex-wrap mt-2">
@@ -196,7 +203,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                 </div>
             ) : (
                 <section className="bg-gradient-to-r from-[#b27e02] to-[#6b4a01] text-white pt-28 pb-14">
-                    <div className="w-[90%] mx-auto">
+                    <div className="w-full md:w-[77%] mx-auto">
                         <h1 className="text-4xl md:text-5xl font-bold mb-2">{project.title}</h1>
                         {project.projectAddress && (
                             <p className="text-[#faf0d0] mt-1 flex items-center gap-1">
@@ -208,7 +215,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
             )}
 
             <section className="py-20 bg-white">
-                <div className="w-[90%] mx-auto">
+                <div className="w-full md:w-[77%] mx-auto">
                     {!project.hideContent && (project.contentTitle || project.contentImage || project.content) && (
                         <div id="overview">
                             {project.contentTitle && (
@@ -231,27 +238,25 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             {project.content && (
                                 <>
                                     <div
-                                        className={`rich-content text-black text-lg md:text-xl overflow-hidden transition-all duration-500 ${isHome && !isExpanded ? 'max-h-52' : 'max-h-[9999px]'}`}
-                                        dangerouslySetInnerHTML={{ __html: project.content }}
+                                        className={`rich-content text-black text-lg md:text-xl overflow-hidden transition-all duration-500 ${isExpanded ? 'max-h-[9999px]' : 'max-h-[800px]'}`}
+                                        dangerouslySetInnerHTML={{ __html: wrapTables(project.content) }}
                                     />
-                                    {isHome && !isExpanded && (
+                                    {!isExpanded && (
                                         <div className="relative -mt-10 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
                                     )}
-                                    {isHome && (
-                                        <div className="flex justify-center mt-4">
-                                            <button
-                                                onClick={() => setIsExpanded(v => !v)}
-                                                className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-[#b27e02] text-[#b27e02] font-semibold rounded-lg hover:bg-[#b27e02] hover:text-white transition-all duration-300 text-sm"
-                                            >
-                                                {isExpanded ? 'Read Less' : 'Read More'}
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
-                                                    className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-                                                    <polyline points="6 9 12 15 18 9" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    )}
+                                    <div className="flex justify-center mt-4">
+                                        <button
+                                            onClick={() => setIsExpanded(v => !v)}
+                                            className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-[#b27e02] text-[#b27e02] font-semibold rounded-lg hover:bg-[#b27e02] hover:text-white transition-all duration-300 text-sm"
+                                        >
+                                            {isExpanded ? 'Read Less' : 'Read More'}
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                                                className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                                                <polyline points="6 9 12 15 18 9" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -268,7 +273,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             </div>
                             <div
                                 className="rich-content text-gray-800 text-base md:text-lg"
-                                dangerouslySetInnerHTML={{ __html: project.keyHighlights }}
+                                dangerouslySetInnerHTML={{ __html: wrapTables(project.keyHighlights) }}
                             />
                         </div>
                     )}
@@ -321,7 +326,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             </div>
                             <div
                                 className="rich-content text-gray-800 text-base md:text-lg"
-                                dangerouslySetInnerHTML={{ __html: project.configurations }}
+                                dangerouslySetInnerHTML={{ __html: wrapTables(project.configurations) }}
                             />
                             {project.configurationsCtaLabel && (
                                 <div className="flex justify-center mt-8">
@@ -370,7 +375,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                 <div className="bg-[#fef9e7] rounded-2xl p-6 md:p-8 border border-[#b27e02]/20">
                                     <div
                                         className="rich-content text-gray-800 text-base md:text-lg"
-                                        dangerouslySetInnerHTML={{ __html: project.amenitiesContent }}
+                                        dangerouslySetInnerHTML={{ __html: wrapTables(project.amenitiesContent) }}
                                     />
                                 </div>
                             )}
@@ -426,7 +431,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                 {hasContent(mfp.content) && (
                                     <div className="mb-10">
                                         <div className="rich-content text-gray-800 text-base md:text-lg"
-                                            dangerouslySetInnerHTML={{ __html: mfp.content }} />
+                                            dangerouslySetInnerHTML={{ __html: wrapTables(mfp.content) }} />
                                     </div>
                                 )}
 
@@ -537,7 +542,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                     <div className="mb-8">
                                         <div
                                             className={`rich-content text-gray-800 text-base md:text-lg overflow-hidden transition-all duration-500 ${isGalleryExpanded ? 'max-h-[9999px]' : 'max-h-[4.5rem]'}`}
-                                            dangerouslySetInnerHTML={{ __html: gallery.content }}
+                                            dangerouslySetInnerHTML={{ __html: wrapTables(gallery.content) }}
                                         />
                                         {!isGalleryExpanded && (
                                             <div className="relative -mt-6 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
@@ -616,7 +621,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                 </div>
                                 {hasContent(ps.content) && (
                                     <div className="rich-content text-gray-700 text-base md:text-lg mb-8"
-                                        dangerouslySetInnerHTML={{ __html: ps.content }} />
+                                        dangerouslySetInnerHTML={{ __html: wrapTables(ps.content) }} />
                                 )}
                                 {validSpecs.length > 0 && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -632,7 +637,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                                 )}
                                                 {hasContent(spec.content) && (
                                                     <div className="rich-content text-gray-700 text-sm leading-relaxed"
-                                                        dangerouslySetInnerHTML={{ __html: spec.content }} />
+                                                        dangerouslySetInnerHTML={{ __html: wrapTables(spec.content) }} />
                                                 )}
                                             </div>
                                         ))}
@@ -679,24 +684,9 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                 {hasContent(loc.content) && (
                                     <div className="mb-8">
                                         <div
-                                            className={`rich-content text-gray-800 text-base md:text-lg overflow-hidden transition-all duration-500 ${isLocationExpanded ? 'max-h-[9999px]' : 'max-h-[4.5rem]'}`}
-                                            dangerouslySetInnerHTML={{ __html: loc.content }}
+                                            className="rich-content text-gray-800 text-base md:text-lg"
+                                            dangerouslySetInnerHTML={{ __html: wrapTables(loc.content) }}
                                         />
-                                        {!isLocationExpanded && (
-                                            <div className="relative -mt-6 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-                                        )}
-                                        <div className="flex justify-center mt-3">
-                                            <button
-                                                onClick={() => setIsLocationExpanded(v => !v)}
-                                                className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-[#b27e02] text-[#b27e02] font-semibold rounded-lg hover:bg-[#b27e02] hover:text-white transition-all duration-300 text-sm"
-                                            >
-                                                {isLocationExpanded ? 'Read Less' : 'Read More'}
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
-                                                    className={`transition-transform duration-300 ${isLocationExpanded ? 'rotate-180' : ''}`}>
-                                                    <polyline points="6 9 12 15 18 9" />
-                                                </svg>
-                                            </button>
-                                        </div>
                                     </div>
                                 )}
 
@@ -811,7 +801,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                 {hasContent(block.content) && (
                                     <div
                                         className="rich-content text-gray-800 text-base md:text-lg leading-relaxed"
-                                        dangerouslySetInnerHTML={{ __html: block.content }}
+                                        dangerouslySetInnerHTML={{ __html: wrapTables(block.content) }}
                                     />
                                 )}
                             </div>
@@ -833,7 +823,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                         >
                                             <div
                                                 className="font-semibold text-gray-800 pr-4 flex-1 rich-content [&_a]:text-[#b27e02] [&_a]:underline [&_strong]:font-bold [&_em]:italic"
-                                                dangerouslySetInnerHTML={{ __html: faq.question }}
+                                                dangerouslySetInnerHTML={{ __html: wrapTables(faq.question) }}
                                             />
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                                                 className={`text-[#b27e02] flex-shrink-0 transition-transform duration-300 ${expandedFAQs[index] ? 'rotate-180' : ''}`}>
@@ -844,7 +834,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                             <div className="p-4 bg-white border-t border-gray-200">
                                                 <div
                                                     className="rich-content text-gray-700 text-base leading-relaxed [&_a]:text-[#b27e02] [&_a]:underline [&_strong]:font-bold [&_em]:italic"
-                                                    dangerouslySetInnerHTML={{ __html: faq.answer }}
+                                                    dangerouslySetInnerHTML={{ __html: wrapTables(faq.answer) }}
                                                 />
                                             </div>
                                         )}

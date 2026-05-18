@@ -2,126 +2,45 @@
 import ProjectDetailPage from '@/features/projects/ProjectDetailPage';
 import clientPromise from '@/lib/mongodb';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tangledupingreen.in';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 
-const homeSchema = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'WebSite',
-      '@id': `${siteUrl}/#website`,
-      url: `${siteUrl}/`,
-      name: 'Saturn RealCon',
-      inLanguage: 'en',
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: {
-          '@type': 'EntryPoint',
-          urlTemplate: `${siteUrl}/projects?search={search_term_string}`,
-        },
-        'query-input': 'required name=search_term_string',
-      },
-    },
-    {
-      '@type': 'Organization',
-      '@id': `${siteUrl}/#organization`,
-      name: 'Saturn RealCon',
-      url: `${siteUrl}/`,
-      logo: {
-        '@type': 'ImageObject',
-        url: `${siteUrl}/logos/SaturnRealcon.png`,
-      },
-      contactPoint: {
-        '@type': 'ContactPoint',
-        contactType: 'customer service',
-        areaServed: 'IN',
-        availableLanguage: ['English', 'Hindi'],
-      },
-      sameAs: [
-        'https://www.linkedin.com/company/SaturnRealcon/',
-      ],
-    },
-    {
-      '@type': 'RealEstateAgent',
-      '@id': `${siteUrl}/#realestate`,
-      name: 'Saturn RealCon',
-      url: `${siteUrl}/`,
-      image: `${siteUrl}/logos/SaturnRealcon.png`,
-      description: 'Buy, sell, and rent verified residential and commercial properties across India. Expert agents, zero hassle.',
-      areaServed: {
-        '@type': 'Country',
-        name: 'India',
-      },
-      hasOfferCatalog: {
-        '@type': 'OfferCatalog',
-        name: 'Real Estate Properties',
-        itemListElement: [
-          { '@type': 'Offer', itemOffered: { '@type': 'Product', name: 'Residential Properties' } },
-          { '@type': 'Offer', itemOffered: { '@type': 'Product', name: 'Commercial Properties' } },
-          { '@type': 'Offer', itemOffered: { '@type': 'Product', name: 'Property Rentals' } },
-        ],
-      },
-    },
-  ],
-};
 
-const breadcrumbSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    {
-      '@type': 'ListItem',
-      position: 1,
-      name: 'Home',
-      item: `${siteUrl}/`,
-    },
-    {
-      '@type': 'ListItem',
-      position: 2,
-      name: 'Properties',
-      item: `${siteUrl}/projects`,
-    },
-    {
-      '@type': 'ListItem',
-      position: 3,
-      name: 'Builders',
-      item: `${siteUrl}/builders`,
-    },
-    {
-      '@type': 'ListItem',
-      position: 4,
-      name: 'Blog',
-      item: `${siteUrl}/blog`,
-    },
-    {
-      '@type': 'ListItem',
-      position: 5,
-      name: 'Contact',
-      item: `${siteUrl}/contact`,
-    },
-  ],
-};
 
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
   let metaTitle = '';
   let metaDescription = '';
   let metaKeywords = [];
 
+  let siteLogo = '';
+  let siteName = '';
+
   try {
     const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || 'SaturnRealcon');
-    const homepage = await db.collection('homepage').findOne({}, { projection: { metaTitle: 1, metaDescription: 1, keywords: 1 } });
-    metaTitle = homepage?.metaTitle || '';
-    metaDescription = homepage?.metaDescription || '';
-    metaKeywords = homepage?.keywords
-      ? homepage.keywords.split(',').map(k => k.trim()).filter(Boolean)
-      : [];
-  } catch {}
+    const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
 
-  const title = metaTitle || 'Saturn RealCon — Buy, Sell & Rent Properties in India';
-  const description = metaDescription || 'Discover verified residential and commercial properties across India. Expert agents, zero hassle. Trusted by 1000+ families.';
+    const [doc, settings] = await Promise.all([
+      db.collection('projects').findOne({ publishStatus: 'published', isHomePage: true })
+        .then(d => d || db.collection('projects').findOne({ publishStatus: 'published' }, { sort: { createdAt: 1 } })),
+      db.collection('settings').findOne({ type: 'brand' }),
+    ]);
+
+    metaTitle = doc?.metaTitle || '';
+    metaDescription = doc?.metaDescription || '';
+    metaKeywords = doc?.keywords
+      ? doc.keywords.split(',').map(k => k.trim()).filter(Boolean)
+      : [];
+
+    if (settings?.siteLogo) siteLogo = settings.siteLogo;
+    if (settings?.siteName) siteName = settings.siteName;
+  } catch (err) {
+    console.error('[SEO] error:', err.message);
+  }
+
+  const title = metaTitle;
+  const description = metaDescription;
   const keywords = metaKeywords.length > 0 ? metaKeywords : [
     'real estate India',
     'buy property India',
@@ -142,22 +61,15 @@ export async function generateMetadata() {
       title,
       description,
       url: `${siteUrl}/`,
-      siteName: 'SaturnRealcon',
+      siteName,
       type: 'website',
-      images: [
-        {
-          url: `${siteUrl}/logos/SaturnRealcon.png`,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
+      ...(siteLogo && { images: [{ url: siteLogo, width: 1200, height: 630, alt: title }] }),
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [`${siteUrl}/logos/SaturnRealcon.png`],
+      ...(siteLogo && { images: [siteLogo] }),
     },
     robots: {
       index: true,
@@ -168,20 +80,20 @@ export async function generateMetadata() {
 
 export default async function Page() {
   let project = null;
+  let siteName = '';
+  let siteLogo = '';
+  let projectCount = 0;
 
   try {
     const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || 'SaturnRealcon');
+    const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
 
-    let doc = await db
-      .collection('projects')
-      .findOne({ publishStatus: 'published', isHomePage: true });
-
-    if (!doc) {
-      doc = await db
-        .collection('projects')
-        .findOne({ publishStatus: 'published' }, { sort: { createdAt: 1 } });
-    }
+    const [doc, settings, count] = await Promise.all([
+      db.collection('projects').findOne({ publishStatus: 'published', isHomePage: true })
+        .then(d => d || db.collection('projects').findOne({ publishStatus: 'published' }, { sort: { createdAt: 1 } })),
+      db.collection('settings').findOne({ type: 'brand' }),
+      db.collection('projects').countDocuments({ publishStatus: 'published' }),
+    ]);
 
     if (doc) {
       project = {
@@ -190,9 +102,66 @@ export default async function Page() {
         slug: doc.slug || doc._id?.toString?.(),
       };
     }
+    siteName = settings?.siteName || '';
+    siteLogo = settings?.siteLogo || '';
+    projectCount = count || 0;
   } catch (error) {
     console.error('[home] Failed to fetch project:', error.message);
   }
+
+  const homeSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${siteUrl}/#website`,
+        url: `${siteUrl}/`,
+        name: siteName,
+        inLanguage: 'en',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${siteUrl}/projects?search={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@type': 'Organization',
+        '@id': `${siteUrl}/#organization`,
+        name: siteName,
+        url: `${siteUrl}/`,
+        ...(siteLogo && { logo: { '@type': 'ImageObject', url: siteLogo } }),
+        contactPoint: {
+          '@type': 'ContactPoint',
+          contactType: 'customer service',
+          areaServed: 'IN',
+          availableLanguage: ['English', 'Hindi'],
+        },
+      },
+      {
+        '@type': 'RealEstateAgent',
+        '@id': `${siteUrl}/#realestate`,
+        name: siteName,
+        url: `${siteUrl}/`,
+        ...(siteLogo && { image: siteLogo }),
+        areaServed: { '@type': 'Country', name: 'India' },
+      },
+    ],
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${siteUrl}/` },
+      { '@type': 'ListItem', position: 2, name: `Properties (${projectCount})`, item: `${siteUrl}/projects` },
+      { '@type': 'ListItem', position: 3, name: 'Builders', item: `${siteUrl}/builders` },
+      { '@type': 'ListItem', position: 4, name: 'Blog', item: `${siteUrl}/blog` },
+      { '@type': 'ListItem', position: 5, name: 'Contact', item: `${siteUrl}/contact` },
+    ],
+  };
 
   return (
     <>
@@ -207,15 +176,5 @@ export default async function Page() {
       <ProjectDetailPage project={project} isHome={true} />
     </>
   );
-
-  /* Home page sections — commented out
-  return (
-    <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <HomeClient testimonials={testimonials} bannerSlides={bannerSlides} aboutSection={aboutSection} homeWriteup={homeWriteup} whyChooseUs={whyChooseUs} allProjects={allProjects} groupedCategories={groupedCategories} locationCategories={locationCategories} builderCategories={builderCategories} blogPosts={blogPosts} />
-    </>
-  );
-  */
 }
 

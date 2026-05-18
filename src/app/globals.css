@@ -97,6 +97,7 @@ b {
 .rich-content table {
   border-collapse: collapse !important;
   width: 100%;
+  min-width: 500px;
   margin: 0.5rem 0;
   table-layout: auto;
 }
