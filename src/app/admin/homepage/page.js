@@ -20,6 +20,8 @@ export default function HomePageManagement() {
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
 
+    const [schemaError, setSchemaError] = useState('');
+
     const [formData, setFormData] = useState({
         heroTitle: '',
         heroSubtitle: '',
@@ -39,6 +41,7 @@ export default function HomePageManagement() {
         metaDescription: '',
         keywords: '',
         featuredProjects: [],
+        localBusinessSchema: '',
     });
 
     const [projects, setProjects] = useState([]);
@@ -112,6 +115,12 @@ export default function HomePageManagement() {
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
+    };
+
+    const handleSchemaChange = (val) => {
+        setFormData(prev => ({ ...prev, localBusinessSchema: val }));
+        if (!val.trim()) { setSchemaError(''); return; }
+        try { JSON.parse(val); setSchemaError(''); } catch { setSchemaError('Invalid JSON — please fix before saving.'); }
     };
 
     const handleSubmit = async (e) => {
@@ -342,9 +351,29 @@ export default function HomePageManagement() {
                                 </div>
                             </div>
 
+                            {/* Local Business / Product Schema */}
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h3 className="text-lg font-bold text-gray-800 mb-1">Local Business Schema (JSON-LD)</h3>
+                                <p className="text-sm text-gray-400 mb-4">Paste your LocalBusiness / Restaurant / RealEstateAgent JSON-LD here. It will be injected as a <code>&lt;script type=&quot;application/ld+json&quot;&gt;</code> on the homepage.</p>
+                                <textarea
+                                    value={formData.localBusinessSchema}
+                                    onChange={e => handleSchemaChange(e.target.value)}
+                                    rows={12}
+                                    spellCheck={false}
+                                    className={`w-full px-4 py-3 border rounded-lg font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[#faf0d0] text-gray-900 resize-y ${schemaError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-[#b27e02]'}`}
+                                    placeholder={`{\n  "@context": "https://schema.org",\n  "@type": "RealEstateAgent",\n  "name": "Your Business Name",\n  "telephone": "+91-XXXXXXXXXX",\n  "address": {\n    "@type": "PostalAddress",\n    "streetAddress": "Street",\n    "addressLocality": "City",\n    "addressRegion": "State",\n    "postalCode": "000000",\n    "addressCountry": "IN"\n  }\n}`}
+                                />
+                                {schemaError && (
+                                    <p className="mt-2 text-xs text-red-500 font-medium">{schemaError}</p>
+                                )}
+                                {formData.localBusinessSchema && !schemaError && (
+                                    <p className="mt-2 text-xs text-green-600 font-medium">JSON is valid</p>
+                                )}
+                            </div>
+
                             {/* Actions */}
                             <div className="flex gap-3">
-                                <button type="submit" disabled={saving}
+                                <button type="submit" disabled={saving || !!schemaError}
                                     className="flex-1 px-6 py-3 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
                                     <MdSave size={18} />
                                     {saving ? 'Saving...' : 'Save Changes'}

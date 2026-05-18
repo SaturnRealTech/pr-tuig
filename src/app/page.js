@@ -82,15 +82,17 @@ export default async function Page() {
   let project = null;
   let siteName = '';
   let siteLogo = '';
+  let localBusinessSchema = null;
 
   try {
     const client = await clientPromise;
     const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
 
-    const [doc, settings] = await Promise.all([
+    const [doc, settings, homepageSettings] = await Promise.all([
       db.collection('projects').findOne({ publishStatus: 'published', isHomePage: true })
         .then(d => d || db.collection('projects').findOne({ publishStatus: 'published' }, { sort: { createdAt: 1 } })),
       db.collection('settings').findOne({ type: 'brand' }),
+      db.collection('homepage').findOne({}),
     ]);
 
     if (doc) {
@@ -102,6 +104,14 @@ export default async function Page() {
     }
     siteName = settings?.siteName || '';
     siteLogo = settings?.siteLogo || '';
+
+    if (homepageSettings?.localBusinessSchema) {
+      try {
+        localBusinessSchema = JSON.parse(homepageSettings.localBusinessSchema);
+      } catch {
+        // ignore malformed JSON saved in DB
+      }
+    }
   } catch (error) {
     console.error('[home] Failed to fetch project:', error.message);
   }
@@ -148,12 +158,58 @@ export default async function Page() {
     ],
   };
 
+  // Build Product schema from the homepage project if schema fields are present
+  let productSchema = null;
+  if (project) {
+    const projectUrl = `${siteUrl}/`;
+    const publishedAt = project.publishedAt || project.createdAt || project.createdDate;
+    const isoDate = publishedAt ? (() => { try { return new Date(publishedAt).toISOString(); } catch { return null; } })() : null;
+
+    productSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      '@id': `${siteUrl}/#product`,
+      name: project.schemaName || project.title,
+      description: project.schemaDescription || project.metaDescription || project.description || project.title,
+      url: projectUrl,
+      image: [project.desktopBanner, project.mobileBanner].filter(Boolean),
+      ...((project.schemaBrand || project.company) ? {
+        brand: { '@type': 'Brand', name: project.schemaBrand || project.company },
+      } : {}),
+      ...(isoDate ? { releaseDate: isoDate } : {}),
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: project.schemaPriceCurrency || 'INR',
+        availability: `https://schema.org/${project.schemaAvailability || 'InStock'}`,
+        url: projectUrl,
+        seller: { '@id': `${siteUrl}/#organization` },
+        ...((project.schemaPrice || project.price) ? { price: project.schemaPrice || project.price } : {}),
+      },
+      additionalProperty: [
+        ...((project.schemaLocation || project.projectAddress) ? [{ '@type': 'PropertyValue', name: 'Location', value: project.schemaLocation || project.projectAddress }] : []),
+        ...((project.schemaPossession || project.possession) ? [{ '@type': 'PropertyValue', name: 'Possession', value: project.schemaPossession || project.possession }] : []),
+      ],
+    };
+  }
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSchema) }}
       />
+      {productSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+        />
+      )}
+      {localBusinessSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+        />
+      )}
       <ProjectDetailPage project={project} isHome={true} />
     </>
   );
