@@ -119,7 +119,7 @@ export default async function SlugPage({ params }) {
             const publishedAt = toIsoDate(project.publishedAt || project.createdAt || project.date);
 
             const projectGraphItems = [
-                createOrganizationSchema({ sameAs: ['https://www.linkedin.com/company/SaturnRealcon/'] }),
+                // createOrganizationSchema({ sameAs: ['https://www.linkedin.com/company/SaturnRealcon/'] }),
                 // createBreadcrumbSchema([
                 //     { name: 'Home', path: '/' },
                 //     { name: project.title, path: projectPath },
