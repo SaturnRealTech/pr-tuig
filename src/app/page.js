@@ -101,23 +101,29 @@ export default async function Page() {
       };
     }
 
+    // Build local business schema: start from admin-pasted JSON or a blank base
+    let base = {};
     if (homepageSettings?.localBusinessSchema) {
       try {
-        const parsed = JSON.parse(homepageSettings.localBusinessSchema);
-        if (brandSettings?.contactPhone) parsed.telephone = brandSettings.contactPhone;
-        if (project?.price) parsed.priceRange = project.price;
-        if (project?.projectAddress && !parsed.address) {
-          parsed.address = {
-            '@type': 'PostalAddress',
-            streetAddress: project.projectAddress,
-          };
-        }
-        localBusinessSchema = parsed;
+        base = JSON.parse(homepageSettings.localBusinessSchema);
       } catch (e) {
         console.error('[home] Invalid localBusinessSchema JSON:', e.message);
       }
-    } else {
-      console.log('[home] localBusinessSchema missing — homepageSettings:', !!homepageSettings, 'field:', homepageSettings?.localBusinessSchema);
+    }
+
+    // Always inject live fields from dashboard so schema is never empty
+    const hasContent = base['@type'] || base.name || brandSettings?.siteName || project?.title;
+    if (hasContent) {
+      if (!base['@context']) base['@context'] = 'https://schema.org';
+      if (!base['@type']) base['@type'] = 'LocalBusiness';
+      if (!base.name) base.name = brandSettings?.siteName || project?.title || '';
+      if (!base.url) base.url = siteUrl + '/';
+      if (brandSettings?.contactPhone) base.telephone = brandSettings.contactPhone;
+      if (project?.price && !base.priceRange) base.priceRange = project.price;
+      if (!base.address && project?.projectAddress) {
+        base.address = { '@type': 'PostalAddress', streetAddress: project.projectAddress };
+      }
+      localBusinessSchema = base;
     }
   } catch (error) {
     console.error('[home] Failed to fetch project:', error.message);
@@ -143,6 +149,13 @@ export default async function Page() {
         brand: { '@type': 'Brand', name: project.schemaBrand || project.company },
       } : {}),
       ...(isoDate ? { releaseDate: isoDate } : {}),
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: project.schemaPriceCurrency || 'INR',
+        availability: `https://schema.org/${project.schemaAvailability || 'InStock'}`,
+        url: projectUrl,
+        ...((project.schemaPrice || project.price) ? { price: project.schemaPrice || project.price } : {}),
+      },
       additionalProperty: [
         ...((project.schemaLocation || project.projectAddress) ? [{ '@type': 'PropertyValue', name: 'Location', value: project.schemaLocation || project.projectAddress }] : []),
         ...((project.schemaPossession || project.possession) ? [{ '@type': 'PropertyValue', name: 'Possession', value: project.schemaPossession || project.possession }] : []),
