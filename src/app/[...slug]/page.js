@@ -113,17 +113,17 @@ export default async function SlugPage({ params }) {
             db.collection('projects').updateOne(
                 { slug: project.slug },
                 { $inc: { views: 1 } }
-            ).catch(() => {});
+            ).catch(() => { });
 
             const projectPath = `/${slug}`;
             const publishedAt = toIsoDate(project.publishedAt || project.createdAt || project.date);
 
             const projectGraphItems = [
                 createOrganizationSchema({ sameAs: ['https://www.linkedin.com/company/SaturnRealcon/'] }),
-                createBreadcrumbSchema([
-                    { name: 'Home', path: '/' },
-                    { name: project.title, path: projectPath },
-                ]),
+                // createBreadcrumbSchema([
+                //     { name: 'Home', path: '/' },
+                //     { name: project.title, path: projectPath },
+                // ]),
                 {
                     '@type': 'Product',
                     '@id': `${SITE_URL}${projectPath}/#product`,
