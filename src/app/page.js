@@ -104,7 +104,6 @@ export default async function Page() {
     if (homepageSettings?.localBusinessSchema) {
       try {
         const parsed = JSON.parse(homepageSettings.localBusinessSchema);
-        // Auto-inject live dashboard fields so admin doesn't have to duplicate them
         if (brandSettings?.contactPhone) parsed.telephone = brandSettings.contactPhone;
         if (project?.price) parsed.priceRange = project.price;
         if (project?.projectAddress && !parsed.address) {
@@ -114,9 +113,11 @@ export default async function Page() {
           };
         }
         localBusinessSchema = parsed;
-      } catch {
-        // ignore malformed JSON saved in DB
+      } catch (e) {
+        console.error('[home] Invalid localBusinessSchema JSON:', e.message);
       }
+    } else {
+      console.log('[home] localBusinessSchema missing — homepageSettings:', !!homepageSettings, 'field:', homepageSettings?.localBusinessSchema);
     }
   } catch (error) {
     console.error('[home] Failed to fetch project:', error.message);
@@ -142,27 +143,10 @@ export default async function Page() {
         brand: { '@type': 'Brand', name: project.schemaBrand || project.company },
       } : {}),
       ...(isoDate ? { releaseDate: isoDate } : {}),
-      offers: {
-        '@type': 'Offer',
-        priceCurrency: project.schemaPriceCurrency || 'INR',
-        availability: `https://schema.org/${project.schemaAvailability || 'InStock'}`,
-        url: projectUrl,
-        seller: { '@id': `${siteUrl}/#organization` },
-        ...((project.schemaPrice || project.price) ? { price: project.schemaPrice || project.price } : {}),
-      },
       additionalProperty: [
         ...((project.schemaLocation || project.projectAddress) ? [{ '@type': 'PropertyValue', name: 'Location', value: project.schemaLocation || project.projectAddress }] : []),
         ...((project.schemaPossession || project.possession) ? [{ '@type': 'PropertyValue', name: 'Possession', value: project.schemaPossession || project.possession }] : []),
       ],
-      ...(project.schemaRatingValue && project.schemaRatingCount ? {
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: String(project.schemaRatingValue),
-          reviewCount: String(project.schemaRatingCount),
-          bestRating: '5',
-          worstRating: '1',
-        },
-      } : {}),
     };
   }
 
