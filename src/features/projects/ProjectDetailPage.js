@@ -90,7 +90,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
         );
         ids.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
         return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -134,6 +134,7 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             alt={project.title}
                             fill
                             priority
+                            fetchpriority="high"
                             sizes="100vw"
                             className="block md:hidden object-cover"
                         />
@@ -191,11 +192,11 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                 className="mt-3 flex md:hidden items-center gap-2 px-5 py-3 bg-[#b27e02] hover:bg-[#8a6002] text-white text-sm font-semibold rounded-xl shadow-lg transition-all duration-300"
                             >
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                    <polyline points="14 2 14 8 20 8"/>
-                                    <line x1="16" y1="13" x2="8" y2="13"/>
-                                    <line x1="16" y1="17" x2="8" y2="17"/>
-                                    <polyline points="10 9 9 9 8 9"/>
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                    <polyline points="10 9 9 9 8 9" />
                                 </svg>
                                 Get Details
                             </button>
@@ -205,11 +206,11 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                             className="hidden md:flex flex-shrink-0 items-center gap-2 px-5 py-3 bg-[#b27e02] hover:bg-[#8a6002] text-white text-sm font-semibold rounded-xl shadow-lg transition-all duration-300"
                         >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                <polyline points="14 2 14 8 20 8"/>
-                                <line x1="16" y1="13" x2="8" y2="13"/>
-                                <line x1="16" y1="17" x2="8" y2="17"/>
-                                <polyline points="10 9 9 9 8 9"/>
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <polyline points="10 9 9 9 8 9" />
                             </svg>
                             Get Details
                         </button>

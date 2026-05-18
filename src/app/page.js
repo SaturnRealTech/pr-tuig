@@ -81,7 +81,6 @@ export async function generateMetadata() {
 export default async function Page() {
   let project = null;
   let localBusinessSchema = null;
-  let organizationSchema = null;
 
   try {
     const client = await clientPromise;
@@ -102,70 +101,53 @@ export default async function Page() {
       };
     }
 
-    // Build Organization schema from project structured fields + brand settings
-    // Falls back to homepage-admin JSON textarea for any fields not set on the project
-    let orgBase = {};
-    if (homepageSettings?.organizationSchema) {
-      try { orgBase = JSON.parse(homepageSettings.organizationSchema); } catch (e) {
-        console.error('[home] Invalid organizationSchema JSON:', e.message);
-      }
-    }
-    const orgName = project?.orgSchemaName || orgBase.name || brandSettings?.siteName || '';
-    const sameAsRaw = project?.orgSchemaSameAs || orgBase.sameAs || '';
-    const sameAs = Array.isArray(sameAsRaw)
-      ? sameAsRaw
-      : sameAsRaw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-    const hasAddress = project?.orgSchemaStreetAddress || project?.orgSchemaAddressLocality ||
-      project?.orgSchemaAddressRegion || project?.orgSchemaPostalCode || project?.orgSchemaAddressCountry;
-    if (orgName) {
-      organizationSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        '@id': `${siteUrl}/#organization`,
-        name: orgName,
-        url: siteUrl + '/',
-        ...(brandSettings?.siteLogo ? { logo: { '@type': 'ImageObject', url: brandSettings.siteLogo } } : {}),
-        ...(brandSettings?.contactPhone ? { telephone: brandSettings.contactPhone } : {}),
-        ...(project?.orgSchemaEmail || orgBase.email ? { email: project?.orgSchemaEmail || orgBase.email } : {}),
-        ...(project?.orgSchemaDescription || orgBase.description ? { description: project?.orgSchemaDescription || orgBase.description } : {}),
-        ...(hasAddress ? {
-          address: {
-            '@type': 'PostalAddress',
-            ...(project?.orgSchemaStreetAddress ? { streetAddress: project.orgSchemaStreetAddress } : {}),
-            ...(project?.orgSchemaAddressLocality ? { addressLocality: project.orgSchemaAddressLocality } : {}),
-            ...(project?.orgSchemaAddressRegion ? { addressRegion: project.orgSchemaAddressRegion } : {}),
-            ...(project?.orgSchemaPostalCode ? { postalCode: project.orgSchemaPostalCode } : {}),
-            ...(project?.orgSchemaAddressCountry ? { addressCountry: project.orgSchemaAddressCountry } : {}),
-          },
-        } : (orgBase.address ? { address: orgBase.address } : {})),
-        ...(sameAs.length ? { sameAs } : {}),
-      };
-    }
-
-    // Build local business schema: start from admin-pasted JSON or a blank base
+    // Build ONE combined RealEstateAgent schema (covers both LocalBusiness + Organization)
+    // Sources: homepage admin JSON textarea → project structured org fields → brand settings
     let base = {};
     if (homepageSettings?.localBusinessSchema) {
-      try {
-        base = JSON.parse(homepageSettings.localBusinessSchema);
-      } catch (e) {
+      try { base = JSON.parse(homepageSettings.localBusinessSchema); } catch (e) {
         console.error('[home] Invalid localBusinessSchema JSON:', e.message);
       }
     }
-
-    // Always inject live fields from dashboard so schema is never empty
-    const hasContent = base['@type'] || base.name || brandSettings?.siteName || project?.title;
-    if (hasContent) {
-      base['@context'] = 'https://schema.org';
-      base['@type'] = 'RealEstateAgent';
-      if (!base.name) base.name = brandSettings?.siteName || project?.title || '';
-      if (!base.url) base.url = siteUrl + '/';
-      if (brandSettings?.contactPhone) base.telephone = brandSettings.contactPhone;
-      if (project?.price && !base.priceRange) base.priceRange = project.price;
-      if (!base.address && project?.projectAddress) {
-        base.address = { '@type': 'PostalAddress', streetAddress: project.projectAddress };
-      }
-      localBusinessSchema = base;
+    // Merge homepage-admin org textarea on top
+    if (homepageSettings?.organizationSchema) {
+      try {
+        const orgJson = JSON.parse(homepageSettings.organizationSchema);
+        Object.assign(base, orgJson);
+      } catch { /* ignore */ }
     }
+
+    const sameAsRaw = project?.orgSchemaSameAs || base.sameAs || '';
+    const sameAs = Array.isArray(sameAsRaw)
+      ? sameAsRaw
+      : sameAsRaw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+    const hasStructuredAddress = project?.orgSchemaStreetAddress || project?.orgSchemaAddressLocality ||
+      project?.orgSchemaAddressRegion || project?.orgSchemaPostalCode || project?.orgSchemaAddressCountry;
+
+    base['@context'] = 'https://schema.org';
+    base['@type'] = 'RealEstateAgent';
+    base['@id'] = `${siteUrl}/#organization`;
+    if (!base.name) base.name = project?.orgSchemaName || brandSettings?.siteName || project?.title || '';
+    if (!base.url) base.url = siteUrl + '/';
+    if (brandSettings?.siteLogo && !base.logo) base.logo = { '@type': 'ImageObject', url: brandSettings.siteLogo };
+    if (brandSettings?.contactPhone) base.telephone = brandSettings.contactPhone;
+    if (project?.price && !base.priceRange) base.priceRange = project.price;
+    if (project?.orgSchemaEmail && !base.email) base.email = project.orgSchemaEmail;
+    if (project?.orgSchemaDescription && !base.description) base.description = project.orgSchemaDescription;
+    if (hasStructuredAddress) {
+      base.address = {
+        '@type': 'PostalAddress',
+        ...(project.orgSchemaStreetAddress ? { streetAddress: project.orgSchemaStreetAddress } : {}),
+        ...(project.orgSchemaAddressLocality ? { addressLocality: project.orgSchemaAddressLocality } : {}),
+        ...(project.orgSchemaAddressRegion ? { addressRegion: project.orgSchemaAddressRegion } : {}),
+        ...(project.orgSchemaPostalCode ? { postalCode: project.orgSchemaPostalCode } : {}),
+        ...(project.orgSchemaAddressCountry ? { addressCountry: project.orgSchemaAddressCountry } : {}),
+      };
+    } else if (!base.address && project?.projectAddress) {
+      base.address = { '@type': 'PostalAddress', streetAddress: project.projectAddress };
+    }
+    if (sameAs.length) base.sameAs = sameAs;
+    if (base.name) localBusinessSchema = base;
   } catch (error) {
     console.error('[home] Failed to fetch project:', error.message);
   }
@@ -212,12 +194,6 @@ export default async function Page() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
-        />
-      )}
-      {organizationSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       )}
       {localBusinessSchema && (
