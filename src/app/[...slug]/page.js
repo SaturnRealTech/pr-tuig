@@ -131,9 +131,9 @@ export default async function SlugPage({ params }) {
                     description: project.schemaDescription || project.metaDescription || project.description || project.title,
                     url: `${SITE_URL}${projectPath}`,
                     image: [project.desktopBanner, project.mobileBanner].filter(Boolean),
-                    ...((project.schemaBrand || project.company) ? {
-                        brand: { '@type': 'Brand', name: project.schemaBrand || project.company },
-                    } : {}),
+                    // ...((project.schemaBrand || project.company) ? {
+                    //     brand: { '@type': 'Brand', name: project.schemaBrand || project.company },
+                    // } : {}),
                     ...(publishedAt ? { releaseDate: publishedAt } : {}),
                     // offers: {
                     //     '@type': 'Offer',
