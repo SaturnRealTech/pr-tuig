@@ -8,6 +8,7 @@ import {
     MdEdit, MdDelete, MdVisibility, MdArticle, MdImage,
 } from 'react-icons/md';
 import AdminSidebar from '@/components/AdminSidebar';
+import { calculateReadTime } from '@/utils/readTime';
 
 const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: false });
 
@@ -59,6 +60,9 @@ export default function BlogList() {
     const [loading, setLoading] = useState(true);
     const [selectedBlogs, setSelectedBlogs] = useState([]);
     const [saving, setSaving] = useState(false);
+    const [showImport, setShowImport] = useState(false);
+    const [jsonText, setJsonText] = useState('');
+    const [importing, setImporting] = useState(false);
     const [pageData, setPageData] = useState({
         desktopBanner: '', desktopBannerAlt: '',
         mobileBanner: '', mobileBannerAlt: '',
@@ -106,6 +110,90 @@ export default function BlogList() {
                 });
             }
         } catch { /* ignore */ }
+    };
+
+    const generateSlug = (title) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+    const applyJsonAndSave = async (raw) => {
+        let json;
+        try {
+            json = JSON.parse(raw);
+        } catch {
+            Swal.fire('Parse Error', 'Invalid JSON. Please check the format.', 'error');
+            return;
+        }
+
+        const pick = (...keys) => { for (const k of keys) { if (json[k] !== undefined && json[k] !== null && json[k] !== '') return json[k]; } return undefined; };
+        const title = pick('title') || '';
+        if (!title) { Swal.fire('Missing Field', 'JSON must include a "title" field.', 'warning'); return; }
+
+        const content = pick('content', 'body', 'html') || '';
+        const keywords = pick('keywords', 'tags');
+
+        setImporting(true);
+        try {
+            let nextId = Date.now();
+            try {
+                const r = await fetch('/api/blog');
+                const d = await r.json();
+                const ids = Array.isArray(d.data) ? d.data.map(b => b.id || 0) : [];
+                nextId = ids.length > 0 ? Math.max(...ids) + 1 : 1;
+            } catch { /* fallback to timestamp */ }
+
+            const blogData = {
+                id: nextId,
+                title,
+                slug: pick('slug') || generateSlug(title),
+                excerpt: pick('excerpt', 'description', 'summary') || '',
+                category: pick('category') || '',
+                author: pick('author', 'authorName') || user?.name || '',
+                readTime: pick('readTime') || (content ? calculateReadTime(content) : ''),
+                date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                heroImage: pick('heroImage', 'image', 'thumbnail', 'featuredImage') || '',
+                heroImageAlt: pick('heroImageAlt', 'imageAlt', 'alt') || '',
+                content,
+                image: pick('heroImage', 'image', 'thumbnail', 'featuredImage') || '📝',
+                seo: {
+                    title: pick('seoTitle', 'metaTitle') || json.seo?.title || title,
+                    description: pick('seoDescription', 'metaDescription') || json.seo?.description || pick('excerpt', 'description', 'summary') || '',
+                    keywords: keywords ? (Array.isArray(keywords) ? keywords : String(keywords).split(',').map(k => k.trim())) : [],
+                },
+            };
+
+            const res = await fetch('/api/blog', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(blogData),
+            });
+            const result = await res.json();
+            if (result.success) {
+                setJsonText('');
+                setShowImport(false);
+                await Swal.fire({ icon: 'success', title: 'Blog Created!', text: `"${title}" has been published.`, timer: 2000, showConfirmButton: false });
+                fetchBlogs();
+            } else {
+                Swal.fire('Error', result.error || 'Failed to save blog.', 'error');
+            }
+        } catch (err) {
+            Swal.fire('Error', err.message || 'Something went wrong.', 'error');
+        } finally {
+            setImporting(false);
+        }
+    };
+
+    const handleJsonFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.name.endsWith('.json')) { Swal.fire('Invalid File', 'Please upload a .json file.', 'error'); return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => applyJsonAndSave(ev.target.result);
+        reader.readAsText(file);
+        e.target.value = '';
+    };
+
+    const handleJsonPaste = () => {
+        if (!jsonText.trim()) { Swal.fire('Empty', 'Please paste JSON content first.', 'warning'); return; }
+        applyJsonAndSave(jsonText);
     };
 
     const setPage = (field) => (e) => setPageData(prev => ({ ...prev, [field]: e.target.value }));
@@ -288,12 +376,118 @@ export default function BlogList() {
                                         <MdDelete /> Delete Selected ({selectedBlogs.length})
                                     </button>
                                 )}
+                                <button
+                                    onClick={() => setShowImport(v => !v)}
+                                    className={`font-bold py-3 px-6 rounded-lg transition-all flex items-center gap-2 border-2 ${showImport ? 'bg-[#b27e02] border-[#b27e02] text-white' : 'border-[#b27e02] text-[#b27e02] hover:bg-[#b27e02] hover:text-white'}`}>
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    Import JSON
+                                </button>
                                 <a href="/admin/blog/create"
                                     className="bg-gradient-to-r from-[#b27e02] to-[#8a6002] text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg transition-all flex items-center gap-2">
                                     <MdArticle /> New Blog Post
                                 </a>
                             </div>
                         </div>
+
+                        {/* JSON Import Panel */}
+                        {showImport && (
+                            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02] mb-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h2 className="text-lg font-bold text-gray-800">Import Blog from JSON</h2>
+                                        <p className="text-sm text-gray-500">Upload a file or paste JSON — blog will be created directly.</p>
+                                    </div>
+                                    <button onClick={() => { setShowImport(false); setJsonText(''); }} className="text-gray-400 hover:text-gray-600 transition">
+                                        <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+                                    {/* Key hints */}
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-700 mb-2">Accepted Key Names</p>
+                                        <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-600 space-y-1.5">
+                                            {[
+                                                ['Title *', 'title'],
+                                                ['Slug', 'slug'],
+                                                ['Excerpt', 'excerpt, description, summary'],
+                                                ['Content', 'content, body, html'],
+                                                ['Category', 'category'],
+                                                ['Author', 'author, authorName'],
+                                                ['Keywords', 'keywords, tags (string or array)'],
+                                                ['Hero Image', 'heroImage, image, thumbnail, featuredImage'],
+                                                ['Image Alt', 'heroImageAlt, imageAlt, alt'],
+                                                ['SEO Title', 'seoTitle, metaTitle'],
+                                                ['SEO Desc', 'seoDescription, metaDescription'],
+                                            ].map(([label, keys]) => (
+                                                <div key={label} className="flex gap-2">
+                                                    <span className="font-semibold text-gray-700 w-24 shrink-0">{label}:</span>
+                                                    <span className="text-gray-500">{keys}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Example JSON */}
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-700 mb-2">Example JSON Format</p>
+                                        <pre className="bg-gray-900 text-green-400 rounded-lg p-4 text-xs overflow-auto max-h-64">{`{
+  "title": "My Blog Post Title",
+  "slug": "my-blog-post-title",
+  "excerpt": "Short description of the blog.",
+  "category": "Real Estate",
+  "author": "John Doe",
+  "content": "<p>Full blog content here...</p>",
+  "keywords": ["real estate", "property"],
+  "heroImage": "https://example.com/image.jpg",
+  "heroImageAlt": "Blog hero image",
+  "seoTitle": "SEO Optimized Title",
+  "seoDescription": "Meta description for search engines."
+}`}</pre>
+                                    </div>
+                                </div>
+
+                                {/* File upload */}
+                                <div className="flex items-center gap-4 mb-4">
+                                    <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                        Choose JSON File
+                                        <input type="file" accept=".json" onChange={handleJsonFileUpload} className="hidden" disabled={importing} />
+                                    </label>
+                                    <span className="text-sm text-gray-400">or paste below</span>
+                                </div>
+
+                                {/* Paste textarea */}
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-2">Paste JSON</p>
+                                    <textarea
+                                        value={jsonText}
+                                        onChange={e => setJsonText(e.target.value)}
+                                        rows={6}
+                                        disabled={importing}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] font-mono text-xs text-gray-800 placeholder-gray-400 resize-y disabled:opacity-50"
+                                        placeholder={'{\n  "title": "My Blog Post",\n  "content": "<p>...</p>",\n  "excerpt": "Short description"\n}'}
+                                    />
+                                    <div className="flex items-center gap-3 mt-2">
+                                        <button
+                                            type="button"
+                                            onClick={handleJsonPaste}
+                                            disabled={importing}
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] disabled:opacity-50 transition-all text-sm"
+                                        >
+                                            {importing ? (
+                                                <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving...</>
+                                            ) : (
+                                                <><svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Apply &amp; Create</>
+                                            )}
+                                        </button>
+                                        {jsonText && !importing && (
+                                            <button type="button" onClick={() => setJsonText('')} className="text-sm text-gray-400 hover:text-gray-600 transition">Clear</button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {loading ? (
                             <div className="text-center py-12">

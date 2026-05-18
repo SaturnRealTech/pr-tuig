@@ -27,7 +27,7 @@ export async function GET(request) {
         const projects = await db
             .collection('projects')
             .find(query)
-            .sort({ createdAt: -1 })
+            .sort({ createdDate: -1, createdAt: -1 })
             .toArray();
 
         return NextResponse.json({ success: true, data: projects });

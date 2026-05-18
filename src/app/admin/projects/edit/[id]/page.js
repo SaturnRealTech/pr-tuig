@@ -310,7 +310,11 @@ export default function EditProject() {
                 totalUnits: p.totalUnits || '',
                 reraNo: p.reraNo || '',
                 possession: p.possession ? p.possession.split('T')[0] : '',
-                createdDate: p.createdDate ? p.createdDate.split('T')[0] : '',
+                createdDate: p.createdDate
+                                    ? p.createdDate.split('T')[0]
+                                    : p.createdAt
+                                        ? new Date(p.createdAt).toISOString().split('T')[0]
+                                        : '',
                 lat: p.lat || '',
                 lng: p.lng || '',
                 company: p.company || '',

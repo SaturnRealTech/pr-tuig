@@ -18,6 +18,7 @@ export default function CreateBlog() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
+    const [jsonText, setJsonText] = useState('');
 
     const [formData, setFormData] = useState({
         title: '',
@@ -130,6 +131,34 @@ export default function CreateBlog() {
         }
     };
 
+    const applyJson = (raw) => {
+        try {
+            const json = JSON.parse(raw);
+            const pick = (...keys) => { for (const k of keys) { if (json[k] !== undefined && json[k] !== null && json[k] !== '') return json[k]; } return undefined; };
+            const title = pick('title') || '';
+            const content = pick('content', 'body', 'html') || '';
+            const keywords = pick('keywords', 'tags');
+            setFormData(prev => ({
+                ...prev,
+                ...(title && { title }),
+                slug: pick('slug') || (title ? generateSlug(title) : prev.slug),
+                ...(pick('excerpt', 'description', 'summary') !== undefined && { excerpt: pick('excerpt', 'description', 'summary') }),
+                ...(pick('category') !== undefined && { category: pick('category') }),
+                ...(pick('author', 'authorName') !== undefined && { author: pick('author', 'authorName') }),
+                ...(content && { content, readTime: pick('readTime') || calculateReadTime(content) }),
+                ...(pick('seoTitle', 'metaTitle') !== undefined && { seoTitle: pick('seoTitle', 'metaTitle') || json.seo?.title || '' }),
+                ...(pick('seoDescription', 'metaDescription') !== undefined && { seoDescription: pick('seoDescription', 'metaDescription') || json.seo?.description || '' }),
+                ...(keywords !== undefined && { keywords: Array.isArray(keywords) ? keywords.join(', ') : keywords }),
+                ...(pick('heroImage', 'image', 'thumbnail', 'featuredImage') !== undefined && { heroImage: pick('heroImage', 'image', 'thumbnail', 'featuredImage') }),
+                ...(pick('heroImageAlt', 'imageAlt', 'alt') !== undefined && { heroImageAlt: pick('heroImageAlt', 'imageAlt', 'alt') }),
+            }));
+            setJsonText('');
+            Swal.fire({ icon: 'success', title: 'JSON Imported', text: 'Matching fields have been filled.', timer: 1500, showConfirmButton: false });
+        } catch {
+            Swal.fire('Parse Error', 'Invalid JSON. Please check the format.', 'error');
+        }
+    };
+
     const handleJsonUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -138,34 +167,17 @@ export default function CreateBlog() {
             return;
         }
         const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                const json = JSON.parse(event.target.result);
-                const pick = (...keys) => { for (const k of keys) { if (json[k] !== undefined && json[k] !== null && json[k] !== '') return json[k]; } return undefined; };
-                const title = pick('title') || '';
-                const content = pick('content', 'body', 'html') || '';
-                const keywords = pick('keywords', 'tags');
-                setFormData(prev => ({
-                    ...prev,
-                    ...(title && { title }),
-                    slug: pick('slug') || (title ? generateSlug(title) : prev.slug),
-                    ...(pick('excerpt', 'description', 'summary') !== undefined && { excerpt: pick('excerpt', 'description', 'summary') }),
-                    ...(pick('category') !== undefined && { category: pick('category') }),
-                    ...(pick('author', 'authorName') !== undefined && { author: pick('author', 'authorName') }),
-                    ...(content && { content, readTime: pick('readTime') || calculateReadTime(content) }),
-                    ...(pick('seoTitle', 'metaTitle', 'seo.title') !== undefined && { seoTitle: pick('seoTitle', 'metaTitle') || json.seo?.title || '' }),
-                    ...(pick('seoDescription', 'metaDescription') !== undefined && { seoDescription: pick('seoDescription', 'metaDescription') || json.seo?.description || '' }),
-                    ...(keywords !== undefined && { keywords: Array.isArray(keywords) ? keywords.join(', ') : keywords }),
-                    ...(pick('heroImage', 'image', 'thumbnail', 'featuredImage') !== undefined && { heroImage: pick('heroImage', 'image', 'thumbnail', 'featuredImage') }),
-                    ...(pick('heroImageAlt', 'imageAlt', 'alt') !== undefined && { heroImageAlt: pick('heroImageAlt', 'imageAlt', 'alt') }),
-                }));
-                Swal.fire({ icon: 'success', title: 'JSON Imported', text: 'Matching fields have been filled.', timer: 1500, showConfirmButton: false });
-            } catch {
-                Swal.fire('Parse Error', 'Invalid JSON file. Please check the format.', 'error');
-            }
-        };
+        reader.onload = (event) => applyJson(event.target.result);
         reader.readAsText(file);
         e.target.value = '';
+    };
+
+    const handleJsonPaste = () => {
+        if (!jsonText.trim()) {
+            Swal.fire('Empty', 'Please paste JSON content first.', 'warning');
+            return;
+        }
+        applyJson(jsonText);
     };
 
     const handleSubmit = async (e) => {
@@ -174,11 +186,15 @@ export default function CreateBlog() {
 
         try {
             // Get next blog ID
-            const blogsRes = await fetch('/api/blog');
-            const blogsData = await blogsRes.json();
-            const nextId = blogsData.data.length > 0
-                ? Math.max(...blogsData.data.map(b => b.id || 0)) + 1
-                : 1;
+            let nextId = 1;
+            try {
+                const blogsRes = await fetch('/api/blog');
+                const blogsData = await blogsRes.json();
+                const ids = Array.isArray(blogsData.data) ? blogsData.data.map(b => b.id || 0) : [];
+                nextId = ids.length > 0 ? Math.max(...ids) + 1 : 1;
+            } catch {
+                nextId = Date.now();
+            }
 
             const blogData = {
                 id: nextId,
@@ -293,13 +309,42 @@ export default function CreateBlog() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            {/* File upload row */}
+                            <div className="flex items-center gap-4 mb-4">
                                 <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     Choose JSON File
                                     <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
                                 </label>
-                                <span className="text-sm text-gray-400">or fill the form manually below</span>
+                                <span className="text-sm text-gray-400">or paste JSON below</span>
+                            </div>
+
+                            {/* Paste textarea */}
+                            <div>
+                                <p className="text-sm font-semibold text-gray-700 mb-2">Paste JSON</p>
+                                <textarea
+                                    value={jsonText}
+                                    onChange={e => setJsonText(e.target.value)}
+                                    rows={6}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] font-mono text-xs text-gray-800 placeholder-gray-400 resize-y"
+                                    placeholder={'{\n  "title": "My Blog Post",\n  "content": "<p>...</p>",\n  "excerpt": "Short description"\n}'}
+                                />
+                                <div className="flex items-center gap-3 mt-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleJsonPaste}
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm"
+                                    >
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                        Apply JSON
+                                    </button>
+                                    {jsonText && (
+                                        <button type="button" onClick={() => setJsonText('')} className="text-sm text-gray-400 hover:text-gray-600 transition">
+                                            Clear
+                                        </button>
+                                    )}
+                                    <span className="text-xs text-gray-400 ml-auto">or fill the form manually below</span>
+                                </div>
                             </div>
                         </div>
 
@@ -408,8 +453,8 @@ export default function CreateBlog() {
                                         name="author"
                                         value={formData.author}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] bg-gray-50"
-                                        readOnly
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        placeholder="Author name"
                                     />
                                 </div>
                             </div>
@@ -421,20 +466,30 @@ export default function CreateBlog() {
 
                             <div className="space-y-4">
                                 {formData.heroImage ? (
-                                    <div className="relative">
-                                        <img
-                                            src={formData.heroImage}
-                                            alt="Hero"
-                                            className="w-full h-64 object-cover rounded-lg"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={handleDeleteImage}
-                                            className="absolute top-2 right-2 bg-[#b27e02] text-white px-4 py-2 rounded-lg hover:bg-[#8a6002] flex items-center gap-2 shadow-lg"
-                                        >
-                                            <MdDelete size={20} />
-                                            Delete Image
-                                        </button>
+                                    <div>
+                                        <div className="relative">
+                                            <img
+                                                src={formData.heroImage}
+                                                alt="Hero"
+                                                className="w-full h-64 object-cover rounded-lg"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleDeleteImage}
+                                                className="absolute top-2 right-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center gap-2 shadow-lg"
+                                            >
+                                                <MdDelete size={20} />
+                                                Delete
+                                            </button>
+                                        </div>
+                                        <div className="mt-3">
+                                            <p className="text-sm font-semibold text-gray-600 mb-2">Replace Image</p>
+                                            <ImageUploader
+                                                folder="blog"
+                                                multiple={false}
+                                                onUploadSuccess={handleImageUpload}
+                                            />
+                                        </div>
                                     </div>
                                 ) : (
                                     <ImageUploader

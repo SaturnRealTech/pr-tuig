@@ -36,15 +36,26 @@ export async function uploadMultipleToS3(files, folder = 'uploads') {
 }
 
 export async function deleteFromS3(fileUrl) {
-    // Support both old /images/... URLs and new /api/files/... URLs
-    let relativePath;
-    if (fileUrl.startsWith('/api/files/')) {
-        relativePath = fileUrl.replace('/api/files/', '');
-    } else if (fileUrl.startsWith('/images/')) {
-        relativePath = fileUrl.replace('/images/', '');
-    } else {
-        relativePath = fileUrl.startsWith('/') ? fileUrl.slice(1) : fileUrl;
+    if (!fileUrl) return true;
+
+    // Strip domain for absolute URLs (e.g. https://example.com/api/files/...)
+    let pathname = fileUrl;
+    try {
+        const parsed = new URL(fileUrl);
+        pathname = parsed.pathname;
+    } catch {
+        // relative path — use as-is
     }
+
+    // Skip external images that aren't served from this server
+    if (!pathname.startsWith('/api/files/') && !pathname.startsWith('/images/')) {
+        console.log('⚠️ External image, skipping local delete:', fileUrl);
+        return true;
+    }
+
+    const relativePath = pathname.startsWith('/api/files/')
+        ? pathname.replace('/api/files/', '')
+        : pathname.replace('/images/', '');
 
     const filePath = path.join(getUploadRoot(), relativePath);
     try {
@@ -52,6 +63,7 @@ export async function deleteFromS3(fileUrl) {
         console.log('✅ File deleted:', filePath);
         return true;
     } catch (error) {
+        if (error.code === 'ENOENT') return true; // already gone
         console.error('❌ Error deleting file:', error);
         throw new Error(`Failed to delete file: ${error.message}`);
     }

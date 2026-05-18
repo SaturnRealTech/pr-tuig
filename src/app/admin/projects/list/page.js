@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     MdEdit, MdDelete, MdAdd,
-    MdVisibility, MdVisibilityOff, MdSearch, MdArticle, MdWork
+    MdVisibility, MdVisibilityOff, MdSearch, MdWork
 } from 'react-icons/md';
 import Swal from 'sweetalert2';
 import AdminSidebar from '@/components/AdminSidebar';
@@ -106,13 +106,6 @@ export default function ProjectsList() {
     const toggleSelect = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
     const toggleAll = () => setSelectedIds(prev => prev.length === visible.length ? [] : visible.map(p => p._id));
 
-    const handleLogout = async () => {
-        await fetch('/api/auth/logout', { method: 'POST' });
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        router.push('/admin/login');
-    };
-
     if (!user) return null;
 
     const coverImage = (p) => p.desktopBanner || p.heroImages?.[0] || p.image || null;
@@ -185,6 +178,7 @@ export default function ProjectsList() {
                                         <th className="px-4 py-3 text-left font-semibold text-gray-600">Price</th>
                                         <th className="px-4 py-3 text-left font-semibold text-gray-600">RERA</th>
                                         <th className="px-4 py-3 text-left font-semibold text-gray-600">Views</th>
+                                        <th className="px-4 py-3 text-left font-semibold text-gray-600">Launch / Created Date</th>
                                         <th className="px-4 py-3 text-center font-semibold text-gray-600">Status</th>
                                         <th className="px-4 py-3 text-center font-semibold text-gray-600">Actions</th>
                                     </tr>
@@ -219,6 +213,13 @@ export default function ProjectsList() {
                                             <td className="px-4 py-3 text-gray-700 font-medium whitespace-nowrap">{project.price || '—'}</td>
                                             <td className="px-4 py-3 text-gray-500 text-xs">{project.reraNo || '—'}</td>
                                             <td className="px-4 py-3 text-gray-600">{project.views || 0}</td>
+                                            <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                                                {project.createdDate
+                                                    ? new Date(project.createdDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                                                    : project.createdAt
+                                                        ? new Date(project.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                                                        : '—'}
+                                            </td>
                                             <td className="px-4 py-3 text-center">
                                                 <button onClick={() => togglePublish(project)}
                                                     title={project.publishStatus === 'published' ? 'Click to unpublish' : 'Click to publish'}

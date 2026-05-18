@@ -176,7 +176,7 @@ export default function CreateProject() {
         totalUnits: '',
         reraNo: '',
         possession: '',
-        createdDate: '',
+        createdDate: new Date().toISOString().split('T')[0],
         lat: '',
         lng: '',
         company: '',
