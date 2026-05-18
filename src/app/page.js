@@ -115,7 +115,7 @@ export default async function Page() {
     const hasContent = base['@type'] || base.name || brandSettings?.siteName || project?.title;
     if (hasContent) {
       if (!base['@context']) base['@context'] = 'https://schema.org';
-      if (!base['@type']) base['@type'] = 'LocalBusiness';
+      if (!base['@type']) base['@type'] = 'RealEstateAgent';
       if (!base.name) base.name = brandSettings?.siteName || project?.title || '';
       if (!base.url) base.url = siteUrl + '/';
       if (brandSettings?.contactPhone) base.telephone = brandSettings.contactPhone;
@@ -149,13 +149,15 @@ export default async function Page() {
         brand: { '@type': 'Brand', name: project.schemaBrand || project.company },
       } : {}),
       ...(isoDate ? { releaseDate: isoDate } : {}),
-      offers: {
-        '@type': 'Offer',
-        priceCurrency: project.schemaPriceCurrency || 'INR',
-        availability: `https://schema.org/${project.schemaAvailability || 'InStock'}`,
-        url: projectUrl,
-        ...((project.schemaPrice || project.price) ? { price: project.schemaPrice || project.price } : {}),
-      },
+      ...(project.schemaRatingValue && project.schemaRatingCount ? {
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: String(project.schemaRatingValue),
+          reviewCount: String(project.schemaRatingCount),
+          bestRating: '5',
+          worstRating: '1',
+        },
+      } : {}),
       additionalProperty: [
         ...((project.schemaLocation || project.projectAddress) ? [{ '@type': 'PropertyValue', name: 'Location', value: project.schemaLocation || project.projectAddress }] : []),
         ...((project.schemaPossession || project.possession) ? [{ '@type': 'PropertyValue', name: 'Possession', value: project.schemaPossession || project.possession }] : []),
