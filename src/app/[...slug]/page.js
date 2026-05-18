@@ -135,14 +135,14 @@ export default async function SlugPage({ params }) {
                         brand: { '@type': 'Brand', name: project.schemaBrand || project.company },
                     } : {}),
                     ...(publishedAt ? { releaseDate: publishedAt } : {}),
-                    offers: {
-                        '@type': 'Offer',
-                        priceCurrency: project.schemaPriceCurrency || 'INR',
-                        availability: `https://schema.org/${project.schemaAvailability || 'InStock'}`,
-                        url: `${SITE_URL}${projectPath}`,
-                        seller: { '@id': `${SITE_URL}/#organization` },
-                        ...((project.schemaPrice || project.price) ? { price: project.schemaPrice || project.price } : {}),
-                    },
+                    // offers: {
+                    //     '@type': 'Offer',
+                    //     priceCurrency: project.schemaPriceCurrency || 'INR',
+                    //     availability: `https://schema.org/${project.schemaAvailability || 'InStock'}`,
+                    //     url: `${SITE_URL}${projectPath}`,
+                    //     seller: { '@id': `${SITE_URL}/#organization` },
+                    //     ...((project.schemaPrice || project.price) ? { price: project.schemaPrice || project.price } : {}),
+                    // },
                     additionalProperty: [
                         ...((project.schemaLocation || project.projectAddress) ? [{ '@type': 'PropertyValue', name: 'Location', value: project.schemaLocation || project.projectAddress }] : []),
                         ...((project.schemaPossession || project.possession) ? [{ '@type': 'PropertyValue', name: 'Possession', value: project.schemaPossession || project.possession }] : []),
