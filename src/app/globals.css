@@ -527,3 +527,19 @@ b {
   background-color: var(--primary);
   min-height: 24px;
 }
+
+/* Leaflet project tooltip */
+.leaflet-project-tooltip {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}
+.leaflet-project-tooltip::before {
+  border-top-color: #1a1a1a;
+}

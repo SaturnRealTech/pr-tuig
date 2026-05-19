@@ -7,6 +7,62 @@ import NavbarClient from '@/features/home/components/NavbarClient';
 import { useState, useRef, useEffect } from 'react';
 import { useEnquireNow } from '@/lib/EnquireNowContext';
 
+function LeafletMap({ lat, lng, title }) {
+    const containerRef = useRef(null);
+    const mapRef = useRef(null);
+
+    useEffect(() => {
+        if (!containerRef.current || mapRef.current) return;
+
+        import('leaflet').then(({ default: L }) => {
+            import('leaflet/dist/leaflet.css');
+
+            const map = L.map(containerRef.current, {
+                center: [lat, lng],
+                zoom: 15,
+                scrollWheelZoom: false,
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            }).addTo(map);
+
+            const icon = L.divIcon({
+                className: '',
+                html: `<div style="position:relative;width:36px;height:48px;">
+                    <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 0C8.059 0 0 8.059 0 18c0 12.75 18 30 18 30S36 30.75 36 18C36 8.059 27.941 0 18 0z" fill="#b27e02"/>
+                        <circle cx="18" cy="18" r="8" fill="white"/>
+                        <circle cx="18" cy="18" r="4" fill="#b27e02"/>
+                    </svg>
+                </div>`,
+                iconSize: [36, 48],
+                iconAnchor: [18, 48],
+                tooltipAnchor: [0, -50],
+            });
+
+            const marker = L.marker([lat, lng], { icon }).addTo(map);
+            marker.bindTooltip(title, {
+                permanent: false,
+                direction: 'top',
+                className: 'leaflet-project-tooltip',
+                offset: [0, -4],
+            });
+
+            mapRef.current = map;
+        });
+
+        return () => {
+            if (mapRef.current) {
+                mapRef.current.remove();
+                mapRef.current = null;
+            }
+        };
+    }, [lat, lng, title]);
+
+    return <div ref={containerRef} style={{ height: '420px', width: '100%', zIndex: 0 }} />;
+}
+
 function hasContent(html) {
     if (!html) return false;
     return html.replace(/<[^>]*>/g, '').trim().length > 0;
@@ -692,9 +748,6 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                     {!project.hideLocation && ((project.lat && project.lng) || hasContent(project.location?.content)) ? (() => {
                         const loc = project.location || {};
                         const hasMap = project.lat && project.lng;
-                        const mapSrc = hasMap
-                            ? `https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(project.lng) - 0.008},${parseFloat(project.lat) - 0.008},${parseFloat(project.lng) + 0.008},${parseFloat(project.lat) + 0.008}&layer=mapnik`
-                            : null;
                         return (
                             <div id="location" className="mb-16">
                                 <div className="text-center mb-8">
@@ -704,38 +757,22 @@ export default function ProjectDetailPage({ project, isHome = false }) {
                                     <div className="mt-3 mx-auto w-16 h-1 rounded-full bg-[#b27e02]" />
                                 </div>
 
-                                {hasContent(loc.content) && (
-                                    <div className="mb-8">
-                                        <div
-                                            className="rich-content text-gray-800 text-base md:text-lg"
-                                            dangerouslySetInnerHTML={{ __html: processContent(loc.content) }}
+                                {hasMap && (
+                                    <div className="overflow-hidden rounded-xl mb-8">
+                                        <LeafletMap
+                                            lat={parseFloat(project.lat)}
+                                            lng={parseFloat(project.lng)}
+                                            title={project.title}
                                         />
                                     </div>
                                 )}
 
-                                {mapSrc && (
-                                    <div className="relative overflow-hidden">
-                                        <iframe
-                                            src={mapSrc}
-                                            width="100%"
-                                            height="420"
-                                            style={{ border: 'none', display: 'block' }}
-                                            title="Project Location"
-                                            loading="lazy"
+                                {hasContent(loc.content) && (
+                                    <div>
+                                        <div
+                                            className="rich-content text-gray-800 text-base md:text-lg"
+                                            dangerouslySetInnerHTML={{ __html: processContent(loc.content) }}
                                         />
-                                        {/* Custom gold marker centered over the map */}
-                                        <div className="absolute left-1/2 top-1/2 pointer-events-none"
-                                            style={{ transform: 'translate(-50%, -100%)' }}>
-                                            <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <filter id="pin-shadow">
-                                                    <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#00000040" />
-                                                </filter>
-                                                <path d="M18 0C8.059 0 0 8.059 0 18c0 12.75 18 30 18 30S36 30.75 36 18C36 8.059 27.941 0 18 0z"
-                                                    fill="#b27e02" filter="url(#pin-shadow)" />
-                                                <circle cx="18" cy="18" r="8" fill="white" />
-                                                <circle cx="18" cy="18" r="4" fill="#b27e02" />
-                                            </svg>
-                                        </div>
                                     </div>
                                 )}
                             </div>

@@ -167,6 +167,110 @@ export default function CreateProject() {
     const [user, setUser] = useState(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [loading, setLoading] = useState(false);
+    const [jsonText, setJsonText] = useState('');
+
+    const applyJson = (raw) => {
+        try {
+            const json = JSON.parse(raw);
+            const p = (...keys) => { for (const k of keys) { if (json[k] !== undefined && json[k] !== null) return json[k]; } return undefined; };
+            const str = (...keys) => { const v = p(...keys); return v !== undefined ? (String(v) || '') : undefined; };
+            const kw = p('keywords', 'tags');
+            const sameAs = p('orgSchemaSameAs', 'sameAs');
+            setFormData(prev => ({
+                ...prev,
+                ...(p('title') !== undefined && { title: str('title') }),
+                ...(p('slug') !== undefined && { slug: str('slug') }),
+                ...(p('projectAddress', 'address') !== undefined && { projectAddress: str('projectAddress', 'address') }),
+                ...(p('price') !== undefined && { price: str('price') }),
+                ...(p('totalUnits') !== undefined && { totalUnits: str('totalUnits') }),
+                ...(p('reraNo', 'rera') !== undefined && { reraNo: str('reraNo', 'rera') }),
+                ...(p('possession') !== undefined && { possession: str('possession') }),
+                ...(p('createdDate') !== undefined && { createdDate: str('createdDate') }),
+                ...(p('company', 'builder', 'brand') !== undefined && { company: str('company', 'builder', 'brand') }),
+                ...(p('lat', 'latitude') !== undefined && { lat: str('lat', 'latitude') }),
+                ...(p('lng', 'longitude') !== undefined && { lng: str('lng', 'longitude') }),
+                ...(p('contentTitle') !== undefined && { contentTitle: str('contentTitle') }),
+                ...(p('contentImage') !== undefined && { contentImage: str('contentImage') }),
+                ...(p('content', 'body', 'html', 'description') !== undefined && { content: str('content', 'body', 'html', 'description') }),
+                ...(p('metaTitle', 'seoTitle') !== undefined && { metaTitle: str('metaTitle', 'seoTitle') }),
+                ...(p('metaDescription', 'seoDescription') !== undefined && { metaDescription: str('metaDescription', 'seoDescription') }),
+                ...(kw !== undefined && { keywords: Array.isArray(kw) ? kw.join(', ') : (kw || '') }),
+                ...(p('desktopBanner', 'desktopImage') !== undefined && { desktopBanner: str('desktopBanner', 'desktopImage') }),
+                ...(p('mobileBanner', 'mobileImage') !== undefined && { mobileBanner: str('mobileBanner', 'mobileImage') }),
+                ...(p('publishStatus') !== undefined && { publishStatus: str('publishStatus') }),
+                ...(p('keyHighlightsTitle') !== undefined && { keyHighlightsTitle: str('keyHighlightsTitle') }),
+                ...(p('keyHighlights') !== undefined && { keyHighlights: str('keyHighlights') }),
+                ...(p('ctaButtonText') !== undefined && { ctaButtonText: str('ctaButtonText') }),
+                ...(p('amenitiesTitle') !== undefined && { amenitiesTitle: str('amenitiesTitle') }),
+                ...(p('amenitiesContent') !== undefined && { amenitiesContent: str('amenitiesContent') }),
+                ...(p('configurations') !== undefined && { configurations: str('configurations') }),
+                ...(p('configurationsTitle') !== undefined && { configurationsTitle: str('configurationsTitle') }),
+                ...(p('configurationsCtaLabel') !== undefined && { configurationsCtaLabel: str('configurationsCtaLabel') }),
+                ...(p('walkthroughTitle') !== undefined && { walkthroughTitle: str('walkthroughTitle') }),
+                ...(p('walkthroughUrl') !== undefined && { walkthroughUrl: str('walkthroughUrl') }),
+                ...(p('walkthroughDuration') !== undefined && { walkthroughDuration: str('walkthroughDuration') }),
+                ...(Array.isArray(p('amenities')) && { amenities: json.amenities }),
+                ...(Array.isArray(p('faqs')) && { faqs: json.faqs }),
+                ...(Array.isArray(p('detailedOverview')) && { detailedOverview: json.detailedOverview }),
+                ...(p('gallery') && typeof json.gallery === 'object' && { gallery: { ...prev.gallery, ...json.gallery } }),
+                ...(p('masterFloorPlan') && typeof json.masterFloorPlan === 'object' && { masterFloorPlan: { ...prev.masterFloorPlan, ...json.masterFloorPlan } }),
+                ...(p('projectSpecifications') && typeof json.projectSpecifications === 'object' && { projectSpecifications: { ...prev.projectSpecifications, ...json.projectSpecifications } }),
+                ...(p('location') && typeof json.location === 'object' && { location: { ...prev.location, ...json.location } }),
+                ...(p('schemaName') !== undefined && { schemaName: str('schemaName') }),
+                ...(p('schemaDescription') !== undefined && { schemaDescription: str('schemaDescription') }),
+                ...(p('schemaBrand') !== undefined && { schemaBrand: str('schemaBrand') }),
+                ...(p('schemaPrice') !== undefined && { schemaPrice: str('schemaPrice') }),
+                ...(p('schemaPriceCurrency') !== undefined && { schemaPriceCurrency: str('schemaPriceCurrency') }),
+                ...(p('schemaAvailability') !== undefined && { schemaAvailability: str('schemaAvailability') }),
+                ...(p('schemaLocation') !== undefined && { schemaLocation: str('schemaLocation') }),
+                ...(p('schemaPossession') !== undefined && { schemaPossession: str('schemaPossession') }),
+                ...(p('schemaRatingValue') !== undefined && { schemaRatingValue: str('schemaRatingValue') }),
+                ...(p('schemaRatingCount') !== undefined && { schemaRatingCount: str('schemaRatingCount') }),
+                ...(p('orgSchemaName') !== undefined && { orgSchemaName: str('orgSchemaName') }),
+                ...(p('orgSchemaDescription') !== undefined && { orgSchemaDescription: str('orgSchemaDescription') }),
+                ...(p('orgSchemaEmail') !== undefined && { orgSchemaEmail: str('orgSchemaEmail') }),
+                ...(p('orgSchemaStreetAddress') !== undefined && { orgSchemaStreetAddress: str('orgSchemaStreetAddress') }),
+                ...(p('orgSchemaAddressLocality') !== undefined && { orgSchemaAddressLocality: str('orgSchemaAddressLocality') }),
+                ...(p('orgSchemaAddressRegion') !== undefined && { orgSchemaAddressRegion: str('orgSchemaAddressRegion') }),
+                ...(p('orgSchemaPostalCode') !== undefined && { orgSchemaPostalCode: str('orgSchemaPostalCode') }),
+                ...(p('orgSchemaAddressCountry') !== undefined && { orgSchemaAddressCountry: str('orgSchemaAddressCountry') }),
+                ...(sameAs !== undefined && { orgSchemaSameAs: Array.isArray(sameAs) ? sameAs.join('\n') : (sameAs || '') }),
+                ...(p('isHomePage') !== undefined && { isHomePage: !!json.isHomePage }),
+                ...(p('hideContent') !== undefined && { hideContent: !!json.hideContent }),
+                ...(p('hideEnquireCTA') !== undefined && { hideEnquireCTA: !!json.hideEnquireCTA }),
+                ...(p('hideKeyHighlights') !== undefined && { hideKeyHighlights: !!json.hideKeyHighlights }),
+                ...(p('hideWalkthrough') !== undefined && { hideWalkthrough: !!json.hideWalkthrough }),
+                ...(p('hideAmenities') !== undefined && { hideAmenities: !!json.hideAmenities }),
+                ...(p('hideConfigurations') !== undefined && { hideConfigurations: !!json.hideConfigurations }),
+                ...(p('hideMasterFloorPlan') !== undefined && { hideMasterFloorPlan: !!json.hideMasterFloorPlan }),
+                ...(p('hideGallery') !== undefined && { hideGallery: !!json.hideGallery }),
+                ...(p('hideProjectSpecifications') !== undefined && { hideProjectSpecifications: !!json.hideProjectSpecifications }),
+                ...(p('hideLocation') !== undefined && { hideLocation: !!json.hideLocation }),
+                ...(p('hideFAQs') !== undefined && { hideFAQs: !!json.hideFAQs }),
+                ...(p('hideBlogs') !== undefined && { hideBlogs: !!json.hideBlogs }),
+                ...(p('hideDetailedOverview') !== undefined && { hideDetailedOverview: !!json.hideDetailedOverview }),
+            }));
+            setJsonText('');
+            Swal.fire({ icon: 'success', title: 'JSON Imported', text: 'Matching fields have been filled.', timer: 1500, showConfirmButton: false });
+        } catch {
+            Swal.fire('Parse Error', 'Invalid JSON. Please check the format.', 'error');
+        }
+    };
+
+    const handleJsonUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.name.endsWith('.json')) { Swal.fire('Invalid File', 'Please upload a .json file.', 'error'); return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => applyJson(ev.target.result);
+        reader.readAsText(file);
+        e.target.value = '';
+    };
+
+    const handleJsonPaste = () => {
+        if (!jsonText.trim()) { Swal.fire('Empty', 'Please paste JSON content first.', 'warning'); return; }
+        applyJson(jsonText);
+    };
 
     const [formData, setFormData] = useState({
         title: '',
@@ -196,8 +300,18 @@ export default function CreateProject() {
         schemaPossession: '',
         schemaRatingValue: '',
         schemaRatingCount: '',
+        orgSchemaName: '',
+        orgSchemaDescription: '',
+        orgSchemaEmail: '',
+        orgSchemaSameAs: '',
+        orgSchemaStreetAddress: '',
+        orgSchemaAddressLocality: '',
+        orgSchemaAddressRegion: '',
+        orgSchemaPostalCode: '',
+        orgSchemaAddressCountry: 'IN',
         desktopBanner: '',
         mobileBanner: '',
+        publishStatus: 'draft',
         amenities: [],
         amenitiesTitle: '',
         amenitiesContent: '',
@@ -228,6 +342,8 @@ export default function CreateProject() {
         hideFAQs: false,
         hideBlogs: false,
         isHomePage: false,
+        detailedOverview: [],
+        hideDetailedOverview: false,
     });
 
     useEffect(() => {
@@ -258,6 +374,37 @@ export default function CreateProject() {
             ...prev,
             amenities: prev.amenities.map((a, idx) => idx === i ? { ...a, [field]: value } : a),
         }));
+    };
+
+    const [faqJsonText, setFaqJsonText] = useState('');
+    const [showFaqJsonImport, setShowFaqJsonImport] = useState(false);
+
+    const applyFaqJson = (raw) => {
+        try {
+            const parsed = JSON.parse(raw);
+            const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.faqs) ? parsed.faqs : null);
+            if (!arr) { Swal.fire('Format Error', 'Expected a JSON array or object with a "faqs" key.', 'error'); return; }
+            const normalized = arr.map(item => ({
+                question: item.question || item.q || '',
+                answer: item.answer || item.a || '',
+            }));
+            setFormData(prev => ({ ...prev, faqs: normalized }));
+            setFaqJsonText('');
+            setShowFaqJsonImport(false);
+            Swal.fire({ icon: 'success', title: `${normalized.length} FAQ(s) Imported`, timer: 1500, showConfirmButton: false });
+        } catch {
+            Swal.fire('Parse Error', 'Invalid JSON. Please check the format.', 'error');
+        }
+    };
+
+    const handleFaqJsonUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.name.endsWith('.json')) { Swal.fire('Invalid File', 'Please upload a .json file.', 'error'); return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => applyFaqJson(ev.target.result);
+        reader.readAsText(file);
+        e.target.value = '';
     };
 
     const addFAQ = () => {
@@ -352,6 +499,221 @@ export default function CreateProject() {
                     </div>
 
                     <form onSubmit={e => e.preventDefault()}>
+                        {/* Import from JSON */}
+                        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02] mb-6">
+                            <h2 className="text-xl font-bold text-gray-800 mb-1">Import from JSON</h2>
+                            <p className="text-sm text-gray-500 mb-4">Upload a JSON file — matching fields will be auto-filled automatically.</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-2">Accepted Key Names</p>
+                                    <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-600 space-y-1.5 max-h-72 overflow-y-auto">
+                                        {[
+                                            ['title', 'Project title'],
+                                            ['slug', 'URL slug'],
+                                            ['projectAddress / address', 'Project location'],
+                                            ['price', 'Starting price'],
+                                            ['totalUnits', 'Total units'],
+                                            ['reraNo / rera', 'RERA number'],
+                                            ['possession', 'Possession date'],
+                                            ['createdDate', 'Launch date'],
+                                            ['company / builder / brand', 'Builder name'],
+                                            ['lat / latitude', 'Map latitude'],
+                                            ['lng / longitude', 'Map longitude'],
+                                            ['contentTitle', 'Overview section title'],
+                                            ['contentImage', 'Overview section image URL'],
+                                            ['content / body / description', 'Main content HTML'],
+                                            ['metaTitle / seoTitle', 'SEO title'],
+                                            ['metaDescription', 'SEO description'],
+                                            ['keywords / tags', 'String or array'],
+                                            ['desktopBanner', 'Desktop banner URL'],
+                                            ['mobileBanner', 'Mobile banner URL'],
+                                            ['publishStatus', 'draft or published'],
+                                            ['keyHighlightsTitle', 'Key highlights title'],
+                                            ['keyHighlights', 'Key highlights HTML'],
+                                            ['ctaButtonText', 'CTA button label'],
+                                            ['amenitiesTitle', 'Amenities section title'],
+                                            ['amenitiesContent', 'Amenities HTML'],
+                                            ['amenities', 'Array of amenity objects'],
+                                            ['configurations', 'Configurations HTML'],
+                                            ['configurationsTitle', 'Configurations title'],
+                                            ['configurationsCtaLabel', 'Configurations CTA label'],
+                                            ['walkthroughTitle', 'Walkthrough section title'],
+                                            ['walkthroughUrl', 'YouTube video URL'],
+                                            ['walkthroughDuration', 'Video duration'],
+                                            ['faqs', 'Array of {question, answer}'],
+                                            ['gallery', '{title, content, images[]}'],
+                                            ['masterFloorPlan', '{title, masterPlans[], floorPlans[]}'],
+                                            ['projectSpecifications', '{title, specs[], ctaLabel}'],
+                                            ['location', '{title, content}'],
+                                            ['detailedOverview', 'Array of {title, content, image}'],
+                                            ['schemaName', 'Product schema name'],
+                                            ['schemaDescription', 'Product schema description'],
+                                            ['schemaBrand', 'Brand / builder name'],
+                                            ['schemaPrice', 'Schema price'],
+                                            ['schemaRatingValue', 'Rating value (1–5)'],
+                                            ['schemaRatingCount', 'Number of reviews'],
+                                            ['orgSchemaName', 'Org name'],
+                                            ['orgSchemaEmail', 'Org email'],
+                                            ['orgSchemaStreetAddress', 'Street address'],
+                                            ['orgSchemaAddressLocality', 'City'],
+                                            ['orgSchemaAddressRegion', 'State'],
+                                            ['orgSchemaPostalCode', 'Postal code'],
+                                            ['orgSchemaAddressCountry', 'Country code (IN)'],
+                                            ['orgSchemaSameAs / sameAs', 'Array of social URLs'],
+                                            ['isHomePage', 'true/false'],
+                                            ['hideContent', 'true to hide section'],
+                                            ['hideKeyHighlights', 'true to hide section'],
+                                            ['hideAmenities', 'true to hide section'],
+                                            ['hideGallery', 'true to hide section'],
+                                            ['hideFAQs', 'true to hide section'],
+                                        ].map(([key, desc]) => (
+                                            <div key={key} className="flex gap-2">
+                                                <span className="font-semibold text-gray-700 w-56 shrink-0">{key}:</span>
+                                                <span className="text-gray-500">{desc}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-2">Example JSON Format</p>
+                                    <pre className="bg-gray-900 text-green-400 rounded-lg p-4 text-xs overflow-auto max-h-72">{`{
+  "title": "Skyline Residences",
+  "slug": "skyline-residences",
+  "projectAddress": "Baner, Pune, Maharashtra",
+  "price": "₹85 Lakhs onwards",
+  "totalUnits": "240",
+  "reraNo": "P52100XXXXX",
+  "possession": "Dec 2026",
+  "createdDate": "2024-01-15",
+  "company": "Skyline Builders",
+  "lat": "18.5204",
+  "lng": "73.8567",
+  "contentTitle": "About Skyline Residences",
+  "contentImage": "https://cdn.example.com/overview.jpg",
+  "content": "<p>Premium 2 & 3 BHK apartments...</p>",
+  "metaTitle": "Skyline Residences - Flats in Pune",
+  "metaDescription": "Luxury 2 & 3 BHK in Baner Pune.",
+  "keywords": ["flats in pune", "baner apartments"],
+  "desktopBanner": "https://cdn.example.com/banner.jpg",
+  "mobileBanner": "https://cdn.example.com/mobile.jpg",
+  "publishStatus": "draft",
+  "keyHighlightsTitle": "Key Highlights",
+  "keyHighlights": "<ul><li>2 & 3 BHK</li></ul>",
+  "ctaButtonText": "Download Brochure",
+  "amenitiesTitle": "Amenities",
+  "amenitiesContent": "<p>World-class amenities</p>",
+  "amenities": [
+    { "title": "Swimming Pool", "image": "" },
+    { "title": "Gymnasium", "image": "" }
+  ],
+  "configurationsTitle": "Configurations",
+  "configurations": "<p>2BHK: 950 sqft</p>",
+  "configurationsCtaLabel": "Book a Visit",
+  "walkthroughTitle": "Project Walkthrough",
+  "walkthroughUrl": "https://youtube.com/watch?v=XXXXX",
+  "walkthroughDuration": "3:45",
+  "faqs": [
+    { "question": "What is the price?", "answer": "Starting ₹85L" },
+    { "question": "What is RERA no?", "answer": "P52100XXXXX" }
+  ],
+  "gallery": {
+    "title": "Gallery",
+    "content": "",
+    "images": [
+      { "url": "https://cdn.example.com/g1.jpg", "alt": "Exterior view" }
+    ]
+  },
+  "masterFloorPlan": {
+    "title": "Master & Floor Plans",
+    "masterPlans": [
+      { "image": "https://cdn.example.com/master.jpg", "label": "Master Plan" }
+    ],
+    "floorPlans": [
+      { "image": "https://cdn.example.com/floor.jpg", "label": "2BHK Floor Plan" }
+    ]
+  },
+  "projectSpecifications": {
+    "title": "Specifications",
+    "ctaLabel": "Download Brochure",
+    "specs": [
+      { "title": "Flooring", "content": "Vitrified tiles" }
+    ]
+  },
+  "location": {
+    "title": "Location Advantages",
+    "content": "<p>Near highway...</p>"
+  },
+  "detailedOverview": [
+    {
+      "title": "Why Invest?",
+      "content": "<p>High ROI location</p>",
+      "image": "https://cdn.example.com/invest.jpg"
+    }
+  ],
+  "schemaName": "Skyline Residences",
+  "schemaDescription": "Premium 2 & 3 BHK in Pune",
+  "schemaBrand": "Skyline Builders",
+  "schemaPrice": "8500000",
+  "schemaPriceCurrency": "INR",
+  "schemaAvailability": "InStock",
+  "schemaLocation": "Baner, Pune",
+  "schemaPossession": "Dec 2026",
+  "schemaRatingValue": "4.5",
+  "schemaRatingCount": "128",
+  "orgSchemaName": "Saturn RealCon",
+  "orgSchemaEmail": "info@saturnrealcon.com",
+  "orgSchemaStreetAddress": "12 MG Road",
+  "orgSchemaAddressLocality": "Pune",
+  "orgSchemaAddressRegion": "Maharashtra",
+  "orgSchemaPostalCode": "411001",
+  "orgSchemaAddressCountry": "IN",
+  "sameAs": [
+    "https://facebook.com/yourpage",
+    "https://instagram.com/yourpage"
+  ],
+  "isHomePage": false,
+  "hideContent": false,
+  "hideKeyHighlights": false,
+  "hideAmenities": false,
+  "hideGallery": false,
+  "hideFAQs": false
+}`}</pre>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 mb-4">
+                                <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                    <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    Choose JSON File
+                                    <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
+                                </label>
+                                <span className="text-sm text-gray-400">or paste JSON below</span>
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-semibold text-gray-700 mb-2">Paste JSON</p>
+                                <textarea
+                                    value={jsonText}
+                                    onChange={e => setJsonText(e.target.value)}
+                                    rows={6}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] font-mono text-xs text-gray-800 placeholder-gray-400 resize-y"
+                                    placeholder={'{\n  "title": "My Project",\n  "metaTitle": "SEO Title",\n  "price": "₹50L onwards"\n}'}
+                                />
+                                <div className="flex items-center gap-3 mt-2">
+                                    <button type="button" onClick={handleJsonPaste}
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                        Apply JSON
+                                    </button>
+                                    {jsonText && (
+                                        <button type="button" onClick={() => setJsonText('')} className="text-sm text-gray-400 hover:text-gray-600 transition">Clear</button>
+                                    )}
+                                    <span className="text-xs text-gray-400 ml-auto">or fill the form manually below</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="flex gap-6 items-start">
 
                             {/* ── Left Column ── */}
@@ -946,14 +1308,67 @@ export default function CreateProject() {
                                         <h3 className="text-lg font-bold text-gray-800">Frequently Asked Questions</h3>
                                         <div className="flex items-center gap-3">
                                             <SectionToggle checked={!formData.hideFAQs} onChange={e => setFormData(prev => ({ ...prev, hideFAQs: !e.target.checked }))} />
+                                            <button type="button" onClick={() => setShowFaqJsonImport(v => !v)}
+                                                className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition border border-gray-300">
+                                                {showFaqJsonImport ? 'Hide JSON' : 'Import JSON'}
+                                            </button>
                                             <button type="button" onClick={addFAQ}
                                                 className="px-3 py-1.5 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002] transition">
                                                 + Add FAQ
                                             </button>
                                         </div>
                                     </div>
+
+                                    {showFaqJsonImport && (
+                                        <div className="mb-5 p-4 bg-gray-50 border border-dashed border-[#b27e02] rounded-lg">
+                                            <p className="text-sm font-semibold text-gray-700 mb-1">Import FAQs from JSON</p>
+                                            <p className="text-xs text-gray-400 mb-3">Paste a JSON array or an object with a <code className="bg-white px-1 rounded border">faqs</code> key. Accepts <code className="bg-white px-1 rounded border">question/q</code> and <code className="bg-white px-1 rounded border">answer/a</code> keys. This will <strong>replace</strong> existing FAQs.</p>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                                <div>
+                                                    <p className="text-xs font-semibold text-gray-600 mb-1">Paste JSON</p>
+                                                    <textarea
+                                                        value={faqJsonText}
+                                                        onChange={e => setFaqJsonText(e.target.value)}
+                                                        rows={5}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-xs text-gray-800 focus:outline-none focus:border-[#b27e02] resize-y"
+                                                        placeholder={'[\n  { "question": "What is the price?", "answer": "₹85L onwards" }\n]'}
+                                                    />
+                                                    <div className="flex gap-2 mt-2">
+                                                        <label className="inline-flex items-center gap-1.5 cursor-pointer px-3 py-1.5 bg-[#b27e02] text-white text-xs font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                                            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                            Upload .json
+                                                            <input type="file" accept=".json" onChange={handleFaqJsonUpload} className="hidden" />
+                                                        </label>
+                                                        <button type="button" onClick={() => applyFaqJson(faqJsonText)}
+                                                            className="px-3 py-1.5 bg-[#b27e02] text-white text-xs font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                                            Apply
+                                                        </button>
+                                                        {faqJsonText && <button type="button" onClick={() => setFaqJsonText('')} className="text-xs text-gray-400 hover:text-gray-600">Clear</button>}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-semibold text-gray-600 mb-1">Example Format</p>
+                                                    <pre className="bg-gray-900 text-green-400 rounded-lg p-3 text-xs overflow-auto max-h-40">{`[
+  {
+    "question": "What is the price?",
+    "answer": "Starting ₹85 Lakhs"
+  },
+  {
+    "question": "What is the RERA number?",
+    "answer": "P52100XXXXX"
+  },
+  {
+    "question": "When is possession?",
+    "answer": "December 2026"
+  }
+]`}</pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {formData.faqs.length === 0 ? (
-                                        <p className="text-sm text-gray-400 italic py-4">No FAQs added yet. Click "Add FAQ" to get started.</p>
+                                        <p className="text-sm text-gray-400 italic py-4">No FAQs added yet. Click "Add FAQ" or use "Import JSON" above.</p>
                                     ) : (
                                         <div className="space-y-4">
                                             {formData.faqs.map((faq, index) => (

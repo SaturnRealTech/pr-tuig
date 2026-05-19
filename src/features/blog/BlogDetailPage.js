@@ -43,10 +43,10 @@ export default function BlogDetailPage({ post }) {
 
                     {/* Meta Information - Clean Row, Centered, React Icons */}
                     <div className="flex flex-wrap items-center gap-4 text-gray-500 text-base mb-8 justify-center">
-                        <div className="flex items-center gap-2">
+                        {/* <div className="flex items-center gap-2">
                             <MdPerson className="w-7 h-7 text-blue-400" />
                             <span className="font-semibold text-gray-700 text-lg">Content Team</span>
-                        </div>
+                        </div> */}
                         <div className="flex items-center gap-2">
                             <MdCalendarToday className="w-5 h-5 text-gray-400" />
                             <span>{post.date}</span>

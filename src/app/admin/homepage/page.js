@@ -22,6 +22,7 @@ export default function HomePageManagement() {
 
     const [schemaError, setSchemaError] = useState('');
     const [orgSchemaError, setOrgSchemaError] = useState('');
+    const [jsonText, setJsonText] = useState('');
 
     const [formData, setFormData] = useState({
         heroTitle: '',
@@ -68,7 +69,10 @@ export default function HomePageManagement() {
     const fetchHomepageData = async () => {
         try {
             setLoading(true);
-            const res = await fetch('/api/homepage');
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch('/api/homepage', { signal: controller.signal });
+            clearTimeout(timer);
             const result = await res.json();
             if (result.success && result.data) {
                 setFormData(prev => ({ ...prev, ...result.data }));
@@ -117,6 +121,57 @@ export default function HomePageManagement() {
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
+    };
+
+    const applyJson = (raw) => {
+        try {
+            const json = JSON.parse(raw);
+            const pick = (...keys) => { for (const k of keys) { if (json[k] !== undefined && json[k] !== null) return json[k]; } return undefined; };
+            const kw = pick('keywords');
+            const lbs = pick('localBusinessSchema');
+            const org = pick('organizationSchema');
+            setFormData(prev => ({
+                ...prev,
+                ...(pick('heroTitle') !== undefined && { heroTitle: pick('heroTitle') || '' }),
+                ...(pick('heroSubtitle') !== undefined && { heroSubtitle: pick('heroSubtitle') || '' }),
+                ...(pick('heroDescription') !== undefined && { heroDescription: pick('heroDescription') || '' }),
+                ...(pick('heroCtaText') !== undefined && { heroCtaText: pick('heroCtaText') || '' }),
+                ...(pick('heroCtaLink') !== undefined && { heroCtaLink: pick('heroCtaLink') || '' }),
+                ...(pick('desktopHeroBanner') !== undefined && { desktopHeroBanner: pick('desktopHeroBanner') || '' }),
+                ...(pick('mobileHeroBanner') !== undefined && { mobileHeroBanner: pick('mobileHeroBanner') || '' }),
+                ...(pick('featuredProjectsTitle') !== undefined && { featuredProjectsTitle: pick('featuredProjectsTitle') || '' }),
+                ...(pick('featuredProjectsSubtitle') !== undefined && { featuredProjectsSubtitle: pick('featuredProjectsSubtitle') || '' }),
+                ...(pick('aboutSectionTitle') !== undefined && { aboutSectionTitle: pick('aboutSectionTitle') || '' }),
+                ...(pick('aboutSectionContent', 'aboutContent') !== undefined && { aboutSectionContent: pick('aboutSectionContent', 'aboutContent') || '' }),
+                ...(pick('whyChooseUsTitle') !== undefined && { whyChooseUsTitle: pick('whyChooseUsTitle') || '' }),
+                ...(pick('whyChooseUsContent') !== undefined && { whyChooseUsContent: pick('whyChooseUsContent') || '' }),
+                ...(pick('testimonialsTitle') !== undefined && { testimonialsTitle: pick('testimonialsTitle') || '' }),
+                ...(pick('metaTitle', 'seoTitle') !== undefined && { metaTitle: pick('metaTitle', 'seoTitle') || '' }),
+                ...(pick('metaDescription', 'seoDescription') !== undefined && { metaDescription: pick('metaDescription', 'seoDescription') || '' }),
+                ...(kw !== undefined && { keywords: Array.isArray(kw) ? kw.join(', ') : (kw || '') }),
+                ...(lbs !== undefined && { localBusinessSchema: typeof lbs === 'object' ? JSON.stringify(lbs, null, 2) : (lbs || '') }),
+                ...(org !== undefined && { organizationSchema: typeof org === 'object' ? JSON.stringify(org, null, 2) : (org || '') }),
+            }));
+            setJsonText('');
+            Swal.fire({ icon: 'success', title: 'JSON Imported', text: 'Matching fields have been filled.', timer: 1500, showConfirmButton: false });
+        } catch {
+            Swal.fire('Parse Error', 'Invalid JSON. Please check the format.', 'error');
+        }
+    };
+
+    const handleJsonUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.name.endsWith('.json')) { Swal.fire('Invalid File', 'Please upload a .json file.', 'error'); return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => applyJson(ev.target.result);
+        reader.readAsText(file);
+        e.target.value = '';
+    };
+
+    const handleJsonPaste = () => {
+        if (!jsonText.trim()) { Swal.fire('Empty', 'Please paste JSON content first.', 'warning'); return; }
+        applyJson(jsonText);
     };
 
     const handleSchemaChange = (val) => {
@@ -203,6 +258,91 @@ export default function HomePageManagement() {
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Import from JSON */}
+                            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02]">
+                                <h2 className="text-xl font-bold text-gray-800 mb-1">Import from JSON</h2>
+                                <p className="text-sm text-gray-500 mb-4">Upload a JSON file — matching fields will be auto-filled automatically.</p>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-700 mb-2">Accepted Key Names</p>
+                                        <div className="bg-gray-50 rounded-lg p-4 text-xs text-gray-600 space-y-1.5">
+                                            {[
+                                                ['heroTitle', 'Hero section title'],
+                                                ['heroSubtitle', 'Hero subtitle'],
+                                                ['heroDescription', 'Hero description'],
+                                                ['heroCtaText', 'CTA button text'],
+                                                ['heroCtaLink', 'CTA button link'],
+                                                ['desktopHeroBanner', 'Desktop banner URL'],
+                                                ['mobileHeroBanner', 'Mobile banner URL'],
+                                                ['aboutSectionTitle', 'About section title'],
+                                                ['aboutSectionContent', 'About section HTML'],
+                                                ['whyChooseUsTitle', 'Why choose us title'],
+                                                ['whyChooseUsContent', 'Why choose us HTML'],
+                                                ['metaTitle / seoTitle', 'SEO meta title'],
+                                                ['metaDescription', 'SEO meta description'],
+                                                ['keywords', 'String or array'],
+                                            ].map(([key, desc]) => (
+                                                <div key={key} className="flex gap-2">
+                                                    <span className="font-semibold text-gray-700 w-44 shrink-0">{key}:</span>
+                                                    <span className="text-gray-500">{desc}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-700 mb-2">Example JSON Format</p>
+                                        <pre className="bg-gray-900 text-green-400 rounded-lg p-4 text-xs overflow-auto max-h-72">{`{
+  "heroTitle": "Find Your Dream Home",
+  "heroSubtitle": "Premium Properties",
+  "heroDescription": "Explore luxury projects...",
+  "heroCtaText": "Explore Projects",
+  "heroCtaLink": "/projects",
+  "desktopHeroBanner": "https://cdn.example.com/banner.jpg",
+  "mobileHeroBanner": "https://cdn.example.com/mobile.jpg",
+  "aboutSectionTitle": "About Saturn RealCon",
+  "aboutSectionContent": "<p>We are...</p>",
+  "whyChooseUsTitle": "Why Choose Us?",
+  "whyChooseUsContent": "<p>Because...</p>",
+  "metaTitle": "Saturn RealCon - Premium Real Estate",
+  "metaDescription": "Discover verified properties...",
+  "keywords": ["real estate", "luxury homes"]
+}`}</pre>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 mb-4">
+                                    <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                        <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                        Choose JSON File
+                                        <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
+                                    </label>
+                                    <span className="text-sm text-gray-400">or paste JSON below</span>
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-semibold text-gray-700 mb-2">Paste JSON</p>
+                                    <textarea
+                                        value={jsonText}
+                                        onChange={e => setJsonText(e.target.value)}
+                                        rows={6}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] font-mono text-xs text-gray-800 placeholder-gray-400 resize-y"
+                                        placeholder={'{\n  "heroTitle": "Find Your Dream Home",\n  "metaTitle": "Saturn RealCon"\n}'}
+                                    />
+                                    <div className="flex items-center gap-3 mt-2">
+                                        <button type="button" onClick={handleJsonPaste}
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                            Apply JSON
+                                        </button>
+                                        {jsonText && (
+                                            <button type="button" onClick={() => setJsonText('')} className="text-sm text-gray-400 hover:text-gray-600 transition">Clear</button>
+                                        )}
+                                        <span className="text-xs text-gray-400 ml-auto">or fill the form manually below</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Featured Projects Selection */}
                             <div className="bg-white rounded-xl shadow-lg p-6">
                                 <h3 className="text-lg font-bold text-gray-800 mb-4">Featured Projects Selection</h3>
