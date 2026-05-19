@@ -11,8 +11,25 @@ import dynamic from 'next/dynamic';
 const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: false });
 import AdminSidebar from '@/components/AdminSidebar';
 import RichTextEditor from '@/components/RichTextEditor';
+import ApiCurlPanel from '@/components/ApiCurlPanel';
 import Swal from 'sweetalert2';
 import { calculateReadTime } from '@/utils/readTime';
+
+const SAMPLE_BLOG_PAYLOAD = {
+    title: 'My First Blog Post',
+    slug: 'my-first-blog-post',
+    excerpt: 'A short summary of the post.',
+    category: 'News',
+    author: 'Admin',
+    readTime: '4 min read',
+    seoTitle: 'My First Blog Post — Saturn Realcon',
+    seoDescription: 'Description for SEO.',
+    keywords: 'real estate, news, pune',
+    heroImage: 'https://cdn.example.com/hero.jpg',
+    heroImageAlt: 'Hero image',
+    content: '<p>Post content goes here...</p>',
+};
+const UPDATE_BLOG_PAYLOAD = { title: 'Updated Blog Title' };
 
 export default function EditBlog() {
     const router = useRouter();
@@ -208,6 +225,17 @@ export default function EditBlog() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* API & cURL panel — admin only */}
+                        {user?.role === 'admin' && (
+                            <ApiCurlPanel
+                                resourceName="Blog Post"
+                                endpoint="/api/blog"
+                                itemId={params.id}
+                                samplePayload={SAMPLE_BLOG_PAYLOAD}
+                                updatePayload={UPDATE_BLOG_PAYLOAD}
+                            />
+                        )}
+
                         {/* Basic Information */}
                         <div className="bg-white rounded-xl shadow-lg p-6">
                             <h2 className="text-xl font-bold text-gray-800 mb-4">Basic Information</h2>

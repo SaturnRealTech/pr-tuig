@@ -9,6 +9,7 @@ import {
 } from 'react-icons/md';
 import Swal from 'sweetalert2';
 import AdminSidebar from '@/components/AdminSidebar';
+import ApiCurlPanel from '@/components/ApiCurlPanel';
 
 const TipTapEditor = dynamic(() => import('@/components/TipTapEditor'), { ssr: false });
 const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: false });
@@ -218,6 +219,24 @@ function SectionToggle({ checked, onChange }) {
         </label>
     );
 }
+
+const SAMPLE_PROJECT_PAYLOAD = {
+    title: 'Sample Project',
+    slug: 'sample-project',
+    projectAddress: 'Baner, Pune, Maharashtra',
+    price: '₹50 Lakhs onwards',
+    totalUnits: '120',
+    reraNo: 'P52100XXXXX',
+    possession: '2026-12-01',
+    company: 'Sample Builder',
+    metaTitle: 'Sample Project - Buy 2 & 3 BHK',
+    metaDescription: 'Luxury apartments in prime location.',
+    content: '<p>Project overview...</p>',
+    publishStatus: 'draft',
+};
+const UPDATE_PROJECT_PAYLOAD = { title: 'Updated Title', publishStatus: 'published' };
+const PATCH_PROJECT_PAYLOAD = { publishStatus: 'published' };
+
 
 export default function EditProject() {
     const router = useRouter();
@@ -657,6 +676,19 @@ export default function EditProject() {
                     </div>
 
                     <form onSubmit={e => e.preventDefault()}>
+                        {/* API & cURL panel — admin only */}
+                        {user?.role === 'admin' && (
+                            <ApiCurlPanel
+                                resourceName="Project"
+                                endpoint="/api/projects"
+                                itemId={params.id}
+                                listQuery="?admin=1"
+                                samplePayload={SAMPLE_PROJECT_PAYLOAD}
+                                updatePayload={UPDATE_PROJECT_PAYLOAD}
+                                patchPayload={PATCH_PROJECT_PAYLOAD}
+                            />
+                        )}
+
                         {/* Import from JSON */}
                         <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02] mb-6">
                             <h2 className="text-xl font-bold text-gray-800 mb-1">Import from JSON</h2>

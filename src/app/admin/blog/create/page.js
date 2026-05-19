@@ -9,8 +9,25 @@ import {
 import AdminSidebar from '@/components/AdminSidebar';
 import RichTextEditor from '@/components/RichTextEditor';
 import ImageUploader from '@/components/ImageUploader';
+import ApiCurlPanel from '@/components/ApiCurlPanel';
 import Swal from 'sweetalert2';
 import { calculateReadTime } from '@/utils/readTime';
+
+const SAMPLE_BLOG_PAYLOAD = {
+    title: 'My First Blog Post',
+    slug: 'my-first-blog-post',
+    excerpt: 'A short summary of the post.',
+    category: 'News',
+    author: 'Admin',
+    readTime: '4 min read',
+    seoTitle: 'My First Blog Post — Saturn Realcon',
+    seoDescription: 'Description for SEO.',
+    keywords: 'real estate, news, pune',
+    heroImage: 'https://cdn.example.com/hero.jpg',
+    heroImageAlt: 'Hero image',
+    content: '<p>Post content goes here...</p>',
+};
+const UPDATE_BLOG_PAYLOAD = { title: 'Updated Blog Title' };
 
 export default function CreateBlog() {
     const router = useRouter();
@@ -259,6 +276,17 @@ export default function CreateBlog() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* API & cURL panel — admin only */}
+                        {user?.role === 'admin' && (
+                            <ApiCurlPanel
+                                resourceName="Blog Post"
+                                endpoint="/api/blog"
+                                itemId="<BLOG_ID>"
+                                samplePayload={SAMPLE_BLOG_PAYLOAD}
+                                updatePayload={UPDATE_BLOG_PAYLOAD}
+                            />
+                        )}
+
                         {/* JSON Import */}
                         <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02]">
                             <h2 className="text-xl font-bold text-gray-800 mb-1">Import from JSON</h2>
