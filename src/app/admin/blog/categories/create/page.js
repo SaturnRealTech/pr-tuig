@@ -27,14 +27,14 @@ function BannerPicker({ label, hint, icon, value, onChange, filterType = '' }) {
                     <img src={value} alt={label} className="w-full h-40 object-cover" />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                         <button type="button" onClick={() => setShowPicker(true)}
-                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-[#fef9e7] transition">Change</button>
+                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-cream transition">Change</button>
                         <button type="button" onClick={() => onChange('')}
                             className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition">Remove</button>
                     </div>
                 </div>
             ) : (
                 <button type="button" onClick={() => setShowPicker(true)}
-                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-gold hover:bg-cream transition">
                     <MdImage size={32} className="text-gray-300 mb-2" />
                     <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
                 </button>
@@ -50,7 +50,7 @@ function BannerPicker({ label, hint, icon, value, onChange, filterType = '' }) {
     );
 }
 
-const inputClass = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 placeholder-gray-400';
+const inputClass = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 placeholder-gray-400';
 
 export default function CreateBlogCategory() {
     const router = useRouter();
@@ -163,7 +163,7 @@ export default function CreateBlogCategory() {
                     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
 
                         {/* JSON Import */}
-                        <div className="bg-white rounded-xl shadow-sm border-2 border-dashed border-[#b27e02] p-6">
+                        <div className="bg-white rounded-xl shadow-sm border-2 border-dashed border-gold p-6">
                             <h2 className="text-lg font-bold text-gray-800 mb-1">Import from JSON</h2>
                             <p className="text-sm text-gray-500 mb-4">Upload any JSON file — matching fields will be auto-filled automatically.</p>
 
@@ -211,7 +211,7 @@ export default function CreateBlogCategory() {
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold transition-all text-sm">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     Choose JSON File
                                     <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
@@ -251,7 +251,7 @@ export default function CreateBlogCategory() {
                                     <BannerPicker
                                         label="Desktop Banner"
                                         hint="1920×600 recommended"
-                                        icon={<MdDesktopWindows size={16} className="text-[#b27e02]" />}
+                                        icon={<MdDesktopWindows size={16} className="text-gold" />}
                                         value={formData.heroImage}
                                         onChange={(url) => setFormData(prev => ({ ...prev, heroImage: url }))}
                                         filterType="hero"
@@ -259,14 +259,14 @@ export default function CreateBlogCategory() {
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 mb-1">Desktop Banner Alt Text</label>
                                         <input name="heroImageAlt" value={formData.heroImageAlt} onChange={handleChange}
-                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]" placeholder="Describe the desktop banner" />
+                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold" placeholder="Describe the desktop banner" />
                                     </div>
                                 </div>
                                 <div className="space-y-3">
                                     <BannerPicker
                                         label="Mobile Banner"
                                         hint="600×900 recommended"
-                                        icon={<MdPhoneAndroid size={16} className="text-[#b27e02]" />}
+                                        icon={<MdPhoneAndroid size={16} className="text-gold" />}
                                         value={formData.mobileBanner}
                                         onChange={(url) => setFormData(prev => ({ ...prev, mobileBanner: url }))}
                                         filterType="hero-mobile"
@@ -274,7 +274,7 @@ export default function CreateBlogCategory() {
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 mb-1">Mobile Banner Alt Text</label>
                                         <input name="mobileBannerAlt" value={formData.mobileBannerAlt} onChange={handleChange}
-                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]" placeholder="Describe the mobile banner" />
+                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold" placeholder="Describe the mobile banner" />
                                     </div>
                                 </div>
                             </div>
@@ -316,7 +316,7 @@ export default function CreateBlogCategory() {
                         {/* Actions */}
                         <div className="flex gap-4">
                             <button type="submit" disabled={submitting}
-                                className="flex-1 bg-gradient-to-r from-[#b27e02] to-[#8a6002] text-white font-bold py-3.5 px-6 rounded-lg hover:shadow-lg transition disabled:opacity-50">
+                                className="flex-1 bg-gradient-to-r from-gold to-gold text-white font-bold py-3.5 px-6 rounded-lg hover:shadow-lg transition disabled:opacity-50">
                                 {submitting ? 'Saving...' : 'Create Blog Category'}
                             </button>
                             <a href="/admin/blog/categories"

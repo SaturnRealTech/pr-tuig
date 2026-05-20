@@ -218,10 +218,10 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <a
                                 href="/admin/blog/create"
-                                className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-[#b27e02] hover:bg-[#fef9e7] transition group"
+                                className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-gold hover:bg-cream transition group"
                             >
-                                <div className="bg-[#faf0d0] p-3 rounded-lg group-hover:bg-[#b27e02] transition">
-                                    <MdAdd className="text-[#b27e02] group-hover:text-white text-2xl" />
+                                <div className="bg-cream p-3 rounded-lg group-hover:bg-gold transition">
+                                    <MdAdd className="text-gold group-hover:text-white text-2xl" />
                                 </div>
                                 <div>
                                     <p className="font-semibold text-gray-800">Create New Blog</p>
@@ -342,7 +342,7 @@ export default function AdminDashboard() {
                                     value={siteSettings.siteName}
                                     onChange={e => setSiteSettings(p => ({ ...p, siteName: e.target.value }))}
                                     placeholder="e.g. Saturn RealCon"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Shown in header and footer when no logo is set</p>
                             </div>
@@ -353,7 +353,7 @@ export default function AdminDashboard() {
                                     <div className="flex items-center gap-3">
                                         <img src={siteSettings.siteLogo} alt="Logo" className="h-12 w-auto object-contain rounded border border-gray-200 bg-gray-50 p-1" />
                                         <div className="flex flex-col gap-1">
-                                            <button type="button" onClick={() => setShowLogoPicker(true)} className="text-xs text-[#b27e02] underline">Change</button>
+                                            <button type="button" onClick={() => setShowLogoPicker(true)} className="text-xs text-gold underline">Change</button>
                                             <button type="button" onClick={() => setSiteSettings(p => ({ ...p, siteLogo: '' }))} className="text-xs text-red-500 underline">Remove</button>
                                         </div>
                                     </div>
@@ -361,7 +361,7 @@ export default function AdminDashboard() {
                                     <button
                                         type="button"
                                         onClick={() => setShowLogoPicker(true)}
-                                        className="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-[#b27e02] hover:text-[#b27e02] transition w-full"
+                                        className="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-gold hover:text-gold transition w-full"
                                     >
                                         <MdImage size={18} /> Upload Logo from Media Library
                                     </button>
@@ -401,7 +401,7 @@ export default function AdminDashboard() {
                                     value={siteSettings.footerTagline}
                                     onChange={e => setSiteSettings(p => ({ ...p, footerTagline: e.target.value }))}
                                     placeholder="Your Trusted Real Estate Partner"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                 />
                             </div>
                             <div>
@@ -411,7 +411,7 @@ export default function AdminDashboard() {
                                     value={siteSettings.footerDescription}
                                     onChange={e => setSiteSettings(p => ({ ...p, footerDescription: e.target.value }))}
                                     placeholder="Buy, sell, and rent verified properties across India. Expert agents. Zero hassle."
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm resize-none"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm resize-none"
                                 />
                             </div>
                             <div>
@@ -421,7 +421,7 @@ export default function AdminDashboard() {
                                     value={siteSettings.footerTrustText}
                                     onChange={e => setSiteSettings(p => ({ ...p, footerTrustText: e.target.value }))}
                                     placeholder="Trusted by 1000+ families across India"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                 />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -432,7 +432,7 @@ export default function AdminDashboard() {
                                         value={siteSettings.copyrightText}
                                         onChange={e => setSiteSettings(p => ({ ...p, copyrightText: e.target.value }))}
                                         placeholder={`© ${new Date().getFullYear()} Saturn RealCon — A product by.`}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                     />
                                     <p className="text-xs text-gray-400 mt-1">Leave blank to auto-generate from site name</p>
                                 </div>
@@ -443,7 +443,7 @@ export default function AdminDashboard() {
                                         value={siteSettings.cinNumber}
                                         onChange={e => setSiteSettings(p => ({ ...p, cinNumber: e.target.value }))}
                                         placeholder="e.g. U74999DL2020PTC123456"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                     />
                                     <p className="text-xs text-gray-400 mt-1">Leave blank to hide the CIN line</p>
                                 </div>
@@ -475,7 +475,7 @@ export default function AdminDashboard() {
                                     value={siteSettings.contactPhone}
                                     onChange={e => setSiteSettings(p => ({ ...p, contactPhone: e.target.value }))}
                                     placeholder="+91 98765 43210"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Shown as a clickable call link in the footer</p>
                             </div>
@@ -486,7 +486,7 @@ export default function AdminDashboard() {
                                     value={siteSettings.whatsappNumber}
                                     onChange={e => setSiteSettings(p => ({ ...p, whatsappNumber: e.target.value }))}
                                     placeholder="919876543210 (with country code, no +)"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Used for the floating WhatsApp button — include country code, no spaces or +</p>
                             </div>
@@ -518,20 +518,20 @@ export default function AdminDashboard() {
                                         <input type="text" value={mailSettings.smtpHost}
                                             onChange={e => setMailSettings(p => ({ ...p, smtpHost: e.target.value }))}
                                             placeholder="smtppro.zoho.in"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm" />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Port</label>
                                         <input type="text" value={mailSettings.smtpPort}
                                             onChange={e => setMailSettings(p => ({ ...p, smtpPort: e.target.value }))}
                                             placeholder="465"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm" />
                                     </div>
                                 </div>
                                 <label className="flex items-center gap-2 mt-3 cursor-pointer select-none w-fit">
                                     <input type="checkbox" checked={mailSettings.smtpSecure}
                                         onChange={e => setMailSettings(p => ({ ...p, smtpSecure: e.target.checked }))}
-                                        className="w-4 h-4 accent-[#b27e02]" />
+                                        className="w-4 h-4 accent-gold" />
                                     <span className="text-sm text-gray-700 font-medium">Use SSL / Secure connection</span>
                                 </label>
                             </div>
@@ -545,7 +545,7 @@ export default function AdminDashboard() {
                                         <input type="email" value={mailSettings.smtpUser}
                                             onChange={e => setMailSettings(p => ({ ...p, smtpUser: e.target.value }))}
                                             placeholder="you@yourdomain.com"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm" />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">SMTP Password</label>
@@ -555,7 +555,7 @@ export default function AdminDashboard() {
                                                 value={mailSettings.smtpPass}
                                                 onChange={e => setMailSettings(p => ({ ...p, smtpPass: e.target.value }))}
                                                 placeholder="••••••••••"
-                                                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm"
+                                                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                             />
                                             <button type="button" onClick={() => setShowSmtpPass(v => !v)}
                                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 text-xs font-semibold">
@@ -575,14 +575,14 @@ export default function AdminDashboard() {
                                         <input type="text" value={mailSettings.mailFromName}
                                             onChange={e => setMailSettings(p => ({ ...p, mailFromName: e.target.value }))}
                                             placeholder="e.g. Saturn RealCon"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm" />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">From Email</label>
                                         <input type="email" value={mailSettings.mailFrom}
                                             onChange={e => setMailSettings(p => ({ ...p, mailFrom: e.target.value }))}
                                             placeholder="noreply@yourdomain.com"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm" />
                                         <p className="text-xs text-gray-400 mt-1">Leave blank to use SMTP username</p>
                                     </div>
                                     <div>
@@ -590,7 +590,7 @@ export default function AdminDashboard() {
                                         <input type="email" value={mailSettings.mailTo}
                                             onChange={e => setMailSettings(p => ({ ...p, mailTo: e.target.value }))}
                                             placeholder="your@email.com"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm" />
                                         <p className="text-xs text-gray-400 mt-1">Where contact form submissions are sent</p>
                                     </div>
                                     <div>
@@ -598,7 +598,7 @@ export default function AdminDashboard() {
                                         <input type="text" value={mailSettings.mailSubject}
                                             onChange={e => setMailSettings(p => ({ ...p, mailSubject: e.target.value }))}
                                             placeholder="e.g. Saturn RealCon"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm" />
                                         <p className="text-xs text-gray-400 mt-1">Subject will be: &ldquo;[Prefix]: New Inquiry from Name&rdquo;</p>
                                     </div>
                                 </div>

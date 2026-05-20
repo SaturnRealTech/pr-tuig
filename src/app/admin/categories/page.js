@@ -180,13 +180,13 @@ export default function CategoriesManagement() {
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => setShowGroupModal(true)}
-                                className="flex items-center gap-2 border-2 border-[#b27e02] text-[#b27e02] font-semibold py-2 px-5 rounded-lg hover:bg-[#fef9e7] transition text-sm"
+                                className="flex items-center gap-2 border-2 border-gold text-gold font-semibold py-2 px-5 rounded-lg hover:bg-cream transition text-sm"
                             >
                                 <MdFolder size={18} /> Add Group
                             </button>
                             <button
                                 onClick={() => router.push('/admin/categories/create')}
-                                className="flex items-center gap-2 bg-[#b27e02] text-white font-semibold py-2 px-5 rounded-lg hover:bg-[#8a6002] transition shadow-sm text-sm"
+                                className="flex items-center gap-2 bg-gold text-white font-semibold py-2 px-5 rounded-lg hover:bg-gold transition shadow-sm text-sm"
                             >
                                 <MdAdd size={18} /> Add Category
                             </button>
@@ -195,7 +195,7 @@ export default function CategoriesManagement() {
 
                     {/* Legend */}
                     <div className="flex items-center gap-4 mb-4 text-xs text-gray-500">
-                        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-[#b27e02]/20 inline-block border border-[#b27e02]/30"></span> Group (no public page)</span>
+                        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-gold/20 inline-block border border-gold/30"></span> Group (no public page)</span>
                         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-white inline-block border border-gray-200"></span> Category (has public page)</span>
                     </div>
 
@@ -212,11 +212,11 @@ export default function CategoriesManagement() {
                                 return (
                                     <div key={group._id} className="bg-white rounded-xl shadow overflow-hidden">
                                         {/* Group header row */}
-                                        <div className="flex items-center justify-between px-5 py-3 bg-[#fef9e7] border-b border-[#f0d090]">
+                                        <div className="flex items-center justify-between px-5 py-3 bg-cream border-b border-gold">
                                             <div className="flex items-center gap-2">
-                                                <MdFolder className="text-[#b27e02]" size={20} />
+                                                <MdFolder className="text-gold" size={20} />
                                                 <span className="font-bold text-gray-800">{group.name}</span>
-                                                <span className="ml-2 text-xs bg-[#b27e02]/10 text-[#8a6002] px-2 py-0.5 rounded-full font-medium">
+                                                <span className="ml-2 text-xs bg-gold/10 text-gold px-2 py-0.5 rounded-full font-medium">
                                                     GROUP
                                                 </span>
                                                 <span className="text-xs text-gray-400">{children.length} categor{children.length === 1 ? 'y' : 'ies'}</span>
@@ -225,7 +225,7 @@ export default function CategoriesManagement() {
                                                 <button
                                                     onClick={() => router.push(`/admin/categories/create?groupId=${group._id}`)}
                                                     title="Add category in this group"
-                                                    className="flex items-center gap-1 px-3 py-1.5 text-xs bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold"
+                                                    className="flex items-center gap-1 px-3 py-1.5 text-xs bg-gold text-white rounded-lg hover:bg-gold transition font-semibold"
                                                 >
                                                     <MdAdd size={14} /> Add
                                                 </button>
@@ -247,7 +247,7 @@ export default function CategoriesManagement() {
                                                 No categories yet.{' '}
                                                 <button
                                                     onClick={() => router.push(`/admin/categories/create?groupId=${group._id}`)}
-                                                    className="text-[#b27e02] font-semibold hover:underline"
+                                                    className="text-gold font-semibold hover:underline"
                                                 >
                                                     Add one →
                                                 </button>
@@ -285,7 +285,7 @@ export default function CategoriesManagement() {
                                     <h3 className="text-lg font-bold text-gray-700 mb-2">No groups or categories yet</h3>
                                     <p className="text-gray-500 mb-5 text-sm">Start by adding a group (e.g. Location, Builder), then add categories inside it.</p>
                                     <button onClick={() => setShowGroupModal(true)}
-                                        className="bg-[#b27e02] text-white px-5 py-2 rounded-lg hover:bg-[#8a6002] transition font-semibold text-sm">
+                                        className="bg-gold text-white px-5 py-2 rounded-lg hover:bg-gold transition font-semibold text-sm">
                                         Add First Group
                                     </button>
                                 </div>
@@ -301,7 +301,7 @@ export default function CategoriesManagement() {
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                             <div className="flex items-center gap-2">
-                                <MdFolder className="text-[#b27e02]" size={22} />
+                                <MdFolder className="text-gold" size={22} />
                                 <h3 className="text-lg font-bold text-gray-800">Add Group</h3>
                             </div>
                             <button onClick={() => { setShowGroupModal(false); setNewGroupName(''); }}
@@ -311,14 +311,14 @@ export default function CategoriesManagement() {
                         </div>
                         <form onSubmit={handleAddGroup} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Group Name <span className="text-[#b27e02]">*</span></label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Group Name <span className="text-gold">*</span></label>
                                 <input
                                     type="text"
                                     value={newGroupName}
                                     onChange={e => setNewGroupName(e.target.value)}
                                     autoFocus
                                     required
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="e.g. Location, Builder, Status, BHK Type"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Groups organise categories. They don't have a public page.</p>
@@ -329,7 +329,7 @@ export default function CategoriesManagement() {
                                     Cancel
                                 </button>
                                 <button type="submit" disabled={savingGroup || !newGroupName.trim()}
-                                    className="flex-1 px-4 py-2.5 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold text-sm disabled:opacity-50">
+                                    className="flex-1 px-4 py-2.5 bg-gold text-white rounded-lg hover:bg-gold transition font-semibold text-sm disabled:opacity-50">
                                     {savingGroup ? 'Adding...' : 'Add Group'}
                                 </button>
                             </div>

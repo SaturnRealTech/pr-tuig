@@ -77,7 +77,7 @@ export default function HomeContentPage() {
                         <button
                             onClick={handleSave}
                             disabled={saving || loading}
-                            className="flex items-center gap-2 px-6 py-3 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition disabled:opacity-50"
+                            className="flex items-center gap-2 px-6 py-3 bg-gold text-white font-semibold rounded-lg hover:bg-gold transition disabled:opacity-50"
                         >
                             <MdSave size={18} /> {saving ? 'Saving...' : 'Save'}
                         </button>
@@ -94,7 +94,7 @@ export default function HomeContentPage() {
                                     type="text"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="e.g. Why Choose Saturn RealCon?"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Leave empty to hide the title</p>
@@ -111,7 +111,7 @@ export default function HomeContentPage() {
 
                             {/* Preview hint */}
                             {(title || content) && (
-                                <div className="bg-[#fef9e7] border border-[#b27e02]/30 rounded-xl p-4 text-sm text-[#8a6002]">
+                                <div className="bg-cream border border-gold/30 rounded-xl p-4 text-sm text-gold">
                                     <strong>Preview:</strong> This content will appear on the homepage between the Builders section and the footer.
                                     Visit <a href="/" target="_blank" className="underline font-semibold">the homepage</a> after saving to see it live.
                                 </div>
@@ -121,7 +121,7 @@ export default function HomeContentPage() {
                                 <button
                                     onClick={handleSave}
                                     disabled={saving}
-                                    className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#b27e02] to-[#8a6002] text-white font-bold rounded-lg hover:shadow-lg transition disabled:opacity-50"
+                                    className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-gold to-gold text-white font-bold rounded-lg hover:shadow-lg transition disabled:opacity-50"
                                 >
                                     <MdSave size={18} /> {saving ? 'Saving...' : 'Save Changes'}
                                 </button>

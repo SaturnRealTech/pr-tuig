@@ -124,7 +124,7 @@ export default function ProjectsList() {
                             <p className="text-gray-500 text-sm mt-1">{counts.published} published · {counts.draft} draft</p>
                         </div>
                         <button onClick={() => router.push('/admin/projects/create')}
-                            className="flex items-center gap-2 px-5 py-3 bg-[#b27e02] text-white rounded-xl font-semibold hover:bg-[#8a6002] transition">
+                            className="flex items-center gap-2 px-5 py-3 bg-gold text-white rounded-xl font-semibold hover:bg-gold transition">
                             <MdAdd size={20} /> Add New Project
                         </button>
                     </div>
@@ -134,7 +134,7 @@ export default function ProjectsList() {
                         <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
                             {TABS.map(t => (
                                 <button key={t.key} onClick={() => setTab(t.key)}
-                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition ${tab === t.key ? 'bg-[#b27e02] text-white' : 'text-gray-600 hover:text-gray-800'}`}>
+                                    className={`px-4 py-1.5 rounded-md text-sm font-semibold transition ${tab === t.key ? 'bg-gold text-white' : 'text-gray-600 hover:text-gray-800'}`}>
                                     {t.label} <span className="opacity-70">({counts[t.key]})</span>
                                 </button>
                             ))}
@@ -143,7 +143,7 @@ export default function ProjectsList() {
                             <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                                 placeholder="Search title, company, RERA…"
-                                className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]" />
+                                className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold" />
                         </div>
                         {selectedIds.length > 0 && user?.role === 'admin' && (
                             <button onClick={handleBulkDelete}
@@ -155,14 +155,14 @@ export default function ProjectsList() {
 
                     {/* Table */}
                     {loading ? (
-                        <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#b27e02]" /></div>
+                        <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gold" /></div>
                     ) : visible.length === 0 ? (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-16 text-center">
                             <MdWork size={56} className="text-gray-200 mx-auto mb-4" />
                             <h3 className="text-xl font-semibold text-gray-700 mb-2">No projects found</h3>
                             <p className="text-gray-400 mb-6">Create your first project to get started.</p>
                             <button onClick={() => router.push('/admin/projects/create')}
-                                className="px-6 py-3 bg-[#b27e02] text-white rounded-xl font-semibold hover:bg-[#8a6002] transition">
+                                className="px-6 py-3 bg-gold text-white rounded-xl font-semibold hover:bg-gold transition">
                                 Add New Project
                             </button>
                         </div>
@@ -172,7 +172,7 @@ export default function ProjectsList() {
                                 <thead className="bg-gray-50 border-b border-gray-100">
                                     <tr>
                                         <th className="w-10 px-4 py-3">
-                                            <input type="checkbox" checked={selectedIds.length === visible.length && visible.length > 0} onChange={toggleAll} className="accent-[#b27e02]" />
+                                            <input type="checkbox" checked={selectedIds.length === visible.length && visible.length > 0} onChange={toggleAll} className="accent-gold" />
                                         </th>
                                         <th className="px-4 py-3 text-left font-semibold text-gray-600">Project</th>
                                         <th className="px-4 py-3 text-left font-semibold text-gray-600">Price</th>
@@ -187,7 +187,7 @@ export default function ProjectsList() {
                                     {visible.map(project => (
                                         <tr key={project._id} className="hover:bg-gray-50 transition">
                                             <td className="px-4 py-3">
-                                                <input type="checkbox" checked={selectedIds.includes(project._id)} onChange={() => toggleSelect(project._id)} className="accent-[#b27e02]" />
+                                                <input type="checkbox" checked={selectedIds.includes(project._id)} onChange={() => toggleSelect(project._id)} className="accent-gold" />
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
@@ -202,7 +202,7 @@ export default function ProjectsList() {
                                                         <div className="flex items-center gap-2">
                                                             <p className="font-semibold text-gray-800 truncate max-w-[200px]">{project.title}</p>
                                                             {project.isHomePage && (
-                                                                <span className="flex-shrink-0 text-[10px] px-2 py-0.5 bg-[#b27e02] text-white rounded-full font-bold">Home</span>
+                                                                <span className="flex-shrink-0 text-[10px] px-2 py-0.5 bg-gold text-white rounded-full font-bold">Home</span>
                                                             )}
                                                         </div>
                                                         {project.projectAddress && <p className="text-xs text-gray-400 truncate max-w-[200px]">{project.projectAddress}</p>}
@@ -236,7 +236,7 @@ export default function ProjectsList() {
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-center gap-1">
                                                     <button onClick={() => router.push(`/admin/projects/edit/${project._id}`)}
-                                                        className="p-1.5 text-gray-400 hover:text-[#b27e02] hover:bg-[#fef9e7] rounded-lg transition" title="Edit">
+                                                        className="p-1.5 text-gray-400 hover:text-gold hover:bg-cream rounded-lg transition" title="Edit">
                                                         <MdEdit size={16} />
                                                     </button>
                                                     {user?.role === 'admin' && (

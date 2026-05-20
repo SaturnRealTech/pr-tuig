@@ -79,7 +79,7 @@ export default function CookiePolicyAdmin() {
                     <div className="mb-8 flex justify-between items-center">
                         <div>
                             <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                                <MdCookie className="text-[#b27e02]" size={32} />
+                                <MdCookie className="text-gold" size={32} />
                                 Cookie Policy
                             </h1>
                             <p className="text-gray-600 mt-1">Edit the cookie policy page title and content</p>
@@ -87,7 +87,7 @@ export default function CookiePolicyAdmin() {
                         <button
                             onClick={handleSave}
                             disabled={saving}
-                            className="flex items-center gap-2 px-6 py-2.5 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold disabled:opacity-60"
+                            className="flex items-center gap-2 px-6 py-2.5 bg-gold text-white rounded-lg hover:bg-gold transition font-semibold disabled:opacity-60"
                         >
                             <MdSave size={20} />
                             {saving ? 'Saving...' : 'Save Changes'}
@@ -107,7 +107,7 @@ export default function CookiePolicyAdmin() {
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     placeholder="Cookie Policy"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 text-lg"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 text-lg"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Leave blank to use the default title "Cookie Policy"</p>
                             </div>
@@ -127,7 +127,7 @@ export default function CookiePolicyAdmin() {
                                 <button
                                     onClick={handleSave}
                                     disabled={saving}
-                                    className="flex items-center gap-2 px-6 py-2.5 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold disabled:opacity-60"
+                                    className="flex items-center gap-2 px-6 py-2.5 bg-gold text-white rounded-lg hover:bg-gold transition font-semibold disabled:opacity-60"
                                 >
                                     <MdSave size={20} />
                                     {saving ? 'Saving...' : 'Save Changes'}

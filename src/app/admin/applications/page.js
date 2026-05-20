@@ -158,7 +158,7 @@ export default function AdminApplications() {
             'new': 'bg-blue-100 text-blue-800',
             'reviewed': 'bg-yellow-100 text-yellow-800',
             'shortlisted': 'bg-green-100 text-green-800',
-            'rejected': 'bg-[#faf0d0] text-[#6b4a01]',
+            'rejected': 'bg-cream text-gold',
             'hired': 'bg-purple-100 text-purple-800'
         };
         return colors[status] || 'bg-gray-100 text-gray-800';
@@ -176,7 +176,7 @@ export default function AdminApplications() {
                     ${app.currentPosition ? `<p><strong>Current Position:</strong> ${app.currentPosition}</p>` : ''}
                     <p><strong>Experience:</strong> ${app.experience}</p>
                     ${app.portfolio ? `<p><strong>Portfolio:</strong> <a href="${app.portfolio}" target="_blank" class="text-blue-600">${app.portfolio}</a></p>` : ''}
-                    <p><strong>Resume:</strong> <a href="${app.resumeUrl}" target="_blank" class="text-[#b27e02] font-medium">Download Resume</a></p>
+                    <p><strong>Resume:</strong> <a href="${app.resumeUrl}" target="_blank" class="text-gold font-medium">Download Resume</a></p>
                     <hr class="my-4">
                     <p><strong>Cover Letter:</strong></p>
                     <p class="text-gray-600 text-sm whitespace-pre-wrap">${app.coverLetter}</p>
@@ -195,7 +195,7 @@ export default function AdminApplications() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <h1 className="text-2xl font-bold text-gray-900">Job Applications</h1>
-                        <Link href="/admin/careers" className="bg-[#b27e02] text-white px-4 py-2 rounded-lg hover:bg-[#8a6002] transition">
+                        <Link href="/admin/careers" className="bg-gold text-white px-4 py-2 rounded-lg hover:bg-gold transition">
                             Manage Positions
                         </Link>
                     </div>
@@ -215,10 +215,10 @@ export default function AdminApplications() {
                                         placeholder="Search applicants..."
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        className="w-full md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b27e02]/20 focus:border-[#b27e02] outline-none text-gray-900 bg-white placeholder-gray-500"
+                                        className="w-full md:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/20 focus:border-gold outline-none text-gray-900 bg-white placeholder-gray-500"
                                     />
                                 </div>
-                                <button type="submit" className="bg-[#b27e02] text-white px-4 py-2 rounded-lg hover:bg-[#8a6002] transition">
+                                <button type="submit" className="bg-gold text-white px-4 py-2 rounded-lg hover:bg-gold transition">
                                     Search
                                 </button>
                             </form>
@@ -231,7 +231,7 @@ export default function AdminApplications() {
                                         setStatusFilter(e.target.value);
                                         setPagination(prev => ({ ...prev, page: 1 }));
                                     }}
-                                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#b27e02]/20 focus:border-[#b27e02] outline-none text-gray-900 bg-white"
+                                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold/20 focus:border-gold outline-none text-gray-900 bg-white"
                                 >
                                     <option value="">All Status</option>
                                     <option value="new">New</option>
@@ -246,7 +246,7 @@ export default function AdminApplications() {
                         {selectedIds.length > 0 && user?.role === 'admin' && (
                             <button
                                 onClick={handleBulkDelete}
-                                className="bg-[#b27e02] text-white px-4 py-2 rounded-lg hover:bg-[#8a6002] transition flex items-center gap-2"
+                                className="bg-gold text-white px-4 py-2 rounded-lg hover:bg-gold transition flex items-center gap-2"
                             >
                                 <MdDelete className="text-xl" />
                                 Delete Selected ({selectedIds.length})
@@ -266,7 +266,7 @@ export default function AdminApplications() {
                                             type="checkbox"
                                             onChange={handleSelectAll}
                                             checked={selectedIds.length === applications.length && applications.length > 0}
-                                            className="rounded border-gray-300 text-[#b27e02] focus:ring-[#c99010]"
+                                            className="rounded border-gray-300 text-gold focus:ring-gold"
                                         />
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
@@ -281,7 +281,7 @@ export default function AdminApplications() {
                                 {loading ? (
                                     <tr>
                                         <td colSpan="7" className="px-6 py-12 text-center">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#b27e02] mx-auto"></div>
+                                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gold mx-auto"></div>
                                         </td>
                                     </tr>
                                 ) : applications.length === 0 ? (
@@ -298,7 +298,7 @@ export default function AdminApplications() {
                                                     type="checkbox"
                                                     checked={selectedIds.includes(app._id)}
                                                     onChange={() => handleSelectOne(app._id)}
-                                                    className="rounded border-gray-300 text-[#b27e02] focus:ring-[#c99010]"
+                                                    className="rounded border-gray-300 text-gold focus:ring-gold"
                                                 />
                                             </td>
                                             <td className="px-6 py-4">
@@ -348,7 +348,7 @@ export default function AdminApplications() {
                                                 {user?.role === 'admin' && (
                                                 <button
                                                     onClick={() => handleDelete(app._id)}
-                                                    className="text-[#b27e02] hover:text-[#4a3800] p-1"
+                                                    className="text-gold hover:text-gold p-1"
                                                     title="Delete"
                                                 >
                                                     <MdDelete className="text-xl" />
@@ -395,7 +395,7 @@ export default function AdminApplications() {
 
                 {/* Back Link */}
                 <div className="mt-6">
-                    <Link href="/admin/dashboard" className="text-[#b27e02] hover:text-[#8a6002] font-medium">
+                    <Link href="/admin/dashboard" className="text-gold hover:text-gold font-medium">
                         ← Back to Dashboard
                     </Link>
                 </div>

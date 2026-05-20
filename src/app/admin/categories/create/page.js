@@ -30,7 +30,7 @@ function BannerPicker({ label, hint, icon, filterType, value, onChange }) {
                     <img src={value} alt={label} className="w-full h-40 object-cover" />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                         <button type="button" onClick={() => setShowPicker(true)}
-                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-[#fef9e7] transition">
+                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-cream transition">
                             Change
                         </button>
                         <button type="button" onClick={() => onChange('')}
@@ -41,7 +41,7 @@ function BannerPicker({ label, hint, icon, filterType, value, onChange }) {
                 </div>
             ) : (
                 <button type="button" onClick={() => setShowPicker(true)}
-                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-gold hover:bg-cream transition">
                     <MdImage size={32} className="text-gray-300 mb-2" />
                     <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
                 </button>
@@ -189,7 +189,7 @@ export default function CreateCategory() {
             <main className={`flex-1 ${sidebarOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
                 <div className="p-8">
                     <div className="mb-8">
-                        <button onClick={() => router.push('/admin/categories')} className="flex items-center gap-2 text-gray-600 hover:text-[#b27e02] mb-4 transition">
+                        <button onClick={() => router.push('/admin/categories')} className="flex items-center gap-2 text-gray-600 hover:text-gold mb-4 transition">
                             <MdArrowBack size={20} /> Back to Categories
                         </button>
                         <h1 className="text-3xl font-bold text-gray-800">Add New Category</h1>
@@ -207,7 +207,7 @@ export default function CreateCategory() {
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Group</label>
                                     <select value={formData.groupId} onChange={set('groupId')}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 bg-white">
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 bg-white">
                                         <option value="">— No group (ungrouped) —</option>
                                         {groups.map(g => (
                                             <option key={g._id} value={g._id}>{g.name}</option>
@@ -216,7 +216,7 @@ export default function CreateCategory() {
                                     <p className="text-xs text-gray-400 mt-1">
                                         Group this under Location, Builder, Status, etc.{' '}
                                         {groups.length === 0 && (
-                                            <a href="/admin/categories" className="text-[#b27e02] font-semibold hover:underline">
+                                            <a href="/admin/categories" className="text-gold font-semibold hover:underline">
                                                 Add a group first →
                                             </a>
                                         )}
@@ -227,7 +227,7 @@ export default function CreateCategory() {
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Parent Category</label>
                                     <select value={formData.parentId} onChange={set('parentId')}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 bg-white">
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 bg-white">
                                         <option value="">— No parent (top-level) —</option>
                                         {renderCategoryOptions(parentCategoryTree)}
                                     </select>
@@ -238,17 +238,17 @@ export default function CreateCategory() {
 
                                 {/* Name */}
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Category Name <span className="text-[#b27e02]">*</span></label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Category Name <span className="text-gold">*</span></label>
                                     <input type="text" value={formData.name} onChange={handleNameChange} required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                         placeholder="e.g., Bangalore, DLF, Ready to Move" />
                                 </div>
 
                                 {/* Slug */}
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Slug <span className="text-[#b27e02]">*</span></label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Slug <span className="text-gold">*</span></label>
                                     <input type="text" value={formData.slug} onChange={set('slug')} required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 font-mono"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 font-mono"
                                         placeholder="bangalore" />
                                     <p className="text-xs text-gray-400 mt-1">URL: /projects/category/<strong>{formData.slug || 'your-slug'}</strong></p>
                                 </div>
@@ -257,7 +257,7 @@ export default function CreateCategory() {
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Page Title</label>
                                     <input type="text" value={formData.title} onChange={set('title')}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                         placeholder="Heading shown on the category page" />
                                 </div>
 
@@ -265,7 +265,7 @@ export default function CreateCategory() {
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
                                     <textarea value={formData.description} onChange={set('description')} rows={3}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                         placeholder="Short description shown on category pages" />
                                 </div>
                             </div>
@@ -273,12 +273,12 @@ export default function CreateCategory() {
 
                         {/* Logo */}
                         <div className="bg-white rounded-xl shadow-lg p-6">
-                            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><MdImage className="text-[#b27e02]" /> Category Logo</h3>
+                            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><MdImage className="text-gold" /> Category Logo</h3>
                             <div className="max-w-xs">
                                 <BannerPicker
                                     label="Logo"
                                     hint="square or transparent PNG"
-                                    icon={<MdImage className="text-[#b27e02]" size={18} />}
+                                    icon={<MdImage className="text-gold" size={18} />}
                                     filterType=""
                                     value={formData.logo}
                                     onChange={(url) => setFormData(prev => ({ ...prev, logo: url }))}
@@ -288,13 +288,13 @@ export default function CreateCategory() {
 
                         {/* Banner Images */}
                         <div className="bg-white rounded-xl shadow-lg p-6">
-                            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><MdImage className="text-[#b27e02]" /> Banner Images</h3>
+                            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><MdImage className="text-gold" /> Banner Images</h3>
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-3">
                                     <BannerPicker
                                         label="Desktop Banner"
                                         hint="16:9 landscape"
-                                        icon={<MdDesktopWindows className="text-[#b27e02]" size={18} />}
+                                        icon={<MdDesktopWindows className="text-gold" size={18} />}
                                         filterType="hero"
                                         value={formData.heroImage}
                                         onChange={(url) => setFormData(prev => ({ ...prev, heroImage: url }))}
@@ -302,7 +302,7 @@ export default function CreateCategory() {
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Desktop ALT Text</label>
                                         <input type="text" value={formData.heroImageAlt} onChange={set('heroImageAlt')}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 text-sm"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 text-sm"
                                             placeholder="Describe the desktop banner" />
                                     </div>
                                 </div>
@@ -310,7 +310,7 @@ export default function CreateCategory() {
                                     <BannerPicker
                                         label="Mobile Banner"
                                         hint="9:16 portrait"
-                                        icon={<MdPhoneAndroid className="text-[#b27e02]" size={18} />}
+                                        icon={<MdPhoneAndroid className="text-gold" size={18} />}
                                         filterType="hero-mobile"
                                         value={formData.mobileBanner}
                                         onChange={(url) => setFormData(prev => ({ ...prev, mobileBanner: url }))}
@@ -318,7 +318,7 @@ export default function CreateCategory() {
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Mobile ALT Text</label>
                                         <input type="text" value={formData.mobileBannerAlt} onChange={set('mobileBannerAlt')}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 text-sm"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 text-sm"
                                             placeholder="Describe the mobile banner" />
                                     </div>
                                 </div>
@@ -338,21 +338,21 @@ export default function CreateCategory() {
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Title</label>
                                     <input type="text" value={formData.metaTitle} onChange={set('metaTitle')} maxLength="60"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                         placeholder="SEO title (55–60 characters)" />
                                     <p className="text-xs text-gray-400 mt-1">{formData.metaTitle.length}/60</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Description</label>
                                     <textarea value={formData.metaDescription} onChange={set('metaDescription')} rows={3} maxLength="160"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                         placeholder="SEO description (150–160 characters)" />
                                     <p className="text-xs text-gray-400 mt-1">{formData.metaDescription.length}/160</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Keywords</label>
                                     <input type="text" value={formData.keywords} onChange={set('keywords')}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                         placeholder="real estate, property, bangalore" />
                                 </div>
                             </div>
@@ -364,7 +364,7 @@ export default function CreateCategory() {
                                 <h3 className="text-lg font-bold text-gray-800">FAQs</h3>
                                 <button type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, faqs: [...prev.faqs, { question: '', answer: '' }] }))}
-                                    className="flex items-center gap-1.5 px-4 py-2 bg-[#b27e02] text-white text-sm font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                    className="flex items-center gap-1.5 px-4 py-2 bg-gold text-white text-sm font-semibold rounded-lg hover:bg-gold transition">
                                     <MdAdd size={18} /> Add FAQ
                                 </button>
                             </div>
@@ -388,14 +388,14 @@ export default function CreateCategory() {
                                                     value={faq.question}
                                                     onChange={(e) => setFormData(prev => ({ ...prev, faqs: prev.faqs.map((f, i) => i === idx ? { ...f, question: e.target.value } : f) }))}
                                                     placeholder="Question"
-                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 text-sm"
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 text-sm"
                                                 />
                                                 <textarea
                                                     value={faq.answer}
                                                     onChange={(e) => setFormData(prev => ({ ...prev, faqs: prev.faqs.map((f, i) => i === idx ? { ...f, answer: e.target.value } : f) }))}
                                                     placeholder="Answer"
                                                     rows={3}
-                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 text-sm"
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 text-sm"
                                                 />
                                             </div>
                                         </div>
@@ -411,7 +411,7 @@ export default function CreateCategory() {
                                 Cancel
                             </button>
                             <button type="submit" disabled={submitting}
-                                className="flex-1 px-6 py-3 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold disabled:opacity-50">
+                                className="flex-1 px-6 py-3 bg-gold text-white rounded-lg hover:bg-gold transition font-semibold disabled:opacity-50">
                                 {submitting ? 'Adding...' : 'Add Category'}
                             </button>
                         </div>

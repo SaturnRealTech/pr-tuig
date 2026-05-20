@@ -1,13 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f5ef;
+  --foreground: #14241b;
+  --leaf: #1f5d3a;
+  --moss: #244a36;
+  --forest: #0f2a1e;
+  --bark: #3a2a1c;
+  --gold: #c8a96a;
+  --cream: #f1ead7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-leaf: var(--leaf);
+  --color-moss: var(--moss);
+  --color-forest: var(--forest);
+  --color-bark: var(--bark);
+  --color-gold: var(--gold);
+  --color-cream: var(--cream);
   --font-sans:
     "Optima", "Candara", "Gill Sans", "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
@@ -538,7 +550,6 @@ b {
 }
 
 /* @import "tailwindcss";
-
 :root {
   --background: #f7f5ef;
   --foreground: #14241b;

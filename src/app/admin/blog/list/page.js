@@ -29,7 +29,7 @@ function ImagePicker({ label, hint, value, onChange, onAltChange, filterType = '
                     <img src={value} alt={label} className="w-full h-36 object-cover" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                         <button type="button" onClick={() => setShowPicker(true)}
-                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-[#fef9e7] transition">
+                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-cream transition">
                             Change
                         </button>
                         <button type="button" onClick={() => onChange('')}
@@ -40,7 +40,7 @@ function ImagePicker({ label, hint, value, onChange, onAltChange, filterType = '
                 </div>
             ) : (
                 <button type="button" onClick={() => setShowPicker(true)}
-                    className="w-full flex flex-col items-center justify-center h-28 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                    className="w-full flex flex-col items-center justify-center h-28 border-2 border-dashed border-gray-200 rounded-xl hover:border-gold hover:bg-cream transition">
                     <MdImage size={28} className="text-gray-300 mb-1.5" />
                     <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
                 </button>
@@ -301,7 +301,7 @@ export default function BlogList() {
                                     filterType="hero"
                                 />
                                 <input type="text" value={pageData.desktopBannerAlt} onChange={setPage('desktopBannerAlt')}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="Desktop banner ALT text" />
                             </div>
                             <div className="space-y-2">
@@ -314,7 +314,7 @@ export default function BlogList() {
                                     filterType="hero-mobile"
                                 />
                                 <input type="text" value={pageData.mobileBannerAlt} onChange={setPage('mobileBannerAlt')}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="Mobile banner ALT text" />
                             </div>
                         </div>
@@ -322,13 +322,13 @@ export default function BlogList() {
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Banner Title</label>
                                 <input type="text" value={pageData.bannerTitle} onChange={setPage('bannerTitle')}
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="e.g. Our Blog" />
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Banner Description</label>
                                 <input type="text" value={pageData.bannerDescription} onChange={setPage('bannerDescription')}
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="Short subtitle below the title" />
                             </div>
                         </div>
@@ -338,26 +338,26 @@ export default function BlogList() {
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Title</label>
                                 <input type="text" value={pageData.metaTitle} onChange={setPage('metaTitle')} maxLength="60"
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="SEO title (55–60 chars)" />
                                 <p className="text-xs text-gray-400 mt-1">{pageData.metaTitle.length}/60</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Keywords</label>
                                 <input type="text" value={pageData.keywords} onChange={setPage('keywords')}
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="real estate blog, property tips" />
                             </div>
                         </div>
                         <div className="mb-5">
                             <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Description</label>
                             <textarea value={pageData.metaDescription} onChange={setPage('metaDescription')} rows={2} maxLength="160"
-                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                 placeholder="SEO description (150–160 chars)" />
                             <p className="text-xs text-gray-400 mt-1">{pageData.metaDescription.length}/160</p>
                         </div>
                         <button onClick={handleSavePage} disabled={saving}
-                            className="px-8 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] disabled:opacity-60 transition shadow">
+                            className="px-8 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold disabled:opacity-60 transition shadow">
                             {saving ? 'Saving...' : 'Save Settings'}
                         </button>
                     </div>
@@ -372,18 +372,18 @@ export default function BlogList() {
                             <div className="flex gap-3">
                                 {selectedBlogs.length > 0 && user?.role === 'admin' && (
                                     <button onClick={handleBulkDelete}
-                                        className="bg-[#b27e02] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#8a6002] transition-all flex items-center gap-2">
+                                        className="bg-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-gold transition-all flex items-center gap-2">
                                         <MdDelete /> Delete Selected ({selectedBlogs.length})
                                     </button>
                                 )}
                                 <button
                                     onClick={() => setShowImport(v => !v)}
-                                    className={`font-bold py-3 px-6 rounded-lg transition-all flex items-center gap-2 border-2 ${showImport ? 'bg-[#b27e02] border-[#b27e02] text-white' : 'border-[#b27e02] text-[#b27e02] hover:bg-[#b27e02] hover:text-white'}`}>
+                                    className={`font-bold py-3 px-6 rounded-lg transition-all flex items-center gap-2 border-2 ${showImport ? 'bg-gold border-gold text-white' : 'border-gold text-gold hover:bg-gold hover:text-white'}`}>
                                     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     Import JSON
                                 </button>
                                 <a href="/admin/blog/create"
-                                    className="bg-gradient-to-r from-[#b27e02] to-[#8a6002] text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg transition-all flex items-center gap-2">
+                                    className="bg-gradient-to-r from-gold to-gold text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg transition-all flex items-center gap-2">
                                     <MdArticle /> New Blog Post
                                 </a>
                             </div>
@@ -391,7 +391,7 @@ export default function BlogList() {
 
                         {/* JSON Import Panel */}
                         {showImport && (
-                            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02] mb-6">
+                            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-gold mb-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
                                         <h2 className="text-lg font-bold text-gray-800">Import Blog from JSON</h2>
@@ -449,7 +449,7 @@ export default function BlogList() {
 
                                 {/* File upload */}
                                 <div className="flex items-center gap-4 mb-4">
-                                    <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                    <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold transition-all text-sm">
                                         <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                         Choose JSON File
                                         <input type="file" accept=".json" onChange={handleJsonFileUpload} className="hidden" disabled={importing} />
@@ -465,7 +465,7 @@ export default function BlogList() {
                                         onChange={e => setJsonText(e.target.value)}
                                         rows={6}
                                         disabled={importing}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] font-mono text-xs text-gray-800 placeholder-gray-400 resize-y disabled:opacity-50"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream font-mono text-xs text-gray-800 placeholder-gray-400 resize-y disabled:opacity-50"
                                         placeholder={'{\n  "title": "My Blog Post",\n  "content": "<p>...</p>",\n  "excerpt": "Short description"\n}'}
                                     />
                                     <div className="flex items-center gap-3 mt-2">
@@ -473,7 +473,7 @@ export default function BlogList() {
                                             type="button"
                                             onClick={handleJsonPaste}
                                             disabled={importing}
-                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] disabled:opacity-50 transition-all text-sm"
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold disabled:opacity-50 transition-all text-sm"
                                         >
                                             {importing ? (
                                                 <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving...</>
@@ -500,7 +500,7 @@ export default function BlogList() {
                                 <h3 className="text-xl font-bold text-gray-800 mb-2">No blogs yet</h3>
                                 <p className="text-gray-600 mb-6">Start creating your first blog post</p>
                                 <a href="/admin/blog/create"
-                                    className="inline-block bg-[#b27e02] text-white font-bold py-3 px-6 rounded-lg hover:bg-[#8a6002] transition">
+                                    className="inline-block bg-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-gold transition">
                                     Create Blog Post
                                 </a>
                             </div>
@@ -514,7 +514,7 @@ export default function BlogList() {
                                                     <input type="checkbox"
                                                         checked={selectedBlogs.length === blogs.length && blogs.length > 0}
                                                         onChange={toggleSelectAll}
-                                                        className="w-4 h-4 text-[#b27e02] rounded focus:ring-[#c99010]" />
+                                                        className="w-4 h-4 text-gold rounded focus:ring-gold" />
                                                 </th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Title</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Category</th>
@@ -531,7 +531,7 @@ export default function BlogList() {
                                                         <input type="checkbox"
                                                             checked={selectedBlogs.includes(blog.id)}
                                                             onChange={() => toggleSelectBlog(blog.id)}
-                                                            className="w-4 h-4 text-[#b27e02] rounded focus:ring-[#c99010]" />
+                                                            className="w-4 h-4 text-gold rounded focus:ring-gold" />
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="font-semibold text-gray-800">{blog.title}</div>
@@ -560,7 +560,7 @@ export default function BlogList() {
                                                             </a>
                                                             {user?.role === 'admin' && (
                                                             <button onClick={() => handleDelete(blog.id)}
-                                                                className="p-2 text-[#b27e02] hover:bg-[#fef9e7] rounded-lg transition" title="Delete">
+                                                                className="p-2 text-gold hover:bg-cream rounded-lg transition" title="Delete">
                                                                 <MdDelete size={20} />
                                                             </button>
                                                             )}

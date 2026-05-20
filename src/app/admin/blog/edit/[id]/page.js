@@ -251,7 +251,7 @@ export default function EditBlog() {
                                         value={formData.title}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Enter blog title"
                                     />
                                 </div>
@@ -266,7 +266,7 @@ export default function EditBlog() {
                                         value={formData.slug}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="blog-post-url-slug"
                                     />
                                 </div>
@@ -281,7 +281,7 @@ export default function EditBlog() {
                                         onChange={handleChange}
                                         required
                                         rows="3"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Short description of the blog"
                                     ></textarea>
                                 </div>
@@ -295,7 +295,7 @@ export default function EditBlog() {
                                         value={formData.category}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0]"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream"
                                     >
                                         <option value="">Select a category</option>
                                         {categories.map((cat) => (
@@ -305,7 +305,7 @@ export default function EditBlog() {
                                         ))}
                                     </select>
                                     <p className="text-sm text-gray-500 mt-1">
-                                        <a href="/admin/blog/categories" target="_blank" className="text-[#b27e02] hover:underline">
+                                        <a href="/admin/blog/categories" target="_blank" className="text-gold hover:underline">
                                             Manage Blog Categories →
                                         </a>
                                     </p>
@@ -320,7 +320,7 @@ export default function EditBlog() {
                                         name="readTime"
                                         value={formData.readTime}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900 bg-gray-50"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900 bg-gray-50"
                                         placeholder="Write content to calculate read time"
                                         readOnly
                                     />
@@ -338,7 +338,7 @@ export default function EditBlog() {
                                         name="author"
                                         value={formData.author}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0]"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream"
                                     />
                                 </div>
                             </div>
@@ -360,7 +360,7 @@ export default function EditBlog() {
                                             <button
                                                 type="button"
                                                 onClick={() => setShowMediaPicker(true)}
-                                                className="px-4 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-[#fef9e7] transition flex items-center gap-2"
+                                                className="px-4 py-2 bg-white text-gray-800 rounded-lg text-sm font-semibold hover:bg-cream transition flex items-center gap-2"
                                             >
                                                 <MdImage size={16} /> Change
                                             </button>
@@ -377,7 +377,7 @@ export default function EditBlog() {
                                     <button
                                         type="button"
                                         onClick={() => setShowMediaPicker(true)}
-                                        className="w-full flex flex-col items-center justify-center h-40 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition"
+                                        className="w-full flex flex-col items-center justify-center h-40 border-2 border-dashed border-gray-200 rounded-xl hover:border-gold hover:bg-cream transition"
                                     >
                                         <MdImage size={32} className="text-gray-300 mb-2" />
                                         <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
@@ -404,7 +404,7 @@ export default function EditBlog() {
                                         name="heroImageAlt"
                                         value={formData.heroImageAlt}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Descriptive alt text for the image"
                                     />
                                 </div>
@@ -426,7 +426,7 @@ export default function EditBlog() {
                                         value={formData.seoTitle}
                                         onChange={handleChange}
                                         maxLength={60}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Leave empty to use blog title"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">
@@ -444,7 +444,7 @@ export default function EditBlog() {
                                         onChange={handleChange}
                                         maxLength={160}
                                         rows="3"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Leave empty to use excerpt"
                                     ></textarea>
                                     <p className="text-xs text-gray-500 mt-1">
@@ -461,7 +461,7 @@ export default function EditBlog() {
                                         name="keywords"
                                         value={formData.keywords}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="SaaS, startup, AI, product development"
                                     />
                                 </div>
@@ -489,7 +489,7 @@ export default function EditBlog() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex items-center gap-2 bg-[#b27e02] text-white font-bold py-3 px-8 rounded-lg hover:bg-[#8a6002] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 bg-gold text-white font-bold py-3 px-8 rounded-lg hover:bg-gold transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <MdSave size={20} />
                                 {loading ? 'Updating...' : 'Update Blog Post'}

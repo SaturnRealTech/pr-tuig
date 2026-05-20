@@ -259,7 +259,7 @@ export default function HomePageManagement() {
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Import from JSON */}
-                            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02]">
+                            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-gold">
                                 <h2 className="text-xl font-bold text-gray-800 mb-1">Import from JSON</h2>
                                 <p className="text-sm text-gray-500 mb-4">Upload a JSON file — matching fields will be auto-filled automatically.</p>
 
@@ -312,7 +312,7 @@ export default function HomePageManagement() {
                                 </div>
 
                                 <div className="flex items-center gap-4 mb-4">
-                                    <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                    <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold transition-all text-sm">
                                         <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                         Choose JSON File
                                         <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
@@ -326,12 +326,12 @@ export default function HomePageManagement() {
                                         value={jsonText}
                                         onChange={e => setJsonText(e.target.value)}
                                         rows={6}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] font-mono text-xs text-gray-800 placeholder-gray-400 resize-y"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream font-mono text-xs text-gray-800 placeholder-gray-400 resize-y"
                                         placeholder={'{\n  "heroTitle": "Find Your Dream Home",\n  "metaTitle": "Saturn RealCon"\n}'}
                                     />
                                     <div className="flex items-center gap-3 mt-2">
                                         <button type="button" onClick={handleJsonPaste}
-                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold transition-all text-sm">
                                             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                                             Apply JSON
                                         </button>
@@ -353,7 +353,7 @@ export default function HomePageManagement() {
                                             type="text" 
                                             value={searchTerm} 
                                             onChange={handleSearch}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                             placeholder="Search projects by name, location, builder..." 
                                         />
                                     </div>
@@ -373,7 +373,7 @@ export default function HomePageManagement() {
                                                     type="button"
                                                     onClick={() => handlePageChange(currentPage - 1)}
                                                     disabled={currentPage === 1}
-                                                    className="px-3 py-1 bg-[#b27e02] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="px-3 py-1 bg-gold text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
                                                     Previous
                                                 </button>
@@ -381,7 +381,7 @@ export default function HomePageManagement() {
                                                     type="button"
                                                     onClick={() => handlePageChange(currentPage + 1)}
                                                     disabled={currentPage === totalPages}
-                                                    className="px-3 py-1 bg-[#b27e02] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="px-3 py-1 bg-gold text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
                                                     Next
                                                 </button>
@@ -394,7 +394,7 @@ export default function HomePageManagement() {
                                                             type="checkbox"
                                                             checked={selectedProjects.includes(project._id)}
                                                             onChange={() => handleProjectToggle(project._id)}
-                                                            className="accent-[#b27e02] w-4 h-4 flex-shrink-0" 
+                                                            className="accent-gold w-4 h-4 flex-shrink-0" 
                                                         />
                                                         <div className="flex-1">
                                                             <p className="font-medium text-gray-900">{project.title}</p>
@@ -413,7 +413,7 @@ export default function HomePageManagement() {
                                                             onClick={() => handlePageChange(page)}
                                                             className={`px-3 py-1 rounded-lg ${
                                                                 currentPage === page 
-                                                                    ? 'bg-[#b27e02] text-white' 
+                                                                    ? 'bg-gold text-white' 
                                                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                                             }`}
                                                         >
@@ -436,7 +436,7 @@ export default function HomePageManagement() {
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Section Title</label>
                                         <input type="text" name="aboutSectionTitle" value={formData.aboutSectionTitle} onChange={handleChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                             placeholder="About Saturn RealCon" />
                                     </div>
                                     <div>
@@ -458,7 +458,7 @@ export default function HomePageManagement() {
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Section Title</label>
                                         <input type="text" name="whyChooseUsTitle" value={formData.whyChooseUsTitle} onChange={handleChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                             placeholder="Why Choose Saturn RealCon?" />
                                     </div>
                                     {/* Content */}
@@ -479,21 +479,21 @@ export default function HomePageManagement() {
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Title</label>
                                         <input type="text" name="metaTitle" value={formData.metaTitle} onChange={handleChange} maxLength="60"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                             placeholder="Saturn RealCon - Premium Real Estate" />
                                         <p className="text-xs text-gray-400 mt-1">{(formData.metaTitle || '').length}/60</p>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Description</label>
                                         <textarea name="metaDescription" value={formData.metaDescription} onChange={handleChange} rows={3} maxLength="160"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                             placeholder="Discover premium residential and commercial properties with Saturn RealCon" />
                                         <p className="text-xs text-gray-400 mt-1">{(formData.metaDescription || '').length}/160</p>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Keywords</label>
                                         <input type="text" name="keywords" value={formData.keywords} onChange={handleChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                             placeholder="real estate, property, luxury homes, commercial" />
                                     </div>
                                 </div>
@@ -508,7 +508,7 @@ export default function HomePageManagement() {
                                     onChange={e => handleOrgSchemaChange(e.target.value)}
                                     rows={10}
                                     spellCheck={false}
-                                    className={`w-full px-4 py-3 border rounded-lg font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[#faf0d0] text-gray-900 resize-y ${orgSchemaError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-[#b27e02]'}`}
+                                    className={`w-full px-4 py-3 border rounded-lg font-mono text-xs focus:outline-none focus:ring-2 focus:ring-cream text-gray-900 resize-y ${orgSchemaError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-gold'}`}
                                     placeholder={`{\n  "description": "Leading real estate consultancy in India",\n  "email": "info@example.com",\n  "sameAs": [\n    "https://facebook.com/yourpage",\n    "https://instagram.com/yourpage",\n    "https://linkedin.com/company/yourpage"\n  ]\n}`}
                                 />
                                 {orgSchemaError && <p className="mt-2 text-xs text-red-500 font-medium">{orgSchemaError}</p>}
@@ -524,7 +524,7 @@ export default function HomePageManagement() {
                                     onChange={e => handleSchemaChange(e.target.value)}
                                     rows={12}
                                     spellCheck={false}
-                                    className={`w-full px-4 py-3 border rounded-lg font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[#faf0d0] text-gray-900 resize-y ${schemaError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-[#b27e02]'}`}
+                                    className={`w-full px-4 py-3 border rounded-lg font-mono text-xs focus:outline-none focus:ring-2 focus:ring-cream text-gray-900 resize-y ${schemaError ? 'border-red-400 focus:border-red-400' : 'border-gray-300 focus:border-gold'}`}
                                     placeholder={`{\n  "@context": "https://schema.org",\n  "@type": "RealEstateAgent",\n  "name": "Your Business Name",\n  "telephone": "+91-XXXXXXXXXX",\n  "address": {\n    "@type": "PostalAddress",\n    "streetAddress": "Street",\n    "addressLocality": "City",\n    "addressRegion": "State",\n    "postalCode": "000000",\n    "addressCountry": "IN"\n  }\n}`}
                                 />
                                 {schemaError && (
@@ -538,7 +538,7 @@ export default function HomePageManagement() {
                             {/* Actions */}
                             <div className="flex gap-3">
                                 <button type="submit" disabled={saving || !!schemaError || !!orgSchemaError}
-                                    className="flex-1 px-6 py-3 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
+                                    className="flex-1 px-6 py-3 bg-gold text-white rounded-lg hover:bg-gold transition font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
                                     <MdSave size={18} />
                                     {saving ? 'Saving...' : 'Save Changes'}
                                 </button>

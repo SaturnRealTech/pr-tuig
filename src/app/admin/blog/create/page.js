@@ -288,7 +288,7 @@ export default function CreateBlog() {
                         )}
 
                         {/* JSON Import */}
-                        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02]">
+                        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-gold">
                             <h2 className="text-xl font-bold text-gray-800 mb-1">Import from JSON</h2>
                             <p className="text-sm text-gray-500 mb-4">Upload any JSON file — matching fields will be auto-filled automatically.</p>
 
@@ -339,7 +339,7 @@ export default function CreateBlog() {
 
                             {/* File upload row */}
                             <div className="flex items-center gap-4 mb-4">
-                                <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold transition-all text-sm">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     Choose JSON File
                                     <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
@@ -354,14 +354,14 @@ export default function CreateBlog() {
                                     value={jsonText}
                                     onChange={e => setJsonText(e.target.value)}
                                     rows={6}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] font-mono text-xs text-gray-800 placeholder-gray-400 resize-y"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream font-mono text-xs text-gray-800 placeholder-gray-400 resize-y"
                                     placeholder={'{\n  "title": "My Blog Post",\n  "content": "<p>...</p>",\n  "excerpt": "Short description"\n}'}
                                 />
                                 <div className="flex items-center gap-3 mt-2">
                                     <button
                                         type="button"
                                         onClick={handleJsonPaste}
-                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm"
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold transition-all text-sm"
                                     >
                                         <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                                         Apply JSON
@@ -391,7 +391,7 @@ export default function CreateBlog() {
                                         value={formData.title}
                                         onChange={handleTitleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Enter blog title"
                                     />
                                 </div>
@@ -406,7 +406,7 @@ export default function CreateBlog() {
                                         value={formData.slug}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="blog-post-url-slug"
                                     />
                                     <p className="text-sm text-gray-500 mt-1">
@@ -424,7 +424,7 @@ export default function CreateBlog() {
                                         onChange={handleChange}
                                         required
                                         rows="3"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Short description of the blog"
                                     ></textarea>
                                 </div>
@@ -438,7 +438,7 @@ export default function CreateBlog() {
                                         value={formData.category}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0]"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream"
                                     >
                                         <option value="">Select a category</option>
                                         {categories.map((cat) => (
@@ -448,7 +448,7 @@ export default function CreateBlog() {
                                         ))}
                                     </select>
                                     <p className="text-sm text-gray-500 mt-1">
-                                        <a href="/admin/blog/categories" target="_blank" className="text-[#b27e02] hover:underline">
+                                        <a href="/admin/blog/categories" target="_blank" className="text-gold hover:underline">
                                             Manage Blog Categories →
                                         </a>
                                     </p>
@@ -463,7 +463,7 @@ export default function CreateBlog() {
                                         name="readTime"
                                         value={formData.readTime}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900 bg-gray-50"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900 bg-gray-50"
                                         placeholder="Write content to calculate read time"
                                         readOnly
                                     />
@@ -481,7 +481,7 @@ export default function CreateBlog() {
                                         name="author"
                                         value={formData.author}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Author name"
                                     />
                                 </div>
@@ -536,7 +536,7 @@ export default function CreateBlog() {
                                         name="heroImageAlt"
                                         value={formData.heroImageAlt}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Descriptive alt text for the image"
                                     />
                                 </div>
@@ -558,7 +558,7 @@ export default function CreateBlog() {
                                         value={formData.seoTitle}
                                         onChange={handleChange}
                                         maxLength={60}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Leave empty to use blog title"
                                     />
                                     <p className="text-sm text-gray-500 mt-1">
@@ -576,7 +576,7 @@ export default function CreateBlog() {
                                         onChange={handleChange}
                                         maxLength={160}
                                         rows="3"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Leave empty to use excerpt"
                                     ></textarea>
                                     <p className="text-sm text-gray-500 mt-1">
@@ -593,7 +593,7 @@ export default function CreateBlog() {
                                         name="keywords"
                                         value={formData.keywords}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] placeholder-gray-500 text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="saas, development, ai, technology"
                                     />
                                 </div>
@@ -614,7 +614,7 @@ export default function CreateBlog() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 bg-gradient-to-r from-[#b27e02] to-[#8a6002] text-white font-bold py-4 px-6 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="flex-1 bg-gradient-to-r from-gold to-gold text-white font-bold py-4 px-6 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {loading ? (
                                     <>

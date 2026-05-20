@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "db:init": "node scripts/init-sqlite.mjs",
+    "db:migrate": "node scripts/migrate-mongo-to-sqlite.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.972.0",

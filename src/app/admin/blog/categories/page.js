@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 
 const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: false });
 
-const inputClass = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 placeholder-gray-400';
+const inputClass = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 placeholder-gray-400';
 
 function ImagePicker({ label, hint, value, onChange, onAltChange, filterType = '' }) {
     const [showPicker, setShowPicker] = useState(false);
@@ -28,14 +28,14 @@ function ImagePicker({ label, hint, value, onChange, onAltChange, filterType = '
                     <img src={value} alt={label} className="w-full h-36 object-cover" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                         <button type="button" onClick={() => setShowPicker(true)}
-                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-[#fef9e7] transition">Change</button>
+                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-cream transition">Change</button>
                         <button type="button" onClick={() => onChange('')}
                             className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition">Remove</button>
                     </div>
                 </div>
             ) : (
                 <button type="button" onClick={() => setShowPicker(true)}
-                    className="w-full flex flex-col items-center justify-center h-28 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                    className="w-full flex flex-col items-center justify-center h-28 border-2 border-dashed border-gray-200 rounded-xl hover:border-gold hover:bg-cream transition">
                     <MdImage size={28} className="text-gray-300 mb-1.5" />
                     <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
                 </button>
@@ -161,7 +161,7 @@ export default function BlogCategoriesPage() {
                             <button
                                 onClick={handleSavePage}
                                 disabled={saving}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold disabled:opacity-50"
+                                className="flex items-center gap-2 px-5 py-2.5 bg-gold text-white rounded-lg hover:bg-gold transition font-semibold disabled:opacity-50"
                             >
                                 <MdSave size={18} />
                                 {saving ? 'Saving...' : 'Save Settings'}
@@ -281,7 +281,7 @@ export default function BlogCategoriesPage() {
                             </div>
                             <a
                                 href="/admin/blog/categories/create"
-                                className="flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold"
+                                className="flex items-center gap-2 px-5 py-2.5 bg-gold text-white rounded-lg hover:bg-gold transition font-semibold"
                             >
                                 <MdAdd size={18} /> Add Category
                             </a>
@@ -295,7 +295,7 @@ export default function BlogCategoriesPage() {
                                     <div className="text-5xl mb-4">🗂️</div>
                                     <p className="text-gray-500 font-medium mb-1">No blog categories yet</p>
                                     <p className="text-gray-400 text-sm mb-4">Add categories like &quot;News&quot;, &quot;Article&quot;, &quot;Market Update&quot;</p>
-                                    <a href="/admin/blog/categories/create" className="text-[#b27e02] font-semibold hover:underline">
+                                    <a href="/admin/blog/categories/create" className="text-gold font-semibold hover:underline">
                                         + Add your first category
                                     </a>
                                 </div>
@@ -329,7 +329,7 @@ export default function BlogCategoriesPage() {
                                                     <div className="flex items-center justify-end gap-2">
                                                         <a
                                                             href={`/admin/blog/categories/edit/${cat._id}`}
-                                                            className="p-2 text-gray-500 hover:text-[#b27e02] hover:bg-[#faf0d0] rounded-lg transition inline-flex"
+                                                            className="p-2 text-gray-500 hover:text-gold hover:bg-cream rounded-lg transition inline-flex"
                                                         >
                                                             <MdEdit size={18} />
                                                         </a>

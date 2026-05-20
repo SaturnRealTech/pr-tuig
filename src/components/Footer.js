@@ -30,7 +30,7 @@ export default function Footer() {
     }, []);
 
     return (
-        <footer className="bg-black text-white py-16 px-6 border-t-2 border-[#b27e02]">
+        <footer className="bg-moss text-background py-16 px-6 ">
             <div className="max-w-7xl mx-auto">
                 {/* Top Section — Brand + one col per group + Get In Touch */}
                 {/* <div className="flex flex-wrap gap-10 mb-12"> */}
@@ -68,7 +68,7 @@ export default function Footer() {
                                     <li key={blog._id}>
                                         <a
                                             href={`/blog/${blog.slug || blog._id}`}
-                                            className="text-gray-400 hover:text-[#b27e02] transition text-sm"
+                                            className="text-gray-400 hover:text-gold transition text-sm"
                                         >
                                             {twoWords(blog.title)}
                                         </a>
@@ -87,7 +87,7 @@ export default function Footer() {
                                     <li key={cat}>
                                         <a
                                             href={`/blog?category=${encodeURIComponent(cat)}`}
-                                            className="text-gray-400 hover:text-[#b27e02] transition text-sm"
+                                            className="text-gray-400 hover:text-gold transition text-sm"
                                         >
                                             {cat}
                                         </a>
@@ -103,17 +103,17 @@ export default function Footer() {
                         <div className="space-y-3">
                             <a
                                 href="mailto:SaturnRealcon@gmail.com"
-                                className="flex items-center gap-3 text-gray-300 hover:text-[#b27e02] transition text-sm group"
+                                className="flex items-center gap-3 text-gray-300 hover:text-gold transition text-sm group"
                             >
-                                <MdEmail className="text-xl text-[#b27e02] group-hover:text-[#d4a030] flex-shrink-0" />
+                                <MdEmail className="text-xl text-gold group-hover:text-gold flex-shrink-0" />
                                 <span>SaturnRealcon@gmail.com</span>
                             </a>
                             {contactPhone && (
                                 <a
                                     href={`tel:${contactPhone}`}
-                                    className="flex items-center gap-3 text-gray-300 hover:text-[#b27e02] transition text-sm group"
+                                    className="flex items-center gap-3 text-gray-300 hover:text-gold transition text-sm group"
                                 >
-                                    <MdPhone className="text-xl text-[#b27e02] group-hover:text-[#d4a030] flex-shrink-0" />
+                                    <MdPhone className="text-xl text-gold group-hover:text-gold flex-shrink-0" />
                                     <span>{contactPhone}</span>
                                 </a>
                             )}
@@ -126,7 +126,7 @@ export default function Footer() {
                 {/* </div> */}
 
                 {/* Divider */}
-                <div className="w-full h-px bg-[#b27e02]/30 mb-8" />
+                <div className="w-full h-px bg-gold/30 mb-8" />
 
                 {/* Bottom Section */}
                 <div className="text-center">

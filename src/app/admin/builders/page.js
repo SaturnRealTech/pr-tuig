@@ -29,7 +29,7 @@ function ImagePicker({ label, hint, value, onChange, onAltChange, filterType = '
                     <img src={value} alt={label} className="w-full h-36 object-cover" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                         <button type="button" onClick={() => setShowPicker(true)}
-                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-[#fef9e7] transition">
+                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-cream transition">
                             Change
                         </button>
                         <button type="button" onClick={() => onChange('')}
@@ -40,7 +40,7 @@ function ImagePicker({ label, hint, value, onChange, onAltChange, filterType = '
                 </div>
             ) : (
                 <button type="button" onClick={() => setShowPicker(true)}
-                    className="w-full flex flex-col items-center justify-center h-28 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                    className="w-full flex flex-col items-center justify-center h-28 border-2 border-dashed border-gray-200 rounded-xl hover:border-gold hover:bg-cream transition">
                     <MdImage size={28} className="text-gray-300 mb-1" />
                     <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
                 </button>
@@ -164,7 +164,7 @@ export default function BuildersListPage() {
                                     type="text"
                                     value={desktopBannerAlt}
                                     onChange={e => setDesktopBannerAlt(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="Alt text for desktop banner"
                                 />
                             </div>
@@ -181,7 +181,7 @@ export default function BuildersListPage() {
                                     type="text"
                                     value={mobileBannerAlt}
                                     onChange={e => setMobileBannerAlt(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="Alt text for mobile banner"
                                 />
                             </div>
@@ -193,7 +193,7 @@ export default function BuildersListPage() {
                                     type="text"
                                     value={bannerTitle}
                                     onChange={e => setBannerTitle(e.target.value)}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="e.g. Our Builders"
                                 />
                             </div>
@@ -203,14 +203,14 @@ export default function BuildersListPage() {
                                     value={bannerDescription}
                                     onChange={e => setBannerDescription(e.target.value)}
                                     rows={2}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="e.g. Discover top real estate developers we work with."
                                 />
                             </div>
                         </div>
                         <div className="mt-5">
                             <button onClick={handleSaveBanners} disabled={saving}
-                                className="flex items-center gap-2 px-6 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] disabled:opacity-60 transition shadow-sm">
+                                className="flex items-center gap-2 px-6 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold disabled:opacity-60 transition shadow-sm">
                                 <MdCheck size={18} />
                                 {saving ? 'Saving...' : 'Save Banners'}
                             </button>
@@ -228,7 +228,7 @@ export default function BuildersListPage() {
                                     type="text"
                                     value={sectionTitle}
                                     onChange={e => setSectionTitle(e.target.value)}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="e.g. About Our Builders"
                                 />
                             </div>
@@ -242,7 +242,7 @@ export default function BuildersListPage() {
                         </div>
                         <div className="mt-5">
                             <button onClick={handleSaveBanners} disabled={saving}
-                                className="flex items-center gap-2 px-6 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] disabled:opacity-60 transition shadow-sm">
+                                className="flex items-center gap-2 px-6 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold disabled:opacity-60 transition shadow-sm">
                                 <MdCheck size={18} />
                                 {saving ? 'Saving...' : 'Save Section'}
                             </button>
@@ -261,7 +261,7 @@ export default function BuildersListPage() {
                                     value={metaTitle}
                                     onChange={e => setMetaTitle(e.target.value)}
                                     maxLength={60}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="Our Builders — Saturn RealCon"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">{metaTitle.length}/60 characters</p>
@@ -273,7 +273,7 @@ export default function BuildersListPage() {
                                     onChange={e => setMetaDescription(e.target.value)}
                                     rows={3}
                                     maxLength={160}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="Explore all trusted builders and developers associated with Saturn RealCon."
                                 />
                                 <p className="text-xs text-gray-400 mt-1">{metaDescription.length}/160 characters</p>
@@ -284,7 +284,7 @@ export default function BuildersListPage() {
                                     type="text"
                                     value={keywords}
                                     onChange={e => setKeywords(e.target.value)}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="builders, real estate developers, DLF, Godrej"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Comma separated</p>
@@ -292,7 +292,7 @@ export default function BuildersListPage() {
                         </div>
                         <div className="mt-5">
                             <button onClick={handleSaveBanners} disabled={saving}
-                                className="flex items-center gap-2 px-6 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] disabled:opacity-60 transition shadow-sm">
+                                className="flex items-center gap-2 px-6 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold disabled:opacity-60 transition shadow-sm">
                                 <MdCheck size={18} />
                                 {saving ? 'Saving...' : 'Save SEO'}
                             </button>

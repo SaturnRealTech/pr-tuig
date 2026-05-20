@@ -93,7 +93,7 @@ export default function AdminLogin() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#b27e02] to-[#6b4a01] flex items-center justify-center p-6">
+        <div className="min-h-screen bg-gradient-to-br from-gold to-gold flex items-center justify-center p-6">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
                 <div className="text-center mb-8">
                     <div className="text-4xl font-bold mb-2 text-black">
@@ -104,7 +104,7 @@ export default function AdminLogin() {
                 </div>
 
                 {error && (
-                    <div className="mb-4 p-3 bg-[#fef9e7] border border-[#f0d090] rounded-lg text-[#8a6002] text-sm">
+                    <div className="mb-4 p-3 bg-cream border border-gold rounded-lg text-gold text-sm">
                         {error}
                     </div>
                 )}
@@ -122,7 +122,7 @@ export default function AdminLogin() {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 placeholder:text-gray-400"
+                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 placeholder:text-gray-400"
                                 placeholder="admin@example.com"
                             />
                         </div>
@@ -140,7 +140,7 @@ export default function AdminLogin() {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
-                                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 placeholder:text-gray-400"
+                                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 placeholder:text-gray-400"
                                 placeholder="••••••••"
                             />
                             <button
@@ -156,7 +156,7 @@ export default function AdminLogin() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-[#b27e02] to-[#8a6002] text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-gradient-to-r from-gold to-gold text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? (
                             <>

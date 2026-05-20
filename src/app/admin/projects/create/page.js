@@ -28,7 +28,7 @@ function BannerPicker({ label, hint, icon, filterType, value, onChange }) {
                     <img src={value} alt={label} className="w-full h-40 object-cover" />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                         <button type="button" onClick={() => setShowPicker(true)}
-                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-[#fef9e7] transition">
+                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-cream transition">
                             Change
                         </button>
                         <button type="button" onClick={() => onChange('')}
@@ -39,7 +39,7 @@ function BannerPicker({ label, hint, icon, filterType, value, onChange }) {
                 </div>
             ) : (
                 <button type="button" onClick={() => setShowPicker(true)}
-                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-gold hover:bg-cream transition">
                     <MdImage size={32} className="text-gray-300 mb-2" />
                     <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
                 </button>
@@ -63,7 +63,7 @@ function AmenityItem({ amenity, onUpdate, onRemove }) {
                 className="absolute top-1.5 right-1.5 text-red-400 hover:text-red-600 text-xs font-bold leading-none">✕</button>
 
             <button type="button" onClick={() => setShowPicker(true)}
-                className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 hover:border-[#b27e02] flex items-center justify-center overflow-hidden bg-white transition">
+                className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 hover:border-gold flex items-center justify-center overflow-hidden bg-white transition">
                 {amenity.icon
                     ? <img src={amenity.icon} alt={amenity.alt || 'icon'} className="w-full h-full object-contain p-1" />
                     : <MdImage size={28} className="text-gray-300" />}
@@ -71,11 +71,11 @@ function AmenityItem({ amenity, onUpdate, onRemove }) {
 
             <input type="text" value={amenity.alt || ''} onChange={e => onUpdate('alt', e.target.value)}
                 placeholder="Alt text *" required
-                className="w-full text-xs text-center border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#b27e02] text-gray-800 bg-white" />
+                className="w-full text-xs text-center border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-gold text-gray-800 bg-white" />
 
             <input type="text" value={amenity.label} onChange={e => onUpdate('label', e.target.value)}
                 placeholder="Label"
-                className="w-full text-xs text-center border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#b27e02] text-gray-800 bg-white" />
+                className="w-full text-xs text-center border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-gold text-gray-800 bg-white" />
 
             {showPicker && (
                 <MediaPicker
@@ -95,7 +95,7 @@ function PlanItem({ plan, onUpdate, onRemove, label }) {
             <button type="button" onClick={onRemove}
                 className="absolute top-2 right-2 z-10 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition">✕</button>
             <button type="button" onClick={() => setShowPicker(true)}
-                className="w-full h-40 flex flex-col items-center justify-center bg-white hover:bg-[#fef9e7] border-b border-gray-200 transition overflow-hidden">
+                className="w-full h-40 flex flex-col items-center justify-center bg-white hover:bg-cream border-b border-gray-200 transition overflow-hidden">
                 {plan.image
                     ? <img src={plan.image} alt={plan.alt || label} className="w-full h-full object-cover" />
                     : <><MdImage size={36} className="text-gray-300 mb-1" /><span className="text-xs text-gray-400 font-medium">Choose Image</span></>}
@@ -103,13 +103,13 @@ function PlanItem({ plan, onUpdate, onRemove, label }) {
             <div className="p-3 space-y-2">
                 <input type="text" value={plan.alt || ''} onChange={e => onUpdate('alt', e.target.value)}
                     placeholder="Alt text *" required
-                    className="w-full text-xs border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#b27e02] text-gray-800 bg-white" />
+                    className="w-full text-xs border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-gold text-gray-800 bg-white" />
                 <input type="text" value={plan.label || ''} onChange={e => onUpdate('label', e.target.value)}
                     placeholder="Caption / Details (e.g. 1,375 sq. ft.)"
-                    className="w-full text-xs border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#b27e02] text-gray-800 bg-white" />
+                    className="w-full text-xs border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-gold text-gray-800 bg-white" />
                 <input type="text" value={plan.ctaText || ''} onChange={e => onUpdate('ctaText', e.target.value)}
                     placeholder="CTA Button Text (e.g. Enquire Now)"
-                    className="w-full text-xs border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#b27e02] text-gray-800 bg-white" />
+                    className="w-full text-xs border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-gold text-gray-800 bg-white" />
             </div>
             {showPicker && (
                 <MediaPicker
@@ -129,7 +129,7 @@ function GalleryImageItem({ item, onUpdate, onRemove }) {
             <button type="button" onClick={onRemove}
                 className="absolute top-2 right-2 z-10 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition">✕</button>
             <button type="button" onClick={() => setShowPicker(true)}
-                className="w-full h-36 flex flex-col items-center justify-center bg-white hover:bg-[#fef9e7] border-b border-gray-200 transition overflow-hidden">
+                className="w-full h-36 flex flex-col items-center justify-center bg-white hover:bg-cream border-b border-gray-200 transition overflow-hidden">
                 {item.image
                     ? <img src={item.image} alt={item.alt || 'gallery'} className="w-full h-full object-cover" />
                     : <><MdImage size={32} className="text-gray-300 mb-1" /><span className="text-xs text-gray-400 font-medium">Choose Image</span></>}
@@ -137,7 +137,7 @@ function GalleryImageItem({ item, onUpdate, onRemove }) {
             <div className="p-2.5">
                 <input type="text" value={item.alt || ''} onChange={e => onUpdate('alt', e.target.value)}
                     placeholder="Alt text *" required
-                    className="w-full text-xs border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-[#b27e02] text-gray-800 bg-white" />
+                    className="w-full text-xs border border-gray-200 rounded-lg px-2 py-2 focus:outline-none focus:border-gold text-gray-800 bg-white" />
             </div>
             {showPicker && (
                 <MediaPicker
@@ -154,7 +154,7 @@ function SectionToggle({ checked, onChange }) {
     return (
         <label className="flex items-center gap-2 cursor-pointer select-none flex-shrink-0">
             <span className="text-xs text-gray-500">{checked ? 'Visible' : 'Hidden'}</span>
-            <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${checked ? 'bg-[#b27e02]' : 'bg-gray-300'}`}>
+            <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${checked ? 'bg-gold' : 'bg-gray-300'}`}>
                 <input type="checkbox" className="sr-only" checked={checked} onChange={onChange} />
                 <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${checked ? 'translate-x-4' : 'translate-x-0.5'}`} />
             </div>
@@ -511,7 +511,7 @@ export default function CreateProject() {
             <main className={`flex-1 ${sidebarOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
                 <div className="p-8">
                     <div className="mb-6">
-                        <button onClick={() => router.push('/admin/projects/list')} className="flex items-center gap-2 text-gray-600 hover:text-[#b27e02] mb-3 transition">
+                        <button onClick={() => router.push('/admin/projects/list')} className="flex items-center gap-2 text-gray-600 hover:text-gold mb-3 transition">
                             <MdArrowBack size={20} /> Back to Projects
                         </button>
                         <h1 className="text-3xl font-bold text-gray-800">Add New Project</h1>
@@ -520,7 +520,7 @@ export default function CreateProject() {
 
                     <form onSubmit={e => e.preventDefault()}>
                         {/* Import from JSON */}
-                        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-[#b27e02] mb-6">
+                        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-gold mb-6">
                             <h2 className="text-xl font-bold text-gray-800 mb-1">Import from JSON</h2>
                             <p className="text-sm text-gray-500 mb-4">Upload a JSON file — matching fields will be auto-filled automatically.</p>
 
@@ -703,7 +703,7 @@ export default function CreateProject() {
                             </div>
 
                             <div className="flex items-center gap-4 mb-4">
-                                <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                <label className="inline-flex items-center gap-2 cursor-pointer px-5 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold transition-all text-sm">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     Choose JSON File
                                     <input type="file" accept=".json" onChange={handleJsonUpload} className="hidden" />
@@ -717,12 +717,12 @@ export default function CreateProject() {
                                     value={jsonText}
                                     onChange={e => setJsonText(e.target.value)}
                                     rows={6}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] font-mono text-xs text-gray-800 placeholder-gray-400 resize-y"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream font-mono text-xs text-gray-800 placeholder-gray-400 resize-y"
                                     placeholder={'{\n  "title": "My Project",\n  "metaTitle": "SEO Title",\n  "price": "₹50L onwards"\n}'}
                                 />
                                 <div className="flex items-center gap-3 mt-2">
                                     <button type="button" onClick={handleJsonPaste}
-                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] transition-all text-sm">
+                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gold text-white font-semibold rounded-lg hover:bg-gold transition-all text-sm">
                                         <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                                         Apply JSON
                                     </button>
@@ -745,16 +745,16 @@ export default function CreateProject() {
                                     <div className="space-y-4">
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Project Title <span className="text-[#b27e02]">*</span></label>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Project Title <span className="text-gold">*</span></label>
                                             <input type="text" name="title" value={formData.title} onChange={handleTitleChange} required
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="e.g., Skyline Residences" />
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Slug <span className="text-[#b27e02]">*</span></label>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Slug <span className="text-gold">*</span></label>
                                             <input type="text" name="slug" value={formData.slug} onChange={handleChange} required
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 font-mono"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 font-mono"
                                                 placeholder="skyline-residences" />
                                             <p className="text-xs text-gray-400 mt-1">URL: /projects/<strong>{formData.slug || 'your-slug'}</strong></p>
                                         </div>
@@ -762,7 +762,7 @@ export default function CreateProject() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Project Address</label>
                                             <input type="text" name="projectAddress" value={formData.projectAddress} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="123 Main Street, City, State" />
                                         </div>
 
@@ -770,13 +770,13 @@ export default function CreateProject() {
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Price</label>
                                                 <input type="text" name="price" value={formData.price} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="₹ 50 Lakhs onwards" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Total Units</label>
                                                 <input type="text" name="totalUnits" value={formData.totalUnits} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="240" />
                                             </div>
                                         </div>
@@ -785,13 +785,13 @@ export default function CreateProject() {
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">RERA No.</label>
                                                 <input type="text" name="reraNo" value={formData.reraNo} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="RERA123456" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Developer / Company</label>
                                                 <input type="text" name="company" value={formData.company} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="Saturn Realty Pvt. Ltd." />
                                             </div>
                                         </div>
@@ -800,12 +800,12 @@ export default function CreateProject() {
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Possession Date</label>
                                                 <input type="date" name="possession" value={formData.possession} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Launch / Created Date</label>
                                                 <input type="date" name="createdDate" value={formData.createdDate} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                             </div>
                                         </div>
 
@@ -814,19 +814,19 @@ export default function CreateProject() {
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Configurations</label>
                                                 <input type="text" name="bhkConfig" value={formData.bhkConfig} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="3 & 4 BHK" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Plot Size</label>
                                                 <input type="text" name="carpetArea" value={formData.carpetArea} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="2,850 – 5,600 sq.ft" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Land Parcel / Density</label>
                                                 <input type="text" name="landParcel" value={formData.landParcel} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="Only 1 Tower on 7.5 Acres" />
                                             </div>
                                         </div>
@@ -835,13 +835,13 @@ export default function CreateProject() {
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Latitude</label>
                                                 <input type="text" name="lat" value={formData.lat} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="28.6139" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Longitude</label>
                                                 <input type="text" name="lng" value={formData.lng} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="77.2090" />
                                             </div>
                                         </div>
@@ -849,7 +849,7 @@ export default function CreateProject() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Short Overview</label>
                                             <textarea name="shortOverview" value={formData.shortOverview} onChange={handleChange} rows={4}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 resize-y"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 resize-y"
                                                 placeholder="2–4 sentence summary shown on the homepage About section." />
                                             <p className="text-xs text-gray-400 mt-1">Shown under the “About {'{Project Name}'}” heading. For the long rich-text body use the Overview Content section below.</p>
                                         </div>
@@ -863,7 +863,7 @@ export default function CreateProject() {
                                         <BannerPicker
                                             label="Desktop Banner"
                                             hint="16:9 landscape"
-                                            icon={<MdDesktopWindows className="text-[#b27e02]" size={18} />}
+                                            icon={<MdDesktopWindows className="text-gold" size={18} />}
                                             filterType="hero"
                                             value={formData.desktopBanner}
                                             onChange={(url) => setFormData(prev => ({ ...prev, desktopBanner: url }))}
@@ -871,7 +871,7 @@ export default function CreateProject() {
                                         <BannerPicker
                                             label="Mobile Banner"
                                             hint="9:16 portrait"
-                                            icon={<MdPhoneAndroid className="text-[#b27e02]" size={18} />}
+                                            icon={<MdPhoneAndroid className="text-gold" size={18} />}
                                             filterType="hero-mobile"
                                             value={formData.mobileBanner}
                                             onChange={(url) => setFormData(prev => ({ ...prev, mobileBanner: url }))}
@@ -889,7 +889,7 @@ export default function CreateProject() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Section Title</label>
                                             <input type="text" name="contentTitle" value={formData.contentTitle} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="e.g. About This Project" />
                                         </div>
                                         <div>
@@ -897,7 +897,7 @@ export default function CreateProject() {
                                             <BannerPicker
                                                 label="Featured Image"
                                                 hint="landscape recommended"
-                                                icon={<MdImage className="text-[#b27e02]" size={18} />}
+                                                icon={<MdImage className="text-gold" size={18} />}
                                                 filterType="hero"
                                                 value={formData.contentImage}
                                                 onChange={(url) => setFormData(prev => ({ ...prev, contentImage: url }))}
@@ -920,21 +920,21 @@ export default function CreateProject() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Title</label>
                                             <input type="text" name="metaTitle" value={formData.metaTitle} onChange={handleChange} maxLength="60"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="SEO title (55–60 characters)" />
                                             <p className="text-xs text-gray-400 mt-1">{formData.metaTitle.length}/60</p>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Meta Description</label>
                                             <textarea name="metaDescription" value={formData.metaDescription} onChange={handleChange} rows={3} maxLength="160"
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="SEO description (150–160 characters)" />
                                             <p className="text-xs text-gray-400 mt-1">{formData.metaDescription.length}/160</p>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Keywords</label>
                                             <input type="text" name="keywords" value={formData.keywords} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="real estate, luxury villa, 3BHK" />
                                         </div>
                                     </div>
@@ -948,32 +948,32 @@ export default function CreateProject() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Product Name</label>
                                             <input type="text" name="schemaName" value={formData.schemaName} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="Auto from project title" />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
                                             <textarea name="schemaDescription" value={formData.schemaDescription} onChange={handleChange} rows={3}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="Auto from meta description" />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Brand / Builder Name</label>
                                             <input type="text" name="schemaBrand" value={formData.schemaBrand} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="Auto from company / builder" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Price</label>
                                                 <input type="text" name="schemaPrice" value={formData.schemaPrice} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="Auto from price" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Currency</label>
                                                 <select name="schemaPriceCurrency" value={formData.schemaPriceCurrency} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 bg-white">
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 bg-white">
                                                     <option value="INR">INR</option>
                                                     <option value="USD">USD</option>
                                                     <option value="AED">AED</option>
@@ -984,32 +984,32 @@ export default function CreateProject() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Availability</label>
                                             <input type="text" name="schemaAvailability" value={formData.schemaAvailability} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="e.g. InStock, PreOrder, SoldOut" />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Location / Address</label>
                                             <input type="text" name="schemaLocation" value={formData.schemaLocation} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="Auto from project address" />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Possession</label>
                                             <input type="text" name="schemaPossession" value={formData.schemaPossession} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="Auto from possession (e.g. Dec 2026)" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Aggregate Rating Value</label>
                                                 <input type="number" step="0.1" min="1" max="5" name="schemaRatingValue" value={formData.schemaRatingValue} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="e.g. 4.5" />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Review Count</label>
                                                 <input type="number" min="1" name="schemaRatingCount" value={formData.schemaRatingCount} onChange={handleChange}
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="e.g. 128" />
                                             </div>
                                         </div>
@@ -1026,7 +1026,7 @@ export default function CreateProject() {
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Section Title</label>
                                         <input type="text" name="keyHighlightsTitle" value={formData.keyHighlightsTitle} onChange={handleChange}
                                             placeholder="Why Tangled Up in Green Stands Apart"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                     </div>
 
@@ -1038,7 +1038,7 @@ export default function CreateProject() {
                                                 <p className="text-xs text-gray-400">Each card shows a title and short description.</p>
                                             </div>
                                             <button type="button" onClick={addHighlightItem}
-                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#b27e02] text-white text-xs font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold text-white text-xs font-semibold rounded-lg hover:bg-gold transition">
                                                 + Add More
                                             </button>
                                         </div>
@@ -1051,10 +1051,10 @@ export default function CreateProject() {
                                                         <div className="space-y-2 pr-8">
                                                             <input type="text" value={h.title || ''} onChange={e => updateHighlightItem(i, 'title', e.target.value)}
                                                                 placeholder="Card title (e.g. Hand-Crafted Architecture)"
-                                                                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold text-sm text-gray-800 bg-white" />
                                                             <textarea value={h.description || ''} onChange={e => updateHighlightItem(i, 'description', e.target.value)} rows={2}
                                                                 placeholder="Short description for this card."
-                                                                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white resize-y" />
+                                                                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold text-sm text-gray-800 bg-white resize-y" />
                                                         </div>
                                                     </div>
                                                 ))}
@@ -1075,7 +1075,7 @@ export default function CreateProject() {
                                     <div className="mt-5 pt-5 border-t border-gray-200">
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">CTA Button Text</label>
                                         <input type="text" name="ctaButtonText" value={formData.ctaButtonText} onChange={handleChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                             placeholder="e.g. Download Brochure, Book a Visit" />
                                     </div>
                                 </div>
@@ -1090,20 +1090,20 @@ export default function CreateProject() {
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Section Title</label>
                                             <input type="text" name="walkthroughTitle" value={formData.walkthroughTitle} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="Walkthrough Video" />
                                             <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">YouTube Video URL</label>
                                             <input type="text" name="walkthroughUrl" value={formData.walkthroughUrl} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="https://www.youtube.com/watch?v=..." />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-1">Video Duration</label>
                                             <input type="text" name="walkthroughDuration" value={formData.walkthroughDuration} onChange={handleChange}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                 placeholder="e.g. 3:45 or 10 mins" />
                                         </div>
                                     </div>
@@ -1116,7 +1116,7 @@ export default function CreateProject() {
                                         <div className="flex items-center gap-3">
                                             <SectionToggle checked={!formData.hideAmenities} onChange={e => setFormData(prev => ({ ...prev, hideAmenities: !e.target.checked }))} />
                                             <button type="button" onClick={addAmenity}
-                                                className="px-3 py-1.5 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002] transition">
+                                                className="px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition">
                                                 + Add Amenity
                                             </button>
                                         </div>
@@ -1125,7 +1125,7 @@ export default function CreateProject() {
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Section Title</label>
                                         <input type="text" name="amenitiesTitle" value={formData.amenitiesTitle} onChange={handleChange}
                                             placeholder="Amenities"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                     </div>
                                     {formData.amenities.length === 0 ? (
@@ -1161,7 +1161,7 @@ export default function CreateProject() {
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Section Title</label>
                                         <input type="text" name="configurationsTitle" value={formData.configurationsTitle} onChange={handleChange}
                                             placeholder="Configurations"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                     </div>
 
@@ -1173,7 +1173,7 @@ export default function CreateProject() {
                                                 <p className="text-xs text-gray-400">Each row is one line in the pricing table (Configuration · Size · Price · Button).</p>
                                             </div>
                                             <button type="button" onClick={addConfigRow}
-                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#b27e02] text-white text-xs font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gold text-white text-xs font-semibold rounded-lg hover:bg-gold transition">
                                                 + Add More
                                             </button>
                                         </div>
@@ -1186,16 +1186,16 @@ export default function CreateProject() {
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pr-8">
                                                             <input type="text" value={row.configuration || ''} onChange={e => updateConfigRow(i, 'configuration', e.target.value)}
                                                                 placeholder="Configuration (e.g. 3 BHK Garden Residence)"
-                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold text-sm text-gray-800 bg-white" />
                                                             <input type="text" value={row.size || ''} onChange={e => updateConfigRow(i, 'size', e.target.value)}
                                                                 placeholder="Size (e.g. 2,850 sq.ft)"
-                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold text-sm text-gray-800 bg-white" />
                                                             <input type="text" value={row.price || ''} onChange={e => updateConfigRow(i, 'price', e.target.value)}
                                                                 placeholder="Price (e.g. ₹ 4.95 Cr* onwards)"
-                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold text-sm text-gray-800 bg-white" />
                                                             <input type="text" value={row.buttonLabel || ''} onChange={e => updateConfigRow(i, 'buttonLabel', e.target.value)}
                                                                 placeholder="Button Name (e.g. Enquire)"
-                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold text-sm text-gray-800 bg-white" />
                                                         </div>
                                                     </div>
                                                 ))}
@@ -1217,7 +1217,7 @@ export default function CreateProject() {
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Section Button Label (below the table)</label>
                                         <input type="text" name="configurationsCtaLabel" value={formData.configurationsCtaLabel} onChange={handleChange}
                                             placeholder="e.g. View Floor Plans, Book a Visit"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to hide the section-level button.</p>
                                     </div>
                                 </div>
@@ -1235,7 +1235,7 @@ export default function CreateProject() {
                                             value={formData.masterFloorPlan.title}
                                             onChange={e => updateMFP('title', e.target.value)}
                                             placeholder="Master Plan & Floor Plan"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                     </div>
 
@@ -1252,7 +1252,7 @@ export default function CreateProject() {
                                         <div className="flex items-center justify-between mb-3">
                                             <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Master Plans</h4>
                                             <button type="button" onClick={addMasterPlan}
-                                                className="px-3 py-1.5 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002] transition">
+                                                className="px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition">
                                                 + Add Master Plan
                                             </button>
                                         </div>
@@ -1274,7 +1274,7 @@ export default function CreateProject() {
                                         <div className="flex items-center justify-between mb-3">
                                             <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Floor Plans</h4>
                                             <button type="button" onClick={addFloorPlan}
-                                                className="px-3 py-1.5 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002] transition">
+                                                className="px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition">
                                                 + Add Floor Plan
                                             </button>
                                         </div>
@@ -1305,7 +1305,7 @@ export default function CreateProject() {
                                             value={formData.gallery.title}
                                             onChange={e => updateGallery('title', e.target.value)}
                                             placeholder="Gallery"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                     </div>
 
@@ -1320,7 +1320,7 @@ export default function CreateProject() {
                                     <div className="flex items-center justify-between mb-3">
                                         <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Images</h4>
                                         <button type="button" onClick={addGalleryImage}
-                                            className="px-3 py-1.5 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002] transition">
+                                            className="px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition">
                                             + Add Image
                                         </button>
                                     </div>
@@ -1353,7 +1353,7 @@ export default function CreateProject() {
                                             value={formData.projectSpecifications.title}
                                             onChange={e => updatePS('title', e.target.value)}
                                             placeholder="Project Specifications"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                     </div>
 
@@ -1370,7 +1370,7 @@ export default function CreateProject() {
                                         <div className="flex items-center justify-between mb-3">
                                             <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Specifications</h4>
                                             <button type="button" onClick={addSpec}
-                                                className="px-3 py-1.5 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002] transition">
+                                                className="px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition">
                                                 + Add Specification
                                             </button>
                                         </div>
@@ -1386,7 +1386,7 @@ export default function CreateProject() {
                                                             value={spec.title}
                                                             onChange={e => updateSpec(i, 'title', e.target.value)}
                                                             placeholder="Specification title (e.g. Land Area)"
-                                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm mb-3" />
+                                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm mb-3" />
                                                         <TipTapEditor
                                                             content={spec.content}
                                                             onChange={html => updateSpec(i, 'content', html)}
@@ -1405,7 +1405,7 @@ export default function CreateProject() {
                                             value={formData.projectSpecifications.ctaLabel}
                                             onChange={e => updatePS('ctaLabel', e.target.value)}
                                             placeholder="e.g. Download Brochure"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] text-gray-900 text-sm" />
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm" />
                                     </div>
                                 </div>
 
@@ -1422,7 +1422,7 @@ export default function CreateProject() {
                                             value={formData.location.title}
                                             onChange={e => updateLocation('title', e.target.value)}
                                             placeholder="Location and Connectivity"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                     </div>
 
@@ -1447,14 +1447,14 @@ export default function CreateProject() {
                                                 {showFaqJsonImport ? 'Hide JSON' : 'Import JSON'}
                                             </button>
                                             <button type="button" onClick={addFAQ}
-                                                className="px-3 py-1.5 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002] transition">
+                                                className="px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition">
                                                 + Add FAQ
                                             </button>
                                         </div>
                                     </div>
 
                                     {showFaqJsonImport && (
-                                        <div className="mb-5 p-4 bg-gray-50 border border-dashed border-[#b27e02] rounded-lg">
+                                        <div className="mb-5 p-4 bg-gray-50 border border-dashed border-gold rounded-lg">
                                             <p className="text-sm font-semibold text-gray-700 mb-1">Import FAQs from JSON</p>
                                             <p className="text-xs text-gray-400 mb-3">Paste a JSON array or an object with a <code className="bg-white px-1 rounded border">faqs</code> key. Accepts <code className="bg-white px-1 rounded border">question/q</code> and <code className="bg-white px-1 rounded border">answer/a</code> keys. This will <strong>replace</strong> existing FAQs.</p>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
@@ -1464,17 +1464,17 @@ export default function CreateProject() {
                                                         value={faqJsonText}
                                                         onChange={e => setFaqJsonText(e.target.value)}
                                                         rows={5}
-                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-xs text-gray-800 focus:outline-none focus:border-[#b27e02] resize-y"
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-xs text-gray-800 focus:outline-none focus:border-gold resize-y"
                                                         placeholder={'[\n  { "question": "What is the price?", "answer": "₹85L onwards" }\n]'}
                                                     />
                                                     <div className="flex gap-2 mt-2">
-                                                        <label className="inline-flex items-center gap-1.5 cursor-pointer px-3 py-1.5 bg-[#b27e02] text-white text-xs font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                                        <label className="inline-flex items-center gap-1.5 cursor-pointer px-3 py-1.5 bg-gold text-white text-xs font-semibold rounded-lg hover:bg-gold transition">
                                                             <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                                             Upload .json
                                                             <input type="file" accept=".json" onChange={handleFaqJsonUpload} className="hidden" />
                                                         </label>
                                                         <button type="button" onClick={() => applyFaqJson(faqJsonText)}
-                                                            className="px-3 py-1.5 bg-[#b27e02] text-white text-xs font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                                            className="px-3 py-1.5 bg-gold text-white text-xs font-semibold rounded-lg hover:bg-gold transition">
                                                             Apply
                                                         </button>
                                                         {faqJsonText && <button type="button" onClick={() => setFaqJsonText('')} className="text-xs text-gray-400 hover:text-gray-600">Clear</button>}
@@ -1546,14 +1546,14 @@ export default function CreateProject() {
                                 </div>
 
                                 {/* Home Page Assignment */}
-                                <div className={`rounded-xl shadow-lg p-6 flex items-center justify-between border-2 ${formData.isHomePage ? 'bg-[#fef9e7] border-[#b27e02]' : 'bg-white border-transparent'}`}>
+                                <div className={`rounded-xl shadow-lg p-6 flex items-center justify-between border-2 ${formData.isHomePage ? 'bg-cream border-gold' : 'bg-white border-transparent'}`}>
                                     <div>
                                         <h3 className="text-lg font-bold text-gray-800">Set as Home Page</h3>
                                         <p className="text-xs text-gray-400 mt-0.5">This project will appear on the home page URL (/). Only one project should be set as home.</p>
                                     </div>
                                     <label className="flex items-center gap-2 cursor-pointer select-none flex-shrink-0">
                                         <span className="text-xs text-gray-500">{formData.isHomePage ? 'Home Page' : 'Not Home'}</span>
-                                        <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${formData.isHomePage ? 'bg-[#b27e02]' : 'bg-gray-300'}`}>
+                                        <div className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${formData.isHomePage ? 'bg-gold' : 'bg-gray-300'}`}>
                                             <input type="checkbox" className="sr-only" checked={formData.isHomePage} onChange={e => setFormData(prev => ({ ...prev, isHomePage: e.target.checked }))} />
                                             <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${formData.isHomePage ? 'translate-x-4' : 'translate-x-0.5'}`} />
                                         </div>
@@ -1567,12 +1567,12 @@ export default function CreateProject() {
                                         Cancel
                                     </button>
                                     <button type="button" onClick={(e) => handleSubmit(e, 'draft')} disabled={loading}
-                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 border-2 border-[#b27e02] text-[#b27e02] rounded-lg hover:bg-[#fef9e7] transition font-semibold disabled:opacity-50">
+                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 border-2 border-gold text-gold rounded-lg hover:bg-cream transition font-semibold disabled:opacity-50">
                                         <MdSave size={18} />
                                         {loading ? 'Saving…' : 'Save as Draft'}
                                     </button>
                                     <button type="button" onClick={(e) => handleSubmit(e, 'published')} disabled={loading}
-                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold disabled:opacity-50">
+                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gold text-white rounded-lg hover:bg-gold transition font-semibold disabled:opacity-50">
                                         <MdVisibility size={18} />
                                         {loading ? 'Publishing…' : 'Publish'}
                                     </button>

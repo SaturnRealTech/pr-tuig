@@ -27,14 +27,14 @@ function BannerPicker({ label, hint, icon, value, onChange, filterType = '' }) {
                     <img src={value} alt={label} className="w-full h-40 object-cover" />
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                         <button type="button" onClick={() => setShowPicker(true)}
-                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-[#fef9e7] transition">Change</button>
+                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-cream transition">Change</button>
                         <button type="button" onClick={() => onChange('')}
                             className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition">Remove</button>
                     </div>
                 </div>
             ) : (
                 <button type="button" onClick={() => setShowPicker(true)}
-                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-gold hover:bg-cream transition">
                     <MdImage size={32} className="text-gray-300 mb-2" />
                     <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
                 </button>
@@ -50,7 +50,7 @@ function BannerPicker({ label, hint, icon, value, onChange, filterType = '' }) {
     );
 }
 
-const inputClass = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 placeholder-gray-400';
+const inputClass = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 placeholder-gray-400';
 
 export default function EditBlogCategory() {
     const router = useRouter();
@@ -175,7 +175,7 @@ export default function EditBlogCategory() {
                                     <BannerPicker
                                         label="Desktop Banner"
                                         hint="1920×600 recommended"
-                                        icon={<MdDesktopWindows size={16} className="text-[#b27e02]" />}
+                                        icon={<MdDesktopWindows size={16} className="text-gold" />}
                                         value={formData.heroImage}
                                         onChange={(url) => setFormData(prev => ({ ...prev, heroImage: url }))}
                                         filterType="hero"
@@ -183,14 +183,14 @@ export default function EditBlogCategory() {
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 mb-1">Desktop Banner Alt Text</label>
                                         <input name="heroImageAlt" value={formData.heroImageAlt} onChange={handleChange}
-                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]" />
+                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold" />
                                     </div>
                                 </div>
                                 <div className="space-y-3">
                                     <BannerPicker
                                         label="Mobile Banner"
                                         hint="600×900 recommended"
-                                        icon={<MdPhoneAndroid size={16} className="text-[#b27e02]" />}
+                                        icon={<MdPhoneAndroid size={16} className="text-gold" />}
                                         value={formData.mobileBanner}
                                         onChange={(url) => setFormData(prev => ({ ...prev, mobileBanner: url }))}
                                         filterType="hero-mobile"
@@ -198,7 +198,7 @@ export default function EditBlogCategory() {
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 mb-1">Mobile Banner Alt Text</label>
                                         <input name="mobileBannerAlt" value={formData.mobileBannerAlt} onChange={handleChange}
-                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]" />
+                                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold" />
                                     </div>
                                 </div>
                             </div>
@@ -237,7 +237,7 @@ export default function EditBlogCategory() {
                         {/* Actions */}
                         <div className="flex gap-4">
                             <button type="submit" disabled={submitting}
-                                className="flex-1 bg-gradient-to-r from-[#b27e02] to-[#8a6002] text-white font-bold py-3.5 px-6 rounded-lg hover:shadow-lg transition disabled:opacity-50">
+                                className="flex-1 bg-gradient-to-r from-gold to-gold text-white font-bold py-3.5 px-6 rounded-lg hover:shadow-lg transition disabled:opacity-50">
                                 {submitting ? 'Saving...' : 'Save Changes'}
                             </button>
                             <a href="/admin/blog/categories"

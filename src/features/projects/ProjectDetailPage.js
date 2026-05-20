@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 // import VersionSwitcher from "../VersionSwitcher";
 import { useEnquireNow } from "@/lib/EnquireNowContext";
+import SiteFooter from "@/components/Footer";
+import NavbarClient from "@/features/home/components/NavbarClient";
 
 function LeafletMap({ lat, lng, title }) {
     const containerRef = useRef(null);
@@ -59,7 +61,7 @@ function LeafletMap({ lat, lng, title }) {
         };
     }, [lat, lng, title]);
 
-    return <div ref={containerRef} className="w-full h-[420px] rounded-2xl overflow-hidden border border-[#1e3a2c]/10" />;
+    return <div ref={containerRef} className="w-full h-[420px] rounded-2xl overflow-hidden border border-moss/10" />;
 }
 
 // Convert a section title into a URL-safe id (matches the commented legacy logic).
@@ -99,58 +101,28 @@ function splitTitle(title) {
 }
 
 
-export default function V7({ project, isHome, version, setVersion }) {
+export default function V7({ project, isHome }) {
+    const hasBanner = !!(project?.desktopBanner || project?.mobileBanner || project?.image);
     return (
-        <div className="flex flex-col w-full bg-[#f5efe2] text-[#1a2a1f] selection:bg-[#1e3a2c] selection:text-[#f5efe2]">
-            <Nav version={version} setVersion={setVersion} />
+        <div className="flex flex-col w-full bg-background text-foreground selection:bg-moss selection:text-background">
+            <NavbarClient />
+            {!hasBanner && <div className="h-28 md:h-36" aria-hidden />}
             <Hero project={project} />
             <About project={project} />
             <ProjectDescription project={project} />
             <Highlights project={project} />
             <Pricing project={project} />
             <Amenities project={project} />
-            <FloorPlans project={project} />
+            {isHome && <FloorPlans project={project} />}
             <Gallery project={project} />
             <Location project={project} />
             <Specifications project={project} />
             <DetailedOverview project={project} />
             <FAQ project={project} />
-            <LatestBlog project={project} />
-            <Enquiry />
-            <Footer />
+            <LatestBlog project={project} isHome={isHome} />
+            <Enquiry project={project} />
+            <SiteFooter />
         </div>
-    );
-}
-
-function Nav({ version, setVersion }) {
-    return (
-        <header className="sticky top-0 z-50 bg-[#f5efe2]/95 backdrop-blur-md border-b border-[#1e3a2c]/10">
-            <div className="max-w-[1300px] mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
-                <a href="#top" className="flex flex-col leading-tight">
-                    <span className="font-display font-bold text-[#1e3a2c] text-xl tracking-tight">TANGLED UP</span>
-                    <span className="font-display italic text-[#c89d3c] text-sm -mt-1">in Green</span>
-                </a>
-                <nav className="hidden lg:flex items-center gap-6 text-[13px] text-[#1a2a1f]/85">
-                    <a href="#overview" className="hover:text-[#c89d3c] transition">Overview</a>
-                    <a href="#highlights" className="hover:text-[#c89d3c] transition">Highlights</a>
-                    <a href="#pricing" className="hover:text-[#c89d3c] transition">Pricing</a>
-                    <a href="#amenities" className="hover:text-[#c89d3c] transition">Amenities</a>
-                    <a href="#floor-plans" className="hover:text-[#c89d3c] transition">Floor Plans</a>
-                    <a href="#specifications" className="hover:text-[#c89d3c] transition">Specifications</a>
-                    <a href="#gallery" className="hover:text-[#c89d3c] transition">Gallery</a>
-                    <a href="#location" className="hover:text-[#c89d3c] transition">Location</a>
-                    <a href="#faqs" className="hover:text-[#c89d3c] transition">FAQs</a>
-                    <a href="#enquiry" className="hover:text-[#c89d3c] transition">Contact</a>
-                </nav>
-                <div className="flex items-center gap-3">
-                    {/* <VersionSwitcher version={version} setVersion={setVersion} theme="v7" /> */}
-                    <a href="tel:+918012345678" className="hidden md:inline-flex items-center gap-2 text-[13px] font-semibold text-[#1e3a2c] hover:text-[#c89d3c] transition">
-                        <span className="w-7 h-7 rounded-full bg-[#1e3a2c] text-[#f5efe2] flex items-center justify-center text-xs">📞</span>
-                        +91 80 1234 5678
-                    </a>
-                </div>
-            </div>
-        </header>
     );
 }
 
@@ -162,7 +134,7 @@ function Hero({ project }) {
         project?.desktopBanner ||
         project?.mobileBanner ||
         project?.image ||
-        "https://tangledupingreen.org/wp-content/uploads/2026/04/Tangled-up-in-Green.jpg";
+        null;
 
     const titleParts = splitTitle(project?.title || "Tangled Up in Green");
     const tagline = project?.contentTitle || project?.metaDescription;
@@ -201,18 +173,22 @@ function Hero({ project }) {
             { l: "Launch Date", v: "01 Sep 2026" },
         ];
 
+    if (!bannerImage) return null;
+
     return (
         <section id="top" className="relative">
-            <div className="relative h-[680px] md:h-[760px] overflow-hidden">
-                <Image
-                    src={bannerImage}
-                    alt={project?.title ? `Aerial view of ${project.title}` : "Hero banner"}
-                    fill
-                    priority
-                    sizes="100vw"
-                    className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#0d1f15]/55 via-transparent to-[#0d1f15]/80" />
+            <div className="relative h-[680px] md:h-[760px] overflow-hidden bg-moss">
+                {bannerImage && (
+                    <Image
+                        src={bannerImage}
+                        alt={project?.title ? `Aerial view of ${project.title}` : "Hero banner"}
+                        fill
+                        priority
+                        sizes="100vw"
+                        className="object-cover"
+                    />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-b from-forest/55 via-transparent to-forest/80" />
                 <div aria-hidden className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(900px,90%)] h-[420px] bg-[radial-gradient(ellipse_at_center,rgba(13,31,21,0.6)_0%,rgba(13,31,21,0.3)_45%,transparent_70%)] pointer-events-none" />
 
                 <div className="relative h-full max-w-[1300px] mx-auto px-6 flex flex-col justify-center items-center text-center [text-shadow:0_2px_18px_rgba(0,0,0,0.55)]">
@@ -222,29 +198,29 @@ function Hero({ project }) {
                         <Badge variant="gold">Pre-Launch Pricing Live</Badge>
                     </div>
 
-                    <div className="flex items-center gap-4 text-[#c89d3c]">
-                        <span className="block w-10 h-px bg-[#c89d3c]/70" />
+                    <div className="flex items-center gap-4 text-gold">
+                        <span className="block w-10 h-px bg-gold/70" />
                         <span className="text-xl">✦</span>
-                        <span className="block w-10 h-px bg-[#c89d3c]/70" />
+                        <span className="block w-10 h-px bg-gold/70" />
                     </div>
-                    <h1 className="mt-4 font-display font-medium text-[#f5efe2] text-5xl md:text-7xl lg:text-[88px] leading-[1] tracking-tight">
+                    <h1 className="mt-4 font-display font-medium text-background text-5xl md:text-7xl lg:text-[88px] leading-[1] tracking-tight">
                         {titleParts.lead && <>{titleParts.lead} </>}
-                        <em className="text-[#c89d3c]">{titleParts.tail}</em>
+                        <em className="text-gold">{titleParts.tail}</em>
                     </h1>
-                    <div className="flex items-center gap-4 text-[#c89d3c] mt-4">
-                        <span className="block w-10 h-px bg-[#c89d3c]/70" />
+                    <div className="flex items-center gap-4 text-gold mt-4">
+                        <span className="block w-10 h-px bg-gold/70" />
                         <span className="text-xl">✦</span>
-                        <span className="block w-10 h-px bg-[#c89d3c]/70" />
+                        <span className="block w-10 h-px bg-gold/70" />
                     </div>
 
-                    <p className="mt-6 text-[#f5efe2] text-lg md:text-xl font-medium">{subhead}</p>
+                    <p className="mt-6 text-background text-lg md:text-xl font-medium">{subhead}</p>
                     {tagline && (
                         <div className="mt-5 inline-flex items-center gap-3 max-w-3xl">
-                            <span aria-hidden className="block w-8 h-px bg-[#c89d3c]" />
-                            <p className="italic font-display text-[#f9f3df] text-lg md:text-xl lg:text-2xl leading-snug [text-shadow:0_2px_14px_rgba(0,0,0,0.85),0_0_2px_rgba(0,0,0,0.6)]">
+                            <span aria-hidden className="block w-8 h-px bg-gold" />
+                            <p className="italic font-display text-cream text-lg md:text-xl lg:text-2xl leading-snug [text-shadow:0_2px_14px_rgba(0,0,0,0.85),0_0_2px_rgba(0,0,0,0.6)]">
                                 &ldquo;{tagline}&rdquo;
                             </p>
-                            <span aria-hidden className="block w-8 h-px bg-[#c89d3c]" />
+                            <span aria-hidden className="block w-8 h-px bg-gold" />
                         </div>
                     )}
 
@@ -252,7 +228,7 @@ function Hero({ project }) {
                         <button
                             type="button"
                             onClick={() => handleEnquire("Hero Enquire")}
-                            className="inline-flex items-center gap-2 rounded-full bg-[#1e3a2c] text-[#f5efe2] px-7 py-3.5 text-sm font-semibold hover:bg-[#2a4a35] transition shadow-lg shadow-[#1e3a2c]/40"
+                            className="inline-flex items-center gap-2 rounded-full bg-moss text-background px-7 py-3.5 text-sm font-semibold hover:bg-leaf transition shadow-lg shadow-moss/40"
                         >
                             Enquire Now <span aria-hidden>→</span>
                         </button>
@@ -261,7 +237,7 @@ function Hero({ project }) {
                                 href={project.brochureUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-full bg-[#f5efe2] text-[#1e3a2c] px-7 py-3.5 text-sm font-semibold hover:bg-white transition shadow-lg"
+                                className="inline-flex items-center gap-2 rounded-full bg-background text-moss px-7 py-3.5 text-sm font-semibold hover:bg-white transition shadow-lg"
                             >
                                 Download Brochure
                             </a>
@@ -269,7 +245,7 @@ function Hero({ project }) {
                             <button
                                 type="button"
                                 onClick={() => handleEnquire("Download Brochure")}
-                                className="inline-flex items-center gap-2 rounded-full bg-[#f5efe2] text-[#1e3a2c] px-7 py-3.5 text-sm font-semibold hover:bg-white transition shadow-lg"
+                                className="inline-flex items-center gap-2 rounded-full bg-background text-moss px-7 py-3.5 text-sm font-semibold hover:bg-white transition shadow-lg"
                             >
                                 Download Brochure
                             </button>
@@ -277,19 +253,19 @@ function Hero({ project }) {
                     </div>
                 </div>
 
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[#f5efe2]/60 text-xs flex flex-col items-center gap-1">
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-background/60 text-xs flex flex-col items-center gap-1">
                     <span>scroll</span>
-                    <span className="block w-px h-6 bg-[#f5efe2]/40" />
+                    <span className="block w-px h-6 bg-background/40" />
                 </div>
             </div>
 
-            <div className="bg-[#1e3a2c] text-[#f5efe2]">
-                <div className="max-w-[1300px] mx-auto px-6 grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-[#f5efe2]/15">
+            <div className="bg-moss text-background">
+                <div className="max-w-[1300px] mx-auto px-6 grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-background/15">
                     {statsToShow.map((s) => {
                         const isRera = /rera/i.test(s.l);
                         return (
                             <div key={s.l} className="px-5 py-5 text-center min-w-0">
-                                <div className="text-[10px] uppercase tracking-[0.25em] text-[#c89d3c]">{s.l}</div>
+                                <div className="text-[10px] uppercase tracking-[0.25em] text-gold">{s.l}</div>
                                 <div
                                     className={
                                         isRera
@@ -310,8 +286,8 @@ function Hero({ project }) {
 
 function Badge({ children, variant = "gold" }) {
     const styles = {
-        gold: "bg-[#c89d3c] text-[#1e3a2c] border-[#c89d3c]",
-        cream: "bg-[#f5efe2]/95 text-[#1e3a2c] border-[#f5efe2]/95",
+        gold: "bg-gold text-moss border-gold",
+        cream: "bg-background/95 text-moss border-background/95",
     };
     return (
         <span className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-bold tracking-wide border ${styles[variant]}`}>
@@ -322,13 +298,13 @@ function Badge({ children, variant = "gold" }) {
 
 function SectionLabel({ children }) {
     return (
-        <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#6b8a72]">{children}</div>
+        <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-leaf">{children}</div>
     );
 }
 
 function SectionTitle({ children }) {
     return (
-        <h2 className="mt-2 font-display font-medium text-[#1e3a2c] text-3xl md:text-4xl lg:text-5xl leading-[1.05] tracking-tight">{children}</h2>
+        <h2 className="mt-2 font-display font-medium text-moss text-3xl md:text-4xl lg:text-5xl leading-[1.05] tracking-tight">{children}</h2>
     );
 }
 
@@ -337,7 +313,7 @@ function About({ project }) {
     const openEnquire = enquire?.openEnquire;
     const bannerImage = project?.desktopBanner || project?.mobileBanner || project?.image;
 
-    const projectName = project?.title || "Tangled Up in Green";
+    const projectName = project?.title || "Project";
 
     const handleEnquire = (source) => {
         if (typeof openEnquire === "function") {
@@ -354,66 +330,60 @@ function About({ project }) {
         project?.reraNo && ["RERA No.", project.reraNo],
     ].filter(Boolean);
 
-    const rowsToShow = snapshotRows.length
-        ? snapshotRows
-        : [
-            ["Location", "Whitefield, Bangalore"],
-            ["Configurations", "3 BHK & 4 BHK"],
-            ["Land Parcel", "7.5 Acres"],
-            ["Towers", "Only 1"],
-            ["Possession", "Dec 2028 (est.)"],
-            ["RERA No.", "20 Of 2026"],
-        ];
+    const hasShortOverview = !!project?.shortOverview;
+    const hasSnapshot = snapshotRows.length > 0;
+
+    if (!hasShortOverview && !hasSnapshot) return null;
 
     return (
-        <section id="overview" className="bg-[#f5efe2] py-16 md:py-24">
-            <div className="max-w-[1300px] mx-auto px-6 grid md:grid-cols-12 gap-10 md:gap-16 items-start">
-                <div className="md:col-span-7">
-                    <SectionLabel>OVERVIEW</SectionLabel>
-                    <SectionTitle>About {projectName}</SectionTitle>
-                    {project?.shortOverview ? (
-                        <div className="mt-7 space-y-5 text-[15px] text-[#1a2a1f]/80 leading-[1.85] whitespace-pre-line">
+        <section id="overview" className="bg-background py-16 md:py-24">
+            <div className={`max-w-[1300px] mx-auto px-6 grid md:grid-cols-12 gap-10 md:gap-16 items-start`}>
+                {hasShortOverview && (
+                    <div className={hasSnapshot ? "md:col-span-7" : "md:col-span-12"}>
+                        <SectionLabel>OVERVIEW</SectionLabel>
+                        <SectionTitle>About {projectName}</SectionTitle>
+                        <div className="mt-7 space-y-5 text-[15px] text-foreground/80 leading-[1.85] whitespace-pre-line">
                             {project.shortOverview}
                         </div>
-                    ) : (
-                        <div className="mt-7 space-y-5 text-[15px] text-[#1a2a1f]/80 leading-[1.85]">
-                            <p>
-                                {projectName} is a boutique, hand-crafted residential landmark by Total Environment Building Systems, set on 7.5 acres in Whitefield, Bangalore. With only one G+18 tower and 240 residences, every home is a triple-aspect garden residence, sweeping panoramic skylines, and a vertical forest at every floor.
-                            </p>
-                            <p>
-                                Crafted around the idea of a living architecture, the project pairs 23 ft. floor-to-ceiling heights, wrap-around balconies, and a grand clubhouse on elevated podiums to deliver palatial, future-proof living.
-                            </p>
-                        </div>
-                    )}
-                    <button
-                        type="button"
-                        onClick={() => handleEnquire("Personal Walkthrough")}
-                        className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#1e3a2c] border-b border-[#c89d3c] pb-0.5 hover:gap-3 transition-all"
-                    >
-                        Request a personal walkthrough <span aria-hidden>→</span>
-                    </button>
-                </div>
-
-                <aside className="md:col-span-5">
-                    <div className="bg-white rounded-2xl shadow-lg shadow-[#1e3a2c]/8 border border-[#1e3a2c]/8 p-7">
-                        <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#6b8a72] mb-5">PROJECT SNAPSHOT</div>
-                        <dl className="space-y-3.5 text-[14px]">
-                            {rowsToShow.map(([k, v]) => (
-                                <div key={k} className="flex items-baseline justify-between gap-3 border-b border-[#1e3a2c]/10 pb-3 last:border-0 last:pb-0">
-                                    <dt className="text-[#1a2a1f]/60 shrink-0">{k}</dt>
-                                    <dd className="font-semibold text-[#1e3a2c] text-right">{v}</dd>
-                                </div>
-                            ))}
-                        </dl>
                         <button
                             type="button"
-                            onClick={() => handleEnquire("Get Cost Sheet")}
-                            className="mt-6 inline-flex items-center justify-center gap-2 w-full rounded-full bg-[#1e3a2c] text-[#f5efe2] px-6 py-3.5 text-sm font-semibold hover:bg-[#2a4a35] transition"
+                            onClick={() => handleEnquire("Personal Walkthrough")}
+                            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-moss border-b border-gold pb-0.5 hover:gap-3 transition-all"
                         >
-                            Get Cost Sheet
+                            Request a personal walkthrough <span aria-hidden>→</span>
                         </button>
                     </div>
-                </aside>
+                )}
+
+                {hasSnapshot && (
+                    <aside className={hasShortOverview ? "md:col-span-5" : "md:col-span-12"}>
+                        {!hasShortOverview && (
+                            <>
+                                <SectionLabel>OVERVIEW</SectionLabel>
+                                <SectionTitle>About {projectName}</SectionTitle>
+                                <div className="mt-3 mb-6 w-16 h-1 rounded-full bg-gold" />
+                            </>
+                        )}
+                        <div className="bg-white rounded-2xl shadow-lg shadow-moss/8 border border-moss/8 p-7">
+                            <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-leaf mb-5">PROJECT SNAPSHOT</div>
+                            <dl className="space-y-3.5 text-[14px]">
+                                {snapshotRows.map(([k, v]) => (
+                                    <div key={k} className="flex items-baseline justify-between gap-3 border-b border-moss/10 pb-3 last:border-0 last:pb-0">
+                                        <dt className="text-foreground/60 shrink-0">{k}</dt>
+                                        <dd className="font-semibold text-moss text-right">{v}</dd>
+                                    </div>
+                                ))}
+                            </dl>
+                            <button
+                                type="button"
+                                onClick={() => handleEnquire("Get Cost Sheet")}
+                                className="mt-6 inline-flex items-center justify-center gap-2 w-full rounded-full bg-moss text-background px-6 py-3.5 text-sm font-semibold hover:bg-leaf transition"
+                            >
+                                Get Cost Sheet
+                            </button>
+                        </div>
+                    </aside>
+                )}
             </div>
         </section>
     );
@@ -421,40 +391,55 @@ function About({ project }) {
 
 function ProjectDescription({ project }) {
     const [expanded, setExpanded] = useState(false);
-    if (!project?.content || !String(project.content).replace(/<[^>]*>/g, "").trim()) return null;
+    const hasText = project?.content && String(project.content).replace(/<[^>]*>/g, "").trim().length > 0;
+    if (!hasText && !project?.contentImage) return null;
 
     return (
-        <section id="description" className="bg-[#f5efe2] pb-16 md:pb-24 -mt-10 md:-mt-16">
+        <section id="description" className="bg-background pb-16 md:pb-24 -mt-10 md:-mt-16">
             <div className="max-w-[1300px] mx-auto px-6">
                 {project.contentTitle && (
                     <>
                         <SectionTitle>{project.contentTitle}</SectionTitle>
-                        <div className="mt-3 mb-8 w-16 h-1 rounded-full bg-[#c89d3c]" />
+                        <div className="mt-3 mb-8 w-16 h-1 rounded-full bg-gold" />
                     </>
                 )}
-                <div className="relative">
-                    <div
-                        className={`rich-content text-[15px] md:text-base text-[#1a2a1f]/85 leading-[1.85] overflow-hidden transition-[max-height] duration-500 ${expanded ? "max-h-[9999px]" : "max-h-[420px]"}`}
-                        dangerouslySetInnerHTML={{ __html: project.content }}
-                    />
-                    {!expanded && (
-                        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#f5efe2] to-transparent" />
-                    )}
-                </div>
+                {project.contentImage && (
+                    <div className="mb-8 flex items-center justify-center h-72 md:h-[480px]">
+                        <img
+                            src={project.contentImage}
+                            alt={project.contentTitle || project.title || "Overview image"}
+                            loading="lazy"
+                            className="max-w-full max-h-full object-contain"
+                        />
+                    </div>
+                )}
+                {hasText && (
+                    <>
+                        <div className="relative">
+                            <div
+                                className={`rich-content text-[15px] md:text-base text-foreground/85 leading-[1.85] overflow-hidden transition-[max-height] duration-500 ${expanded ? "max-h-[9999px]" : "max-h-[420px]"}`}
+                                dangerouslySetInnerHTML={{ __html: project.content }}
+                            />
+                            {!expanded && (
+                                <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
+                            )}
+                        </div>
 
-                <div className="mt-6 flex justify-center">
-                    <button
-                        type="button"
-                        onClick={() => setExpanded(v => !v)}
-                        className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-[#1e3a2c] text-[#1e3a2c] font-semibold rounded-full hover:bg-[#1e3a2c] hover:text-[#f5efe2] transition text-sm"
-                    >
-                        {expanded ? "Read Less" : "Read More"}
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                            className={`transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}>
-                            <polyline points="6 9 12 15 18 9" />
-                        </svg>
-                    </button>
-                </div>
+                        <div className="mt-6 flex justify-center">
+                            <button
+                                type="button"
+                                onClick={() => setExpanded(v => !v)}
+                                className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-moss text-moss font-semibold rounded-full hover:bg-moss hover:text-background transition text-sm"
+                            >
+                                {expanded ? "Read Less" : "Read More"}
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                                    className={`transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}>
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
         </section>
     );
@@ -505,10 +490,10 @@ function DetailedOverview({ project }) {
     };
 
     return (
-        <section id="detailed-overview" className="bg-[#f5efe2]">
+        <section id="detailed-overview" className="bg-background">
             <div id="detailed-overview-nav" className="sticky top-[64px] z-30">
                 <div className="max-w-[1300px] mx-auto px-6">
-                    <div className="flex items-center gap-7 overflow-x-auto py-4 text-[13px] no-scrollbar bg-[#f5efe2]/95 backdrop-blur-md border-y border-[#1e3a2c]/10">
+                    <div className="flex items-center gap-7 overflow-x-auto py-4 text-[13px] no-scrollbar bg-background/95 backdrop-blur-md border-y border-moss/10">
                         {blocks.map((b) => {
                             const isActive = activeId === b._id;
                             return (
@@ -516,11 +501,11 @@ function DetailedOverview({ project }) {
                                     key={b._id}
                                     type="button"
                                     onClick={() => scrollTo(b._id)}
-                                    className={`relative whitespace-nowrap pb-1.5 transition ${isActive ? "text-[#1e3a2c] font-semibold" : "text-[#1a2a1f]/65 hover:text-[#1e3a2c]"}`}
+                                    className={`relative whitespace-nowrap pb-1.5 transition ${isActive ? "text-moss font-semibold" : "text-foreground/65 hover:text-moss"}`}
                                 >
                                     {b.title || "Section"}
                                     {isActive && (
-                                        <span aria-hidden className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-[#1e3a2c]" />
+                                        <span aria-hidden className="absolute left-0 right-0 -bottom-0.5 h-[2px] bg-moss" />
                                     )}
                                 </button>
                             );
@@ -536,25 +521,25 @@ function DetailedOverview({ project }) {
                         <div key={block._id} id={block._id} className="scroll-mt-28">
                             {block.title && (
                                 <div className="text-center mb-6">
-                                    <h2 className="font-display font-medium text-[#1e3a2c] text-3xl md:text-4xl lg:text-5xl leading-[1.05] tracking-tight">
+                                    <h2 className="font-display font-medium text-moss text-3xl md:text-4xl lg:text-5xl leading-[1.05] tracking-tight">
                                         {block.title}
                                     </h2>
-                                    <div className="mt-3 mx-auto w-16 h-1 rounded-full bg-[#c89d3c]" />
+                                    <div className="mt-3 mx-auto w-16 h-1 rounded-full bg-gold" />
                                 </div>
                             )}
                             {block.image && (
-                                <div className="mb-8 flex items-center justify-center h-72 md:h-[480px] rounded-2xl overflow-hidden bg-[#ebe3cf]/40">
+                                <div className="mb-8 flex items-center justify-center h-72 md:h-[480px]">
                                     <img
                                         src={block.image}
                                         alt={block.imageAlt || block.title || "Overview image"}
                                         loading="lazy"
-                                        className="w-full h-full object-cover"
+                                        className="max-w-full max-h-full object-contain"
                                     />
                                 </div>
                             )}
                             {hasContent && (
                                 <div
-                                    className="rich-content text-[15px] md:text-base text-[#1a2a1f]/85 leading-[1.85]"
+                                    className="rich-content text-[15px] md:text-base text-foreground/85 leading-[1.85]"
                                     dangerouslySetInnerHTML={{ __html: block.content }}
                                 />
                             )}
@@ -579,16 +564,16 @@ function Highlights({ project }) {
     const title = project?.keyHighlightsTitle || `Why ${projectName} Stands Apart`;
 
     return (
-        <section id="highlights" className="bg-[#ebe3cf] py-16 md:py-24">
+        <section id="highlights" className="bg-cream py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>HIGHLIGHTS</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
 
                 <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {items.map((h, i) => (
-                        <article key={`${h.title}-${i}`} className="rounded-2xl bg-[#f5efe2] border border-[#1e3a2c]/10 p-6 hover:shadow-lg hover:shadow-[#1e3a2c]/10 hover:border-[#c89d3c]/40 transition">
-                            <h3 className="font-display font-semibold text-[#1e3a2c] text-lg">{h.title}</h3>
-                            <p className="mt-3 text-sm text-[#1a2a1f]/70 leading-[1.7]">{h.desc}</p>
+                        <article key={`${h.title}-${i}`} className="rounded-2xl bg-background border border-moss/10 p-6 hover:shadow-lg hover:shadow-moss/10 hover:border-gold/40 transition">
+                            <h3 className="font-display font-semibold text-moss text-lg">{h.title}</h3>
+                            <p className="mt-3 text-sm text-foreground/70 leading-[1.7]">{h.desc}</p>
                         </article>
                     ))}
                 </div>
@@ -621,14 +606,14 @@ function Pricing({ project }) {
     };
 
     return (
-        <section id="pricing" className="bg-[#f5efe2] py-16 md:py-24">
+        <section id="pricing" className="bg-background py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>PRICING</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
 
                 {rows.length > 0 && (
-                    <div className="mt-10 rounded-2xl overflow-hidden border border-[#1e3a2c]/12 bg-white">
-                        <div className="grid grid-cols-12 bg-[#1e3a2c] text-[#f5efe2] text-[11px] uppercase tracking-[0.25em] font-semibold">
+                    <div className="mt-10 rounded-2xl overflow-hidden border border-moss/12 bg-white">
+                        <div className="grid grid-cols-12 bg-moss text-background text-[11px] uppercase tracking-[0.25em] font-semibold">
                             <div className="col-span-5 md:col-span-5 px-6 py-4">Configuration</div>
                             <div className="col-span-3 md:col-span-3 px-6 py-4">Size</div>
                             <div className="col-span-4 md:col-span-2 px-6 py-4">Price</div>
@@ -636,16 +621,16 @@ function Pricing({ project }) {
                         </div>
                         {rows.map((row, i) => (
                             <div key={`${row.configuration || "row"}-${i}`}
-                                className={`grid grid-cols-12 items-center text-[14px] ${i % 2 === 0 ? "bg-white" : "bg-[#f5efe2]/40"} hover:bg-[#ebe3cf]/50 transition`}>
-                                <div className="col-span-5 md:col-span-5 px-6 py-5 font-semibold text-[#1e3a2c]">{row.configuration}</div>
-                                <div className="col-span-3 md:col-span-3 px-6 py-5 text-[#1a2a1f]/80">{row.size}</div>
-                                <div className="col-span-4 md:col-span-2 px-6 py-5 font-display text-lg font-medium text-[#c89d3c]">{row.price}</div>
+                                className={`grid grid-cols-12 items-center text-[14px] ${i % 2 === 0 ? "bg-white" : "bg-background/40"} hover:bg-cream/50 transition`}>
+                                <div className="col-span-5 md:col-span-5 px-6 py-5 font-semibold text-moss">{row.configuration}</div>
+                                <div className="col-span-3 md:col-span-3 px-6 py-5 text-foreground/80">{row.size}</div>
+                                <div className="col-span-4 md:col-span-2 px-6 py-5 font-display text-lg font-medium text-gold">{row.price}</div>
                                 <div className="hidden md:flex col-span-2 px-6 py-5 justify-end">
                                     {(row.buttonLabel || "").trim() && (
                                         <button
                                             type="button"
                                             onClick={() => triggerEnquire(`${row.configuration || projectName} — ${row.buttonLabel}`)}
-                                            className="inline-flex items-center rounded-full bg-[#1e3a2c] text-[#f5efe2] px-5 py-2 text-xs font-semibold hover:bg-[#c89d3c] hover:text-[#1e3a2c] transition"
+                                            className="inline-flex items-center rounded-full bg-moss text-background px-5 py-2 text-xs font-semibold hover:bg-gold hover:text-moss transition"
                                         >
                                             {row.buttonLabel}
                                         </button>
@@ -658,7 +643,7 @@ function Pricing({ project }) {
 
                 {htmlHasContent && (
                     <div
-                        className={`${rows.length > 0 ? "mt-8" : "mt-10"} rich-content pricing-table-wrap text-[#1a2a1f]/85`}
+                        className={`${rows.length > 0 ? "mt-8" : "mt-10"} rich-content pricing-table-wrap text-foreground/85`}
                         dangerouslySetInnerHTML={{ __html: html }}
                     />
                 )}
@@ -668,7 +653,7 @@ function Pricing({ project }) {
                         <button
                             type="button"
                             onClick={() => triggerEnquire(ctaLabel)}
-                            className="inline-flex items-center gap-2 rounded-full bg-[#1e3a2c] text-[#f5efe2] px-7 py-3.5 text-sm font-semibold hover:bg-[#2a4a35] transition shadow-lg shadow-[#1e3a2c]/40"
+                            className="inline-flex items-center gap-2 rounded-full bg-moss text-background px-7 py-3.5 text-sm font-semibold hover:bg-leaf transition shadow-lg shadow-moss/40"
                         >
                             {ctaLabel}
                             <span aria-hidden>→</span>
@@ -698,13 +683,13 @@ function Amenities({ project }) {
     const hasDescription = description && String(description).replace(/<[^>]*>/g, "").trim().length > 0;
 
     return (
-        <section id="amenities" className="bg-[#ebe3cf] py-16 md:py-24">
+        <section id="amenities" className="bg-cream py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>AMENITIES</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
                 {hasDescription && (
                     <div
-                        className="mt-4 rich-content text-[15px] text-[#1a2a1f]/70 leading-relaxed"
+                        className="mt-4 rich-content text-[15px] text-foreground/70 leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: description }}
                     />
                 )}
@@ -713,10 +698,10 @@ function Amenities({ project }) {
                     {items.map((a, i) => (
                         <article
                             key={`${a.label || "amenity"}-${i}`}
-                            className="group rounded-2xl bg-[#f5efe2] border border-[#1e3a2c]/10 p-6 text-center hover:shadow-lg hover:shadow-[#1e3a2c]/10 hover:border-[#c89d3c]/40 transition"
+                            className="group rounded-2xl bg-background border border-moss/10 p-6 text-center hover:shadow-lg hover:shadow-moss/10 hover:border-gold/40 transition"
                         >
                             <div className="flex justify-center">
-                                <div className="w-16 h-16 rounded-full bg-[#1e3a2c]/8 border border-[#1e3a2c]/15 flex items-center justify-center overflow-hidden group-hover:bg-[#1e3a2c] group-hover:border-[#1e3a2c] transition">
+                                <div className="w-16 h-16 rounded-full bg-moss/8 border border-moss/15 flex items-center justify-center overflow-hidden group-hover:bg-moss group-hover:border-moss transition">
                                     {a.icon ? (
                                         <img
                                             src={a.icon}
@@ -725,12 +710,12 @@ function Amenities({ project }) {
                                             className="w-9 h-9 object-contain"
                                         />
                                     ) : (
-                                        <span className="text-[#1e3a2c] text-lg font-bold group-hover:text-[#f5efe2]">★</span>
+                                        <span className="text-moss text-lg font-bold group-hover:text-background">★</span>
                                     )}
                                 </div>
                             </div>
-                            <h3 className="mt-5 font-display text-base md:text-lg text-[#1e3a2c] leading-tight">{a.label}</h3>
-                            <span aria-hidden className="block mx-auto mt-3 w-8 h-px bg-[#c89d3c]/60 group-hover:w-14 transition-[width] duration-500" />
+                            <h3 className="mt-5 font-display text-base md:text-lg text-moss leading-tight">{a.label}</h3>
+                            <span aria-hidden className="block mx-auto mt-3 w-8 h-px bg-gold/60 group-hover:w-14 transition-[width] duration-500" />
                         </article>
                     ))}
                 </div>
@@ -743,7 +728,7 @@ function Amenities({ project }) {
                                 openEnquire({ title: projectName, source: "Amenities Walkthrough", image: bannerImage });
                             }
                         }}
-                        className="inline-flex items-center gap-3 rounded-full border border-[#1e3a2c]/30 text-[#1e3a2c] px-7 py-3.5 text-sm font-semibold hover:bg-[#1e3a2c] hover:text-[#f5efe2] hover:border-[#1e3a2c] transition"
+                        className="inline-flex items-center gap-3 rounded-full border border-moss/30 text-moss px-7 py-3.5 text-sm font-semibold hover:bg-moss hover:text-background hover:border-moss transition"
                     >
                         Walk the property with us <span aria-hidden>→</span>
                     </button>
@@ -759,14 +744,13 @@ function FloorPlans({ project }) {
     const bannerImage = project?.desktopBanner || project?.mobileBanner || project?.image;
     const projectName = project?.title || "Project";
 
-    const padTo = (arr, n) => {
-        const list = Array.isArray(arr) ? [...arr] : [];
-        while (list.length < n) list.push({});
-        return list.slice(0, Math.max(n, list.length));
-    };
+    const validPlans = (arr) => Array.isArray(arr)
+        ? arr.filter(p => (p?.image || p?.label || p?.alt))
+        : [];
+    const masterPlans = validPlans(project?.masterFloorPlan?.masterPlans);
+    const floorPlans = validPlans(project?.masterFloorPlan?.floorPlans);
 
-    const masterPlans = padTo(project?.masterFloorPlan?.masterPlans, 2);
-    const floorPlans = padTo(project?.masterFloorPlan?.floorPlans, 2);
+    if (masterPlans.length === 0 && floorPlans.length === 0) return null;
 
     const title = project?.masterFloorPlan?.title || `${projectName} Floor Plans`;
 
@@ -784,7 +768,7 @@ function FloorPlans({ project }) {
         <article
             key={`${kind}-${fp.label || "plan"}-${i}`}
             onClick={() => handleCardClick(fp, kind)}
-            className="rounded-2xl bg-[#1e3a2c] text-[#f5efe2] overflow-hidden border border-[#1e3a2c]/10 cursor-pointer hover:shadow-xl hover:shadow-[#1e3a2c]/20 transition"
+            className="rounded-2xl bg-moss text-background overflow-hidden border border-moss/10 cursor-pointer hover:shadow-xl hover:shadow-moss/20 transition"
         >
             <div className="relative h-72 flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(245,239,226,0.08)_0%,transparent_70%)] overflow-hidden">
                 {fp.image ? (
@@ -797,25 +781,25 @@ function FloorPlans({ project }) {
                 ) : (
                     <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><g stroke='%23f5efe2' stroke-width='1' fill='none'><rect x='20' y='30' width='80' height='100'/><rect x='100' y='30' width='80' height='60'/><rect x='100' y='90' width='80' height='80'/><rect x='20' y='130' width='80' height='40'/><line x1='60' y1='30' x2='60' y2='130'/><line x1='140' y1='90' x2='140' y2='170'/></g></svg>\")", backgroundRepeat: "no-repeat", backgroundPosition: "center", backgroundSize: "260px 260px" }} />
                 )}
-                <span className="absolute top-3 left-3 z-10 inline-flex items-center rounded-full bg-[#c89d3c] text-[#1e3a2c] px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-bold">
+                <span className="absolute top-3 left-3 z-10 inline-flex items-center rounded-full bg-gold text-moss px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-bold">
                     {kind}
                 </span>
                 <div className="relative flex flex-col items-center gap-3 z-10">
-                    <div className="w-14 h-14 rounded-full bg-[#c89d3c] flex items-center justify-center text-2xl">🔒</div>
+                    <div className="w-14 h-14 rounded-full bg-gold flex items-center justify-center text-2xl">🔒</div>
                     <div className="text-center">
                         <div className="font-display font-medium text-2xl">Click to Unlock</div>
-                        <div className="text-sm text-[#f5efe2]/70 mt-1">Fill the form to view</div>
+                        <div className="text-sm text-background/70 mt-1">Fill the form to view</div>
                     </div>
                 </div>
             </div>
-            <div className="bg-[#f5efe2] text-[#1e3a2c] px-6 py-4 flex items-center justify-between border-t border-[#1e3a2c]/10">
+            <div className="bg-background text-moss px-6 py-4 flex items-center justify-between border-t border-moss/10">
                 <div>
                     <div className="font-semibold">{fp.label || `${kind} ${i + 1}`}</div>
                     {fp.alt && fp.alt !== fp.label && (
-                        <div className="text-sm text-[#1a2a1f]/65">{fp.alt}</div>
+                        <div className="text-sm text-foreground/65">{fp.alt}</div>
                     )}
                 </div>
-                <span className="text-xs uppercase tracking-[0.2em] font-bold text-[#1e3a2c] hover:text-[#c89d3c] transition">
+                <span className="text-xs uppercase tracking-[0.2em] font-bold text-moss hover:text-gold transition">
                     {fp.ctaText || "View →"}
                 </span>
             </div>
@@ -823,24 +807,28 @@ function FloorPlans({ project }) {
     );
 
     return (
-        <section id="floor-plans" className="bg-[#f5efe2] py-16 md:py-24">
+        <section id="floor-plans" className="bg-background py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>FLOOR PLANS</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
 
-                <div className="mt-12">
-                    <h3 className="font-display text-xl md:text-2xl text-[#1e3a2c] mb-5">Master Plan</h3>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        {masterPlans.map((fp, i) => renderCard(fp, i, "Master Plan"))}
+                {masterPlans.length > 0 && (
+                    <div className="mt-12">
+                        <h3 className="font-display text-xl md:text-2xl text-moss mb-5">Master Plan</h3>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {masterPlans.map((fp, i) => renderCard(fp, i, "Master Plan"))}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                <div className="mt-10">
-                    <h3 className="font-display text-xl md:text-2xl text-[#1e3a2c] mb-5">Floor Plans</h3>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        {floorPlans.map((fp, i) => renderCard(fp, i, "Floor Plan"))}
+                {floorPlans.length > 0 && (
+                    <div className={masterPlans.length > 0 ? "mt-10" : "mt-12"}>
+                        <h3 className="font-display text-xl md:text-2xl text-moss mb-5">Floor Plans</h3>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {floorPlans.map((fp, i) => renderCard(fp, i, "Floor Plan"))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <div className="mt-8 flex justify-center">
                     <button
@@ -850,7 +838,7 @@ function FloorPlans({ project }) {
                                 openEnquire({ title: projectName, source: "Request Detailed Floor Plan", image: bannerImage });
                             }
                         }}
-                        className="inline-flex items-center gap-2 rounded-full bg-[#1e3a2c] text-[#f5efe2] px-7 py-3.5 text-sm font-semibold hover:bg-[#2a4a35] transition shadow-lg shadow-[#1e3a2c]/30"
+                        className="inline-flex items-center gap-2 rounded-full bg-moss text-background px-7 py-3.5 text-sm font-semibold hover:bg-leaf transition shadow-lg shadow-moss/30"
                     >
                         Request Detailed Floor Plan
                     </button>
@@ -896,13 +884,13 @@ function Gallery({ project }) {
     const goNext = (e) => { e?.stopPropagation?.(); setLightboxIndex(i => (i + 1) % adminImages.length); };
 
     return (
-        <section id="gallery" className="bg-[#ebe3cf] py-16 md:py-24">
+        <section id="gallery" className="bg-cream py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>GALLERY</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
                 {hasDescription && (
                     <div
-                        className="mt-4 rich-content text-[15px] text-[#1a2a1f]/70 leading-relaxed"
+                        className="mt-4 rich-content text-[15px] text-foreground/70 leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: description }}
                     />
                 )}
@@ -912,7 +900,7 @@ function Gallery({ project }) {
                             type="button"
                             key={`${g.image}-${i}`}
                             onClick={() => setLightboxIndex(i)}
-                            className="relative aspect-[4/3] rounded-2xl overflow-hidden cursor-zoom-in group focus:outline-none focus:ring-2 focus:ring-[#c89d3c] focus:ring-offset-2 focus:ring-offset-[#ebe3cf]"
+                            className="relative aspect-[4/3] rounded-2xl overflow-hidden cursor-zoom-in group focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-cream"
                         >
                             <img
                                 src={g.image}
@@ -920,7 +908,7 @@ function Gallery({ project }) {
                                 loading="lazy"
                                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700"
                             />
-                            <span className="absolute inset-0 bg-[#1e3a2c]/0 group-hover:bg-[#1e3a2c]/15 transition" />
+                            <span className="absolute inset-0 bg-moss/0 group-hover:bg-moss/15 transition" />
                         </button>
                     ))}
                 </div>
@@ -931,15 +919,15 @@ function Gallery({ project }) {
                     className="fixed inset-0 z-[100] flex flex-col bg-black/95"
                     onClick={() => setLightboxIndex(null)}
                 >
-                    <div className="flex items-center justify-between px-5 py-4 flex-shrink-0 text-[#f5efe2]" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between px-5 py-4 flex-shrink-0 text-background" onClick={e => e.stopPropagation()}>
                         <div className="text-sm md:text-base font-display">
                             {lightboxIndex + 1} / {adminImages.length}
-                            {current.alt && <span className="ml-3 text-[#f5efe2]/70 hidden md:inline">— {current.alt}</span>}
+                            {current.alt && <span className="ml-3 text-background/70 hidden md:inline">— {current.alt}</span>}
                         </div>
                         <button
                             type="button"
                             onClick={() => setLightboxIndex(null)}
-                            className="w-10 h-10 rounded-full border border-[#f5efe2]/30 hover:bg-[#f5efe2]/10 flex items-center justify-center transition"
+                            className="w-10 h-10 rounded-full border border-background/30 hover:bg-background/10 flex items-center justify-center transition"
                             aria-label="Close gallery"
                         >
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -954,7 +942,7 @@ function Gallery({ project }) {
                             <button
                                 type="button"
                                 onClick={goPrev}
-                                className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-11 h-11 md:w-12 md:h-12 rounded-full bg-[#f5efe2]/10 hover:bg-[#f5efe2]/20 text-[#f5efe2] flex items-center justify-center transition backdrop-blur-sm"
+                                className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-11 h-11 md:w-12 md:h-12 rounded-full bg-background/10 hover:bg-background/20 text-background flex items-center justify-center transition backdrop-blur-sm"
                                 aria-label="Previous image"
                             >
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -973,7 +961,7 @@ function Gallery({ project }) {
                             <button
                                 type="button"
                                 onClick={goNext}
-                                className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-11 h-11 md:w-12 md:h-12 rounded-full bg-[#f5efe2]/10 hover:bg-[#f5efe2]/20 text-[#f5efe2] flex items-center justify-center transition backdrop-blur-sm"
+                                className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-11 h-11 md:w-12 md:h-12 rounded-full bg-background/10 hover:bg-background/20 text-background flex items-center justify-center transition backdrop-blur-sm"
                                 aria-label="Next image"
                             >
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -991,7 +979,7 @@ function Gallery({ project }) {
                                         key={`thumb-${g.image}-${i}`}
                                         type="button"
                                         onClick={() => setLightboxIndex(i)}
-                                        className={`relative h-14 md:h-16 aspect-[4/3] rounded-md overflow-hidden flex-shrink-0 ring-2 transition ${i === lightboxIndex ? "ring-[#c89d3c]" : "ring-transparent opacity-60 hover:opacity-100"}`}
+                                        className={`relative h-14 md:h-16 aspect-[4/3] rounded-md overflow-hidden flex-shrink-0 ring-2 transition ${i === lightboxIndex ? "ring-gold" : "ring-transparent opacity-60 hover:opacity-100"}`}
                                     >
                                         <img src={g.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
                                     </button>
@@ -1007,7 +995,7 @@ function Gallery({ project }) {
 
 function StyledMap() {
     return (
-        <div className="relative aspect-[4/3] rounded-2xl bg-[#ebe3cf] border border-[#1e3a2c]/10 overflow-hidden">
+        <div className="relative aspect-[4/3] rounded-2xl bg-cream border border-moss/10 overflow-hidden">
             <svg viewBox="0 0 400 300" className="w-full h-full">
                 <rect width="400" height="300" fill="#f5efe2" />
                 <path d="M0 220 Q 80 200 160 215 T 320 200 T 400 210" stroke="#c5b88f" strokeWidth="22" fill="none" opacity="0.6" />
@@ -1049,7 +1037,7 @@ function Location({ project }) {
     const title = project?.location?.title || `${projectName} Location & Connectivity`;
 
     return (
-        <section id="location" className="bg-[#f5efe2] py-16 md:py-24">
+        <section id="location" className="bg-background py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>LOCATION</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
@@ -1064,7 +1052,7 @@ function Location({ project }) {
 
                 {hasContent && (
                     <div
-                        className="mt-6 rich-content text-[#1a2a1f]/85 leading-relaxed"
+                        className="mt-6 rich-content text-foreground/85 leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: content }}
                     />
                 )}
@@ -1093,14 +1081,14 @@ function Specifications({ project }) {
     const ctaLabel = ps?.ctaLabel;
 
     return (
-        <section id="specifications" className="bg-[#ebe3cf] py-16 md:py-24">
+        <section id="specifications" className="bg-cream py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>SPECIFICATIONS</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
 
                 {hasContent && (
                     <div
-                        className="mt-4 rich-content text-[15px] text-[#1a2a1f]/70 leading-relaxed"
+                        className="mt-4 rich-content text-[15px] text-foreground/70 leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: content }}
                     />
                 )}
@@ -1110,14 +1098,14 @@ function Specifications({ project }) {
                         {specs.map((s, i) => (
                             <article
                                 key={`${s.title || "spec"}-${i}`}
-                                className="rounded-2xl bg-[#f5efe2] border border-[#1e3a2c]/10 p-6 hover:shadow-lg hover:shadow-[#1e3a2c]/10 hover:border-[#c89d3c]/40 transition"
+                                className="rounded-2xl bg-background border border-moss/10 p-6 hover:shadow-lg hover:shadow-moss/10 hover:border-gold/40 transition"
                             >
                                 {s.title && (
-                                    <h3 className="font-display font-semibold text-[#1e3a2c] text-lg">{s.title}</h3>
+                                    <h3 className="font-display font-semibold text-moss text-lg">{s.title}</h3>
                                 )}
                                 {s.content && (
                                     <div
-                                        className="mt-3 rich-content text-sm text-[#1a2a1f]/75 leading-[1.7]"
+                                        className="mt-3 rich-content text-sm text-foreground/75 leading-[1.7]"
                                         dangerouslySetInnerHTML={{ __html: s.content }}
                                     />
                                 )}
@@ -1135,7 +1123,7 @@ function Specifications({ project }) {
                                     openEnquire({ title: projectName, source: ctaLabel, image: bannerImage });
                                 }
                             }}
-                            className="inline-flex items-center gap-2 rounded-full bg-[#1e3a2c] text-[#f5efe2] px-7 py-3.5 text-sm font-semibold hover:bg-[#2a4a35] transition shadow-lg shadow-[#1e3a2c]/30"
+                            className="inline-flex items-center gap-2 rounded-full bg-moss text-background px-7 py-3.5 text-sm font-semibold hover:bg-leaf transition shadow-lg shadow-moss/30"
                         >
                             {ctaLabel}
                             <span aria-hidden>→</span>
@@ -1157,7 +1145,7 @@ function FAQ({ project }) {
     if (project?.hideFAQs || faqs.length === 0) return null;
 
     return (
-        <section id="faqs" className="bg-[#f5efe2] py-16 md:py-24">
+        <section id="faqs" className="bg-background py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>FAQ</SectionLabel>
                 <SectionTitle>Frequently Asked Questions</SectionTitle>
@@ -1166,28 +1154,28 @@ function FAQ({ project }) {
                     {faqs.map((faq, i) => {
                         const isOpen = openIndex === i;
                         return (
-                            <div key={i} className="rounded-2xl border border-[#1e3a2c]/12 bg-white overflow-hidden">
+                            <div key={i} className="rounded-2xl border border-moss/12 bg-white overflow-hidden">
                                 <button
                                     type="button"
                                     onClick={() => setOpenIndex(isOpen ? null : i)}
-                                    className="w-full flex items-center justify-between gap-4 px-5 md:px-6 py-4 md:py-5 text-left hover:bg-[#ebe3cf]/40 transition"
+                                    className="w-full flex items-center justify-between gap-4 px-5 md:px-6 py-4 md:py-5 text-left hover:bg-cream/40 transition"
                                 >
                                     <div
-                                        className="rich-content font-display text-base md:text-lg text-[#1e3a2c] [&_p]:m-0 [&_*]:m-0"
+                                        className="rich-content font-display text-base md:text-lg text-moss [&_p]:m-0 [&_*]:m-0"
                                         dangerouslySetInnerHTML={{ __html: faq.question || "" }}
                                     />
                                     <svg
                                         width="20" height="20" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                                        className={`text-[#c89d3c] shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                                        className={`text-gold shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
                                     >
                                         <polyline points="6 9 12 15 18 9" />
                                     </svg>
                                 </button>
                                 {isOpen && (
-                                    <div className="px-5 md:px-6 pb-5 pt-1 border-t border-[#1e3a2c]/8">
+                                    <div className="px-5 md:px-6 pb-5 pt-1 border-t border-moss/8">
                                         <div
-                                            className="rich-content text-[15px] text-[#1a2a1f]/80 leading-[1.85]"
+                                            className="rich-content text-[15px] text-foreground/80 leading-[1.85]"
                                             dangerouslySetInnerHTML={{ __html: faq.answer || "" }}
                                         />
                                     </div>
@@ -1201,42 +1189,93 @@ function FAQ({ project }) {
     );
 }
 
-function Enquiry() {
+function Enquiry({ project }) {
+    const projectName = project?.title || "Project";
+    const [form, setForm] = useState({ name: "", email: "", mobile: "" });
+    const [status, setStatus] = useState({ loading: false, success: false, error: "" });
+
+    const onChange = (e) => {
+        setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const onSubmit = async (e) => {
+        e.preventDefault();
+        if (!form.name.trim() || !form.mobile.trim()) {
+            setStatus({ loading: false, success: false, error: "Name and mobile number are required." });
+            return;
+        }
+        setStatus({ loading: true, success: false, error: "" });
+        try {
+            const res = await fetch("/api/leads", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: form.name,
+                    email: form.email,
+                    mobileNumber: form.mobile,
+                    source: "Site Visit Form",
+                    project: projectName,
+                }),
+            });
+            const data = await res.json();
+            if (data?.success) {
+                setStatus({ loading: false, success: true, error: "" });
+                setForm({ name: "", email: "", mobile: "" });
+            } else {
+                setStatus({ loading: false, success: false, error: "Something went wrong. Please try again." });
+            }
+        } catch {
+            setStatus({ loading: false, success: false, error: "Network error. Please try again." });
+        }
+    };
+
     return (
-        <section id="enquiry" className="bg-[#1e3a2c] text-[#f5efe2] py-16 md:py-24">
+        <section id="enquiry" className="bg-moss text-background py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6 grid md:grid-cols-12 gap-10">
                 <div className="md:col-span-5">
-                    <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#c89d3c]">ENQUIRE</div>
+                    <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-gold">ENQUIRE</div>
                     <h2 className="mt-3 font-display font-medium text-3xl md:text-4xl lg:text-5xl leading-[1.05] tracking-tight">
-                        Book a Site Visit —<br />Tangled Up <em className="text-[#c89d3c]">in Green</em>
+                        Book a Site Visit —<br />{projectName}
                     </h2>
-                    <p className="mt-5 text-[#f5efe2]/75 leading-relaxed">
-                        Share your details and our sales team will reach out within 30 minutes (10 AM – 8 PM IST) to arrange a private walkthrough of the experience centre.
+                    <p className="mt-5 text-background/75 leading-relaxed">
+                        Share your details and our sales team will reach out shortly to arrange a private walkthrough.
                     </p>
-                    <div className="mt-8 space-y-4 text-sm">
-                        <a href="tel:+918012345678" className="flex items-center gap-3 group">
-                            <span className="w-9 h-9 rounded-full border border-[#c89d3c]/40 flex items-center justify-center text-[#c89d3c]">📞</span>
-                            <span>
-                                <span className="block text-[10px] uppercase tracking-[0.25em] text-[#f5efe2]/55">Call / WhatsApp</span>
-                                <span className="font-display font-medium text-lg group-hover:text-[#c89d3c] transition">+91 80 1234 5678</span>
-                            </span>
-                        </a>
-                        <div className="text-xs text-[#f5efe2]/55 tracking-wide">RERA Reg. No. <span className="text-[#f5efe2]/85">PRM/KA/RERA/1251/446/PR/240315/006724</span></div>
-                    </div>
+                    {project?.reraNo && (
+                        <div className="mt-8 text-xs text-background/55 tracking-wide">
+                            RERA Reg. No. <span className="text-background/85">{project.reraNo}</span>
+                        </div>
+                    )}
                 </div>
 
-                <form className="md:col-span-7 bg-[#f5efe2] text-[#1e3a2c] rounded-2xl p-7 grid sm:grid-cols-2 gap-4">
-                    <Field label="Name *" name="name" placeholder="Full name" />
-                    <Field label="Phone *" name="phone" type="tel" placeholder="+91" />
-                    <Field label="Email" name="email" type="email" placeholder="you@email.com" />
-                    <Select label="Configuration" name="config" options={["Select", "3 BHK Garden Residence", "4 BHK Signature Home", "4 BHK Penthouse", "Just exploring"]} />
-                    <Textarea label="Message" name="message" placeholder="Preferred site visit time, queries, etc." className="sm:col-span-2" />
-                    <label className="sm:col-span-2 flex items-start gap-3 text-xs text-[#1a2a1f]/75 cursor-pointer">
-                        <input type="checkbox" defaultChecked className="mt-0.5 accent-[#1e3a2c]" />
-                        <span>I can be contacted via call, SMS, email and WhatsApp regarding Tangled Up in Green.</span>
+                <form onSubmit={onSubmit} className="md:col-span-7 bg-background text-moss rounded-2xl p-7 md:p-8 grid sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2 border-b border-moss/10 pb-4">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-gold">Get in Touch</p>
+                        <p className="mt-1.5 font-display text-xl md:text-2xl text-moss">Tell us about you</p>
+                    </div>
+                    <Field label="Name *" name="name" value={form.name} onChange={onChange} placeholder="Full name" />
+                    <Field label="Mobile *" name="mobile" type="tel" value={form.mobile} onChange={onChange} placeholder="+91" />
+                    <Field className="sm:col-span-2" label="Email" name="email" type="email" value={form.email} onChange={onChange} placeholder="you@email.com" />
+
+                    <label className="sm:col-span-2 flex items-start gap-3 text-xs text-foreground/75 cursor-pointer">
+                        <input type="checkbox" defaultChecked className="mt-0.5 accent-moss" />
+                        <span>I can be contacted via call, SMS, email and WhatsApp regarding {projectName}.</span>
                     </label>
-                    <button type="submit" className="sm:col-span-2 mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[#1e3a2c] text-[#f5efe2] px-7 py-4 text-sm font-semibold hover:bg-[#2a4a35] transition">
-                        Send via WhatsApp →
+
+                    {status.error && (
+                        <div className="sm:col-span-2 text-sm text-red-600">{status.error}</div>
+                    )}
+                    {status.success && (
+                        <div className="sm:col-span-2 text-sm text-moss bg-gold/20 border border-gold/40 rounded-lg px-4 py-3">
+                            Thanks! Your enquiry has been received — we&apos;ll be in touch shortly.
+                        </div>
+                    )}
+                    <button
+                        type="submit"
+                        disabled={status.loading}
+                        className="sm:col-span-2 mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-moss text-background px-7 py-4 text-sm font-semibold hover:bg-leaf transition disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                        {status.loading ? "Submitting…" : "Submit Enquiry"}
+                        <span aria-hidden>→</span>
                     </button>
                 </form>
             </div>
@@ -1244,38 +1283,21 @@ function Enquiry() {
     );
 }
 
-function Field({ label, name, type = "text", placeholder, className = "" }) {
+function Field({ label, name, type = "text", value, onChange, placeholder, className = "" }) {
     return (
         <div className={className}>
-            <label htmlFor={name} className="block text-[10px] uppercase tracking-[0.25em] font-bold text-[#6b8a72] mb-2">{label}</label>
-            <input id={name} name={name} type={type} placeholder={placeholder} className="w-full bg-white border border-[#1e3a2c]/15 rounded-lg px-4 py-3 text-[#1a2a1f] placeholder-[#1a2a1f]/35 focus:border-[#1e3a2c] focus:outline-none transition" />
+            <label htmlFor={name} className="block text-[10px] uppercase tracking-[0.25em] font-bold text-leaf mb-2">{label}</label>
+            <input id={name} name={name} type={type} value={value} onChange={onChange} placeholder={placeholder}
+                className="w-full bg-white border border-moss/15 rounded-lg px-4 py-3 text-foreground placeholder-foreground/35 focus:border-moss focus:outline-none transition" />
         </div>
     );
 }
 
-function Select({ label, name, options, className = "" }) {
-    return (
-        <div className={className}>
-            <label htmlFor={name} className="block text-[10px] uppercase tracking-[0.25em] font-bold text-[#6b8a72] mb-2">{label}</label>
-            <select id={name} name={name} defaultValue={options[0]} className="w-full bg-white border border-[#1e3a2c]/15 rounded-lg px-4 py-3 text-[#1a2a1f] focus:border-[#1e3a2c] focus:outline-none transition appearance-none">
-                {options.map((o) => <option key={o}>{o}</option>)}
-            </select>
-        </div>
-    );
-}
-
-function Textarea({ label, name, placeholder, className = "" }) {
-    return (
-        <div className={className}>
-            <label htmlFor={name} className="block text-[10px] uppercase tracking-[0.25em] font-bold text-[#6b8a72] mb-2">{label}</label>
-            <textarea id={name} name={name} placeholder={placeholder} rows={3} className="w-full bg-white border border-[#1e3a2c]/15 rounded-lg px-4 py-3 text-[#1a2a1f] placeholder-[#1a2a1f]/35 focus:border-[#1e3a2c] focus:outline-none transition resize-none" />
-        </div>
-    );
-}
-
-function LatestBlog({ project }) {
+function LatestBlog({ project, isHome }) {
     const [blogs, setBlogs] = useState([]);
     const [visible, setVisible] = useState(6);
+    const showAll = !!isHome;
+    const list = showAll ? blogs : blogs.slice(0, visible);
 
     useEffect(() => {
         let cancelled = false;
@@ -1295,14 +1317,14 @@ function LatestBlog({ project }) {
     if (project?.hideBlogs || blogs.length === 0) return null;
 
     return (
-        <section id="blogs" className="bg-[#f5efe2] py-16 md:py-24">
+        <section id="blogs" className="bg-background py-16 md:py-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>JOURNAL</SectionLabel>
                 <SectionTitle>Latest Blog</SectionTitle>
-                <div className="mt-3 w-16 h-1 rounded-full bg-[#c89d3c]" />
+                <div className="mt-3 w-16 h-1 rounded-full bg-gold" />
 
                 <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {blogs.slice(0, visible).map((blog, i) => {
+                    {list.map((blog, i) => {
                         const slug = blog.slug || blog._id?.toString();
                         const isImgSrc = (v) => v && typeof v === "string" && (v.startsWith("http") || v.startsWith("/"));
                         const imgUrl = isImgSrc(blog.heroImage) ? blog.heroImage : isImgSrc(blog.image) ? blog.image : null;
@@ -1310,9 +1332,9 @@ function LatestBlog({ project }) {
                             <a
                                 key={blog._id || i}
                                 href={`/blog/${slug}`}
-                                className="group flex flex-col bg-white border border-[#1e3a2c]/10 rounded-2xl overflow-hidden hover:shadow-lg hover:shadow-[#1e3a2c]/10 hover:border-[#c89d3c]/40 transition"
+                                className="group flex flex-col bg-white border border-moss/10 rounded-2xl overflow-hidden hover:shadow-lg hover:shadow-moss/10 hover:border-gold/40 transition"
                             >
-                                <div className="relative h-48 bg-[#ebe3cf] flex-shrink-0 overflow-hidden">
+                                <div className="relative h-48 bg-cream flex-shrink-0 overflow-hidden">
                                     {imgUrl ? (
                                         <img
                                             src={imgUrl}
@@ -1326,19 +1348,19 @@ function LatestBlog({ project }) {
                                 </div>
                                 <div className="flex flex-col flex-1 p-5">
                                     {blog.category && (
-                                        <span className="inline-block self-start px-3 py-1 rounded-full text-[11px] font-semibold bg-[#c89d3c]/15 text-[#1e3a2c] mb-3 uppercase tracking-wider">
+                                        <span className="inline-block self-start px-3 py-1 rounded-full text-[11px] font-semibold bg-gold/15 text-moss mb-3 uppercase tracking-wider">
                                             {blog.category}
                                         </span>
                                     )}
-                                    <h3 className="font-display text-lg text-[#1e3a2c] mb-2 leading-snug group-hover:text-[#c89d3c] transition-colors line-clamp-2">
+                                    <h3 className="font-display text-lg text-moss mb-2 leading-snug group-hover:text-gold transition-colors line-clamp-2">
                                         {blog.title}
                                     </h3>
                                     {blog.excerpt && (
-                                        <p className="text-sm text-[#1a2a1f]/65 line-clamp-2 flex-1">{blog.excerpt}</p>
+                                        <p className="text-sm text-foreground/65 line-clamp-2 flex-1">{blog.excerpt}</p>
                                     )}
-                                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#1e3a2c]/10">
-                                        <span className="text-xs text-[#1a2a1f]/45">{blog.date || ""}</span>
-                                        <span className="text-xs font-semibold text-[#c89d3c] group-hover:underline">Read More →</span>
+                                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-moss/10">
+                                        <span className="text-xs text-foreground/45">{blog.date || ""}</span>
+                                        <span className="text-xs font-semibold text-gold group-hover:underline">Read More →</span>
                                     </div>
                                 </div>
                             </a>
@@ -1346,12 +1368,12 @@ function LatestBlog({ project }) {
                     })}
                 </div>
 
-                {blogs.length > visible && (
+                {!showAll && blogs.length > visible && (
                     <div className="mt-10 flex justify-center">
                         <button
                             type="button"
                             onClick={() => setVisible(v => v + 6)}
-                            className="inline-flex items-center gap-2 px-7 py-3 border-2 border-[#1e3a2c] text-[#1e3a2c] font-semibold rounded-full hover:bg-[#1e3a2c] hover:text-[#f5efe2] transition text-sm"
+                            className="inline-flex items-center gap-2 px-7 py-3 border-2 border-moss text-moss font-semibold rounded-full hover:bg-moss hover:text-background transition text-sm"
                         >
                             Load More
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -1362,43 +1384,6 @@ function LatestBlog({ project }) {
                 )}
             </div>
         </section>
-    );
-}
-
-function Footer() {
-    return (
-        <footer className="bg-[#162a1f] text-[#f5efe2]/70 py-14 border-t border-[#c89d3c]/15">
-            <div className="max-w-[1300px] mx-auto px-6 grid md:grid-cols-12 gap-10">
-                <div className="md:col-span-5">
-                    <div className="flex flex-col leading-tight">
-                        <span className="font-display font-bold text-[#f5efe2] text-2xl tracking-tight">TANGLED UP</span>
-                        <span className="font-display italic text-[#c89d3c] text-lg -mt-1">in Green</span>
-                    </div>
-                    <p className="mt-5 max-w-sm text-sm leading-relaxed">A Total Environment Building Systems estate · Luxury 3 &amp; 4 BHK residences in Whitefield, Bangalore.</p>
-                    <div className="mt-4 text-xs text-[#f5efe2]/55">Project RERA: <span className="text-[#f5efe2]/85">20 of 2026</span></div>
-                </div>
-                <div className="md:col-span-3">
-                    <div className="text-[11px] uppercase tracking-[0.3em] font-bold text-[#c89d3c] mb-4">Quick Links</div>
-                    <ul className="space-y-2.5 text-sm">
-                        <li><a href="#amenities" className="hover:text-[#c89d3c] transition">Amenities</a></li>
-                        <li><a href="#highlights" className="hover:text-[#c89d3c] transition">Highlights</a></li>
-                        <li><a href="#floor-plans" className="hover:text-[#c89d3c] transition">Floor Plans</a></li>
-                        <li><a href="#location" className="hover:text-[#c89d3c] transition">Location</a></li>
-                    </ul>
-                </div>
-                <div className="md:col-span-4">
-                    <div className="text-[11px] uppercase tracking-[0.3em] font-bold text-[#c89d3c] mb-4">Contact</div>
-                    <ul className="space-y-2.5 text-sm">
-                        <li><a href="tel:+918012345678" className="hover:text-[#c89d3c] transition">+91 80 1234 5678</a></li>
-                        <li><a href="mailto:sales@total-environment.com" className="hover:text-[#c89d3c] transition">sales@total-environment.com</a></li>
-                        <li>Hagadur Main Road, Whitefield,<br />Bangalore 560066, Karnataka</li>
-                    </ul>
-                </div>
-            </div>
-            <div className="max-w-[1300px] mx-auto px-6 mt-10 pt-6 border-t border-[#f5efe2]/10 text-[11px] text-[#f5efe2]/45 leading-relaxed">
-                <strong className="text-[#f5efe2]/75">Disclaimer:</strong> This website is intended for informational purposes only. The content presented here is not an offer or contract. Images are artistic impressions and may vary from the final product. © {new Date().getFullYear()} Total Environment Building Systems. All rights reserved.
-            </div>
-        </footer>
     );
 }
 

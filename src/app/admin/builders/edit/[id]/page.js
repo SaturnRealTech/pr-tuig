@@ -32,7 +32,7 @@ function ImagePicker({ label, hint, value, onChange, onAltChange, filterType = '
                     <img src={value} alt={label} className="w-full h-40 object-cover" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
                         <button type="button" onClick={() => setShowPicker(true)}
-                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-[#fef9e7] transition">
+                            className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-xs font-semibold hover:bg-cream transition">
                             Change
                         </button>
                         <button type="button" onClick={() => onChange('')}
@@ -43,7 +43,7 @@ function ImagePicker({ label, hint, value, onChange, onAltChange, filterType = '
                 </div>
             ) : (
                 <button type="button" onClick={() => setShowPicker(true)}
-                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                    className="w-full flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-200 rounded-xl hover:border-gold hover:bg-cream transition">
                     <MdImage size={32} className="text-gray-300 mb-2" />
                     <span className="text-sm text-gray-500 font-medium">Choose from Media Library</span>
                 </button>
@@ -162,7 +162,7 @@ export default function EditBuilderPage() {
             <main className={`flex-1 ${sidebarOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
                 <div className="p-8">
                     <div className="mb-8">
-                        <button onClick={() => router.push('/admin/builders')} className="flex items-center gap-2 text-gray-600 hover:text-[#b27e02] mb-4 transition">
+                        <button onClick={() => router.push('/admin/builders')} className="flex items-center gap-2 text-gray-600 hover:text-gold mb-4 transition">
                             <MdArrowBack size={20} /> Back to Builders
                         </button>
                         <h1 className="text-3xl font-bold text-gray-800">Edit Builder</h1>
@@ -176,22 +176,22 @@ export default function EditBuilderPage() {
                             <h3 className="text-lg font-bold text-gray-800 mb-4">Builder Details</h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Builder Name <span className="text-[#b27e02]">*</span></label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Builder Name <span className="text-gold">*</span></label>
                                     <input type="text" value={formData.name} onChange={handleNameChange} required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                         placeholder="e.g. DLF, Godrej, Sobha" />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Slug <span className="text-[#b27e02]">*</span></label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Slug <span className="text-gold">*</span></label>
                                     <input type="text" name="slug" value={formData.slug} onChange={handleChange} required
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                         placeholder="dlf, godrej, sobha" />
                                     <p className="text-xs text-gray-400 mt-1">URL: /builders/{formData.slug || 'slug'}</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
                                     <textarea name="description" value={formData.description} onChange={handleChange} rows={2}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                         placeholder="Brief description of the builder" />
                                 </div>
                             </div>
@@ -234,7 +234,7 @@ export default function EditBuilderPage() {
                             <div className="mb-4">
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Section Title</label>
                                 <input type="text" name="title" value={formData.title} onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="e.g. About DLF, Our Legacy" />
                             </div>
                             <TipTapEditor
@@ -249,7 +249,7 @@ export default function EditBuilderPage() {
                                 <h3 className="text-lg font-bold text-gray-800">FAQs</h3>
                                 <button type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, faqs: [...prev.faqs, { question: '', answer: '' }] }))}
-                                    className="flex items-center gap-1.5 px-4 py-2 bg-[#b27e02] text-white text-sm font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                    className="flex items-center gap-1.5 px-4 py-2 bg-gold text-white text-sm font-semibold rounded-lg hover:bg-gold transition">
                                     <MdAdd size={18} /> Add FAQ
                                 </button>
                             </div>
@@ -273,14 +273,14 @@ export default function EditBuilderPage() {
                                                     value={faq.question}
                                                     onChange={(e) => setFormData(prev => ({ ...prev, faqs: prev.faqs.map((f, i) => i === idx ? { ...f, question: e.target.value } : f) }))}
                                                     placeholder="Question"
-                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 text-sm"
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 text-sm"
                                                 />
                                                 <textarea
                                                     value={faq.answer}
                                                     onChange={(e) => setFormData(prev => ({ ...prev, faqs: prev.faqs.map((f, i) => i === idx ? { ...f, answer: e.target.value } : f) }))}
                                                     placeholder="Answer"
                                                     rows={3}
-                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 text-sm"
+                                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 text-sm"
                                                 />
                                             </div>
                                         </div>
@@ -292,7 +292,7 @@ export default function EditBuilderPage() {
                         {/* Actions */}
                         <div className="flex gap-4 pb-10">
                             <button type="submit" disabled={submitting}
-                                className="px-8 py-3 bg-[#b27e02] text-white font-semibold rounded-lg hover:bg-[#8a6002] disabled:opacity-60 transition shadow">
+                                className="px-8 py-3 bg-gold text-white font-semibold rounded-lg hover:bg-gold disabled:opacity-60 transition shadow">
                                 {submitting ? 'Saving...' : 'Save Changes'}
                             </button>
                             <button type="button" onClick={() => router.push('/admin/builders')}

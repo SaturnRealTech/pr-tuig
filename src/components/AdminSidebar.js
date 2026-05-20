@@ -41,7 +41,7 @@ export default function AdminSidebar({ user, sidebarOpen, setSidebarOpen }) {
     const isActive = (href) => pathname === href || pathname.startsWith(href + '/');
 
     return (
-        <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-[#b27e02] to-[#6b4a01] text-white transition-all duration-300 fixed h-full z-20 overflow-y-auto`}>
+        <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-gold to-gold text-white transition-all duration-300 fixed h-full z-20 overflow-y-auto`}>
             <div className="p-6">
                 <div className="flex items-center justify-between mb-8">
                     {sidebarOpen && (
@@ -51,7 +51,7 @@ export default function AdminSidebar({ user, sidebarOpen, setSidebarOpen }) {
                     )}
                     <button
                         onClick={() => setSidebarOpen(v => !v)}
-                        className="text-white hover:bg-[#8a6002] p-2 rounded-lg flex-shrink-0"
+                        className="text-white hover:bg-gold p-2 rounded-lg flex-shrink-0"
                     >
                         {sidebarOpen ? <MdClose size={24} /> : <MdMenu size={24} />}
                     </button>
@@ -62,7 +62,7 @@ export default function AdminSidebar({ user, sidebarOpen, setSidebarOpen }) {
                         <a
                             key={href}
                             href={href}
-                            className={`flex items-center gap-3 p-3 rounded-lg transition ${isActive(href) ? 'bg-[#8a6002]' : 'hover:bg-[#8a6002]'
+                            className={`flex items-center gap-3 p-3 rounded-lg transition ${isActive(href) ? 'bg-gold' : 'hover:bg-gold'
                                 }`}
                         >
                             <Icon size={24} />
@@ -73,7 +73,7 @@ export default function AdminSidebar({ user, sidebarOpen, setSidebarOpen }) {
                     {user?.role === 'admin' && (
                         <a
                             href="/admin/users"
-                            className={`flex items-center gap-3 p-3 rounded-lg transition ${isActive('/admin/users') ? 'bg-[#8a6002]' : 'hover:bg-[#8a6002]'
+                            className={`flex items-center gap-3 p-3 rounded-lg transition ${isActive('/admin/users') ? 'bg-gold' : 'hover:bg-gold'
                                 }`}
                         >
                             <MdPeople size={24} />
@@ -85,7 +85,7 @@ export default function AdminSidebar({ user, sidebarOpen, setSidebarOpen }) {
                 <div className="mt-8 pb-2">
                     <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-[#8a6002] transition w-full"
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-gold transition w-full"
                     >
                         <MdLogout size={24} />
                         {sidebarOpen && <span>Logout</span>}

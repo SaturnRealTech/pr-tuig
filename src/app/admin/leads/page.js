@@ -96,7 +96,7 @@ export default function LeadsPage() {
                     <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-                                <MdInbox className="text-[#b27e02]" /> Leads
+                                <MdInbox className="text-gold" /> Leads
                             </h1>
                             <p className="text-gray-500 mt-1">{total} total enquiries received</p>
                         </div>
@@ -115,13 +115,13 @@ export default function LeadsPage() {
                                 value={search}
                                 onChange={handleSearch}
                                 placeholder="Search name, mobile, email..."
-                                className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]"
+                                className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold"
                             />
                         </div>
                         <select
                             value={statusFilter}
                             onChange={handleStatusFilter}
-                            className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#b27e02] text-gray-700"
+                            className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold text-gray-700"
                         >
                             <option value="">All Status</option>
                             <option value="new">New</option>
@@ -133,7 +133,7 @@ export default function LeadsPage() {
                     {/* Table */}
                     {loading ? (
                         <div className="text-center py-20">
-                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#b27e02] mx-auto" />
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gold mx-auto" />
                         </div>
                     ) : leads.length === 0 ? (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-16 text-center">
@@ -162,13 +162,13 @@ export default function LeadsPage() {
                                             <td className="px-5 py-3 font-semibold text-gray-800">{lead.name}</td>
                                             <td className="px-5 py-3">
                                                 <a href={`tel:${lead.mobileNumber}`}
-                                                    className="flex items-center gap-1.5 text-[#b27e02] hover:underline font-medium">
+                                                    className="flex items-center gap-1.5 text-gold hover:underline font-medium">
                                                     <MdPhone size={14} /> {lead.mobileNumber}
                                                 </a>
                                             </td>
                                             <td className="px-5 py-3 text-gray-500 hidden md:table-cell">
                                                 {lead.email ? (
-                                                    <a href={`mailto:${lead.email}`} className="flex items-center gap-1.5 hover:text-[#b27e02]">
+                                                    <a href={`mailto:${lead.email}`} className="flex items-center gap-1.5 hover:text-gold">
                                                         <MdEmail size={14} /> {lead.email}
                                                     </a>
                                                 ) : '—'}

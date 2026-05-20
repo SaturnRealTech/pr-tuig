@@ -100,16 +100,16 @@ function StagedUploader({ onUploaded }) {
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <MdCloudUpload className="text-[#b27e02]" /> Upload Images
+                    <MdCloudUpload className="text-gold" /> Upload Images
                 </h3>
-                <label className="flex items-center gap-2 px-4 py-2 bg-[#b27e02] text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-[#8a6002] transition">
+                <label className="flex items-center gap-2 px-4 py-2 bg-gold text-white rounded-lg text-sm font-semibold cursor-pointer hover:bg-gold transition">
                     <input type="file" accept="image/*" multiple onChange={handleFileSelect} className="hidden" />
                     + Select Files
                 </label>
             </div>
 
             {staged.length === 0 ? (
-                <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#b27e02] hover:bg-[#fef9e7] transition">
+                <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gold hover:bg-cream transition">
                     <input type="file" accept="image/*" multiple onChange={handleFileSelect} className="hidden" />
                     <MdCloudUpload size={36} className="text-gray-300 mb-2" />
                     <p className="text-sm font-medium text-gray-500">Drag & drop or click to select</p>
@@ -124,18 +124,18 @@ function StagedUploader({ onUploaded }) {
                                 <div>
                                     <label className="text-xs font-semibold text-gray-500 mb-1 block">Image Name</label>
                                     <input value={s.customName} onChange={e => update(i, 'customName', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]" />
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-semibold text-gray-500 mb-1 block">Alt Text <span className="font-normal text-gray-400">(SEO)</span></label>
                                     <input value={s.alt} onChange={e => update(i, 'alt', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold"
                                         placeholder="Describe the image" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-semibold text-gray-500 mb-1 block">Image Type</label>
                                     <select value={s.imageType} onChange={e => update(i, 'imageType', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02] bg-white">
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold bg-white">
                                         {IMAGE_TYPES.map(t => <option key={t.value} value={t.value}>{t.label} ({t.hint})</option>)}
                                     </select>
                                 </div>
@@ -152,7 +152,7 @@ function StagedUploader({ onUploaded }) {
                             Clear
                         </button>
                         <button onClick={handleUpload} disabled={uploading}
-                            className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002] transition disabled:opacity-50">
+                            className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition disabled:opacity-50">
                             {uploading
                                 ? <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> Uploading…</>
                                 : <><MdCloudUpload size={18} /> Upload {staged.length} image{staged.length > 1 ? 's' : ''}</>}
@@ -307,7 +307,7 @@ export default function MediaLibraryPage() {
                     {/* Header */}
                     <div className="mb-6">
                         <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-                            <MdImage className="text-[#b27e02]" /> Media Library
+                            <MdImage className="text-gold" /> Media Library
                         </h1>
                         <p className="text-gray-500 text-sm mt-1">{total} image{total !== 1 ? 's' : ''} total</p>
                     </div>
@@ -321,10 +321,10 @@ export default function MediaLibraryPage() {
                             <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                                 placeholder="Search filename…"
-                                className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]" />
+                                className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold" />
                         </div>
                         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
-                            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#b27e02] bg-white text-gray-700">
+                            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gold bg-white text-gray-700">
                             <option value="">All types</option>
                             {IMAGE_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                         </select>
@@ -333,7 +333,7 @@ export default function MediaLibraryPage() {
                         </button>
                         <div className="flex gap-1 border border-gray-200 rounded-lg p-0.5">
                             {[['grid', <MdGridView key="g" size={18} />], ['list', <MdViewList key="l" size={18} />]].map(([m, icon]) => (
-                                <button key={m} onClick={() => setViewMode(m)} className={`p-1.5 rounded ${viewMode === m ? 'bg-[#b27e02] text-white' : 'text-gray-500 hover:bg-gray-100'}`}>{icon}</button>
+                                <button key={m} onClick={() => setViewMode(m)} className={`p-1.5 rounded ${viewMode === m ? 'bg-gold text-white' : 'text-gray-500 hover:bg-gray-100'}`}>{icon}</button>
                             ))}
                         </div>
                         {selectedIds.length > 0 && user?.role === 'admin' && (
@@ -342,14 +342,14 @@ export default function MediaLibraryPage() {
                             </button>
                         )}
                         {visibleImages.length > 0 && (
-                            <button onClick={toggleAll} className="text-sm text-gray-500 hover:text-[#b27e02] whitespace-nowrap">
+                            <button onClick={toggleAll} className="text-sm text-gray-500 hover:text-gold whitespace-nowrap">
                                 {selectedIds.length === visibleImages.length ? 'Deselect all' : 'Select all'}
                             </button>
                         )}
                     </div>
 
                     {/* Loading */}
-                    {loading && <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#b27e02]" /></div>}
+                    {loading && <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gold" /></div>}
 
                     {/* Grid View */}
                     {!loading && visibleImages.length > 0 && viewMode === 'grid' && (
@@ -358,7 +358,7 @@ export default function MediaLibraryPage() {
                                 const sel = selectedIds.includes(img._id.toString());
                                 return (
                                     <div key={img._id}
-                                        className={`relative group rounded-xl overflow-hidden border-2 cursor-pointer transition ${sel ? 'border-[#b27e02] shadow-md' : 'border-transparent hover:border-gray-300'}`}
+                                        className={`relative group rounded-xl overflow-hidden border-2 cursor-pointer transition ${sel ? 'border-gold shadow-md' : 'border-transparent hover:border-gray-300'}`}
                                         onClick={() => toggleSelect(img._id.toString())}>
                                         <img src={img.url} alt={img.alt || img.fileName} className="w-full aspect-square object-cover bg-gray-100" />
 
@@ -368,7 +368,7 @@ export default function MediaLibraryPage() {
                                         </div>
 
                                         {sel && (
-                                            <div className="absolute top-1 right-1 bg-[#b27e02] text-white rounded-full p-0.5">
+                                            <div className="absolute top-1 right-1 bg-gold text-white rounded-full p-0.5">
                                                 <MdCheck size={12} />
                                             </div>
                                         )}
@@ -387,7 +387,7 @@ export default function MediaLibraryPage() {
                                                 {replacingId === img._id ? (
                                                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white" />
                                                 ) : (
-                                                    <span className="text-white text-xs font-bold tracking-widest uppercase bg-black bg-opacity-40 px-3 py-1.5 rounded-full border border-white border-opacity-40 hover:bg-[#b27e02] hover:border-[#b27e02] transition">
+                                                    <span className="text-white text-xs font-bold tracking-widest uppercase bg-black bg-opacity-40 px-3 py-1.5 rounded-full border border-white border-opacity-40 hover:bg-gold hover:border-gold transition">
                                                         Change
                                                     </span>
                                                 )}
@@ -399,16 +399,16 @@ export default function MediaLibraryPage() {
                                             <p className="text-gray-600 text-[9px] font-medium truncate flex-1 mr-1">{img.customName || img.fileName}</p>
                                             <div className="flex gap-0.5 flex-shrink-0">
                                                 <button onClick={e => { e.stopPropagation(); startEdit(img); }}
-                                                    className="p-1 text-[#b27e02] rounded hover:bg-[#b27e02] hover:text-white transition">
+                                                    className="p-1 text-gold rounded hover:bg-gold hover:text-white transition">
                                                     <MdEdit size={12} />
                                                 </button>
                                                 <button onClick={e => { e.stopPropagation(); copyUrl(img); }}
-                                                    className={`p-1 rounded transition ${copiedId === img._id ? 'bg-green-500 text-white' : 'text-[#b27e02] hover:bg-[#b27e02] hover:text-white'}`}>
+                                                    className={`p-1 rounded transition ${copiedId === img._id ? 'bg-green-500 text-white' : 'text-gold hover:bg-gold hover:text-white'}`}>
                                                     <MdContentCopy size={12} />
                                                 </button>
                                                 {user?.role === 'admin' && (
                                                 <button onClick={e => { e.stopPropagation(); handleDelete(img); }}
-                                                    className="p-1 text-[#b27e02] rounded hover:bg-red-500 hover:text-white transition">
+                                                    className="p-1 text-gold rounded hover:bg-red-500 hover:text-white transition">
                                                     <MdDelete size={12} />
                                                 </button>
                                                 )}
@@ -427,7 +427,7 @@ export default function MediaLibraryPage() {
                                 <thead className="bg-gray-50 border-b border-gray-100">
                                     <tr>
                                         <th className="w-10 px-4 py-3">
-                                            <input type="checkbox" checked={selectedIds.length === visibleImages.length && visibleImages.length > 0} onChange={toggleAll} className="accent-[#b27e02]" />
+                                            <input type="checkbox" checked={selectedIds.length === visibleImages.length && visibleImages.length > 0} onChange={toggleAll} className="accent-gold" />
                                         </th>
                                         <th className="px-4 py-3 text-left font-semibold text-gray-600 w-20">Image</th>
                                         <th className="px-4 py-3 text-left font-semibold text-gray-600">Name</th>
@@ -444,7 +444,7 @@ export default function MediaLibraryPage() {
                                         <>
                                             <tr key={img._id} className="hover:bg-gray-50 transition">
                                                 <td className="px-4 py-3">
-                                                    <input type="checkbox" checked={selectedIds.includes(img._id.toString())} onChange={() => toggleSelect(img._id.toString())} className="accent-[#b27e02]" />
+                                                    <input type="checkbox" checked={selectedIds.includes(img._id.toString())} onChange={() => toggleSelect(img._id.toString())} className="accent-gold" />
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <label className="relative group/img block w-14 h-14 cursor-pointer rounded-lg overflow-hidden" title="Click to replace image">
@@ -475,11 +475,11 @@ export default function MediaLibraryPage() {
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center justify-center gap-1">
                                                         <button onClick={() => startEdit(img)} title="Edit"
-                                                            className="p-1.5 text-gray-400 hover:text-[#b27e02] hover:bg-[#fef9e7] rounded-lg transition">
+                                                            className="p-1.5 text-gray-400 hover:text-gold hover:bg-cream rounded-lg transition">
                                                             <MdEdit size={16} />
                                                         </button>
                                                         <button onClick={() => copyUrl(img)} title="Copy URL"
-                                                            className={`p-1.5 rounded-lg transition ${copiedId === img._id ? 'bg-green-100 text-green-600' : 'text-gray-400 hover:text-[#b27e02] hover:bg-[#fef9e7]'}`}>
+                                                            className={`p-1.5 rounded-lg transition ${copiedId === img._id ? 'bg-green-100 text-green-600' : 'text-gray-400 hover:text-gold hover:bg-cream'}`}>
                                                             <MdContentCopy size={16} />
                                                         </button>
                                                         {user?.role === 'admin' && (
@@ -493,30 +493,30 @@ export default function MediaLibraryPage() {
                                             </tr>
                                             {editingId === img._id && (
                                                 <tr key={`edit-${img._id}`}>
-                                                    <td colSpan={9} className="px-6 py-4 bg-[#fef9e7] border-b border-[#b27e02] border-opacity-20">
+                                                    <td colSpan={9} className="px-6 py-4 bg-cream border-b border-gold border-opacity-20">
                                                         <div className="grid grid-cols-3 gap-4 max-w-2xl">
                                                             <div>
                                                                 <label className="text-xs font-semibold text-gray-600 mb-1 block">Display Name</label>
                                                                 <input value={editFields.customName} onChange={e => setEditFields(p => ({ ...p, customName: e.target.value }))}
-                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]" />
+                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold" />
                                                             </div>
                                                             <div>
                                                                 <label className="text-xs font-semibold text-gray-600 mb-1 block">Alt Text</label>
                                                                 <input value={editFields.alt} onChange={e => setEditFields(p => ({ ...p, alt: e.target.value }))}
-                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02]"
+                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold"
                                                                     placeholder="Describe the image" />
                                                             </div>
                                                             <div>
                                                                 <label className="text-xs font-semibold text-gray-600 mb-1 block">Image Type</label>
                                                                 <select value={editFields.imageType} onChange={e => setEditFields(p => ({ ...p, imageType: e.target.value }))}
-                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#b27e02] bg-white">
+                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold bg-white">
                                                                     {IMAGE_TYPES.map(t => <option key={t.value} value={t.value}>{t.label} ({t.hint})</option>)}
                                                                 </select>
                                                             </div>
                                                         </div>
                                                         <div className="flex gap-2 mt-3">
                                                             <button onClick={() => saveEdit(img._id)}
-                                                                className="flex items-center gap-1.5 px-4 py-2 bg-[#b27e02] text-white rounded-lg text-sm font-semibold hover:bg-[#8a6002]">
+                                                                className="flex items-center gap-1.5 px-4 py-2 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold">
                                                                 <MdSave size={15} /> Save
                                                             </button>
                                                             <button onClick={() => setEditingId(null)}
@@ -538,7 +538,7 @@ export default function MediaLibraryPage() {
                         <div className="flex flex-col items-center justify-center py-20 text-gray-400">
                             <MdImage size={56} className="mb-3 opacity-20" />
                             <p className="font-medium">No images match the filter</p>
-                            <button onClick={() => setTypeFilter('')} className="mt-2 text-sm text-[#b27e02] hover:underline">Clear filter</button>
+                            <button onClick={() => setTypeFilter('')} className="mt-2 text-sm text-gold hover:underline">Clear filter</button>
                         </div>
                     )}
 

@@ -171,7 +171,7 @@ export default function UsersManagement() {
                         </div>
                         <button
                             onClick={() => setShowAddUserModal(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition"
+                            className="flex items-center gap-2 px-4 py-2 bg-gold text-white rounded-lg hover:bg-gold transition"
                         >
                             <MdPerson size={20} />
                             Add New User
@@ -207,7 +207,7 @@ export default function UsersManagement() {
                                             <tr key={userData._id} className="hover:bg-gray-50">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-[#b27e02] rounded-full flex items-center justify-center text-white font-bold">
+                                                        <div className="w-10 h-10 bg-gold rounded-full flex items-center justify-center text-white font-bold">
                                                             {userData.name.charAt(0).toUpperCase()}
                                                         </div>
                                                         <div className="font-semibold text-gray-800">{userData.name}</div>
@@ -240,7 +240,7 @@ export default function UsersManagement() {
                                                         {user?.role === 'admin' && (
                                                         <button
                                                             onClick={() => handleDelete(userData._id, userData.name)}
-                                                            className="p-2 text-[#b27e02] hover:bg-[#fef9e7] rounded-lg transition"
+                                                            className="p-2 text-gold hover:bg-cream rounded-lg transition"
                                                             title="Delete User"
                                                         >
                                                             <MdDelete size={20} />
@@ -282,7 +282,7 @@ export default function UsersManagement() {
                                     value={newUserData.name}
                                     onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
                                     required
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="John Doe"
                                 />
                             </div>
@@ -296,7 +296,7 @@ export default function UsersManagement() {
                                     value={newUserData.email}
                                     onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
                                     required
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="john@example.com"
                                 />
                             </div>
@@ -311,7 +311,7 @@ export default function UsersManagement() {
                                     onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
                                     required
                                     minLength={6}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                     placeholder="Minimum 6 characters"
                                 />
                             </div>
@@ -323,7 +323,7 @@ export default function UsersManagement() {
                                 <select
                                     value={newUserData.role}
                                     onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                 >
                                     <option value="admin">Admin</option>
                                     <option value="editor">Editor</option>
@@ -341,7 +341,7 @@ export default function UsersManagement() {
                                 <button
                                     type="submit"
                                     disabled={creatingUser}
-                                    className="flex-1 px-4 py-3 bg-[#b27e02] text-white rounded-lg hover:bg-[#8a6002] transition font-semibold disabled:opacity-50"
+                                    className="flex-1 px-4 py-3 bg-gold text-white rounded-lg hover:bg-gold transition font-semibold disabled:opacity-50"
                                 >
                                     {creatingUser ? 'Creating...' : 'Create User'}
                                 </button>
