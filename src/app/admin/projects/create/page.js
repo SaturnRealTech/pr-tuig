@@ -198,14 +198,20 @@ export default function CreateProject() {
                 ...(p('desktopBanner', 'desktopImage') !== undefined && { desktopBanner: str('desktopBanner', 'desktopImage') }),
                 ...(p('mobileBanner', 'mobileImage') !== undefined && { mobileBanner: str('mobileBanner', 'mobileImage') }),
                 ...(p('publishStatus') !== undefined && { publishStatus: str('publishStatus') }),
+                ...(p('shortOverview', 'overviewShort', 'briefOverview', 'summary') !== undefined && { shortOverview: str('shortOverview', 'overviewShort', 'briefOverview', 'summary') }),
+                ...(p('bhkConfig', 'configurationLabel', 'bhk', 'configurationsShort') !== undefined && { bhkConfig: str('bhkConfig', 'configurationLabel', 'bhk', 'configurationsShort') }),
+                ...(p('carpetArea', 'carpet', 'carpetRange', 'plotSize') !== undefined && { carpetArea: str('carpetArea', 'carpet', 'carpetRange', 'plotSize') }),
+                ...(p('landParcel', 'density', 'landSize') !== undefined && { landParcel: str('landParcel', 'density', 'landSize') }),
                 ...(p('keyHighlightsTitle') !== undefined && { keyHighlightsTitle: str('keyHighlightsTitle') }),
                 ...(p('keyHighlights') !== undefined && { keyHighlights: str('keyHighlights') }),
+                ...(Array.isArray(p('highlightItems', 'highlightCards', 'highlights')) && { highlightItems: p('highlightItems', 'highlightCards', 'highlights') }),
                 ...(p('ctaButtonText') !== undefined && { ctaButtonText: str('ctaButtonText') }),
                 ...(p('amenitiesTitle') !== undefined && { amenitiesTitle: str('amenitiesTitle') }),
                 ...(p('amenitiesContent') !== undefined && { amenitiesContent: str('amenitiesContent') }),
                 ...(p('configurations') !== undefined && { configurations: str('configurations') }),
                 ...(p('configurationsTitle') !== undefined && { configurationsTitle: str('configurationsTitle') }),
                 ...(p('configurationsCtaLabel') !== undefined && { configurationsCtaLabel: str('configurationsCtaLabel') }),
+                ...(Array.isArray(p('configurationRows', 'pricingRows', 'pricingItems')) && { configurationRows: p('configurationRows', 'pricingRows', 'pricingItems') }),
                 ...(p('walkthroughTitle') !== undefined && { walkthroughTitle: str('walkthroughTitle') }),
                 ...(p('walkthroughUrl') !== undefined && { walkthroughUrl: str('walkthroughUrl') }),
                 ...(p('walkthroughDuration') !== undefined && { walkthroughDuration: str('walkthroughDuration') }),
@@ -281,9 +287,13 @@ export default function CreateProject() {
         reraNo: '',
         possession: '',
         createdDate: new Date().toISOString().split('T')[0],
+        bhkConfig: '',
+        carpetArea: '',
+        landParcel: '',
         lat: '',
         lng: '',
         company: '',
+        shortOverview: '',
         contentTitle: '',
         contentImage: '',
         content: '',
@@ -317,10 +327,12 @@ export default function CreateProject() {
         amenitiesContent: '',
         keyHighlightsTitle: '',
         keyHighlights: '',
+        highlightItems: [],
         ctaButtonText: '',
         configurations: '',
         configurationsTitle: '',
         configurationsCtaLabel: '',
+        configurationRows: [],
         walkthroughTitle: '',
         walkthroughUrl: '',
         walkthroughDuration: '',
@@ -429,6 +441,14 @@ export default function CreateProject() {
             )
         }));
     };
+
+    const addHighlightItem = () => setFormData(prev => ({ ...prev, highlightItems: [...(prev.highlightItems || []), { title: '', description: '' }] }));
+    const removeHighlightItem = (i) => setFormData(prev => ({ ...prev, highlightItems: prev.highlightItems.filter((_, idx) => idx !== i) }));
+    const updateHighlightItem = (i, field, val) => setFormData(prev => ({ ...prev, highlightItems: prev.highlightItems.map((h, idx) => idx === i ? { ...h, [field]: val } : h) }));
+
+    const addConfigRow = () => setFormData(prev => ({ ...prev, configurationRows: [...(prev.configurationRows || []), { configuration: '', size: '', price: '', buttonLabel: '' }] }));
+    const removeConfigRow = (i) => setFormData(prev => ({ ...prev, configurationRows: prev.configurationRows.filter((_, idx) => idx !== i) }));
+    const updateConfigRow = (i, field, val) => setFormData(prev => ({ ...prev, configurationRows: prev.configurationRows.map((r, idx) => idx === i ? { ...r, [field]: val } : r) }));
 
     const updateGallery = (field, val) => setFormData(prev => ({ ...prev, gallery: { ...prev.gallery, [field]: val } }));
     const addGalleryImage = () => setFormData(prev => ({ ...prev, gallery: { ...prev.gallery, images: [...prev.gallery.images, { image: '', alt: '' }] } }));
@@ -789,6 +809,28 @@ export default function CreateProject() {
                                             </div>
                                         </div>
 
+                                        {/* Hero Stat fields — shown in the banner stats strip on the public page */}
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Configurations</label>
+                                                <input type="text" name="bhkConfig" value={formData.bhkConfig} onChange={handleChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    placeholder="3 & 4 BHK" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Plot Size</label>
+                                                <input type="text" name="carpetArea" value={formData.carpetArea} onChange={handleChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    placeholder="2,850 – 5,600 sq.ft" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Land Parcel / Density</label>
+                                                <input type="text" name="landParcel" value={formData.landParcel} onChange={handleChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
+                                                    placeholder="Only 1 Tower on 7.5 Acres" />
+                                            </div>
+                                        </div>
+
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Latitude</label>
@@ -802,6 +844,14 @@ export default function CreateProject() {
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900"
                                                     placeholder="77.2090" />
                                             </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Short Overview</label>
+                                            <textarea name="shortOverview" value={formData.shortOverview} onChange={handleChange} rows={4}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900 resize-y"
+                                                placeholder="2–4 sentence summary shown on the homepage About section." />
+                                            <p className="text-xs text-gray-400 mt-1">Shown under the “About {'{Project Name}'}” heading. For the long rich-text body use the Overview Content section below.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -975,14 +1025,53 @@ export default function CreateProject() {
                                     <div className="mb-4">
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">Section Title</label>
                                         <input type="text" name="keyHighlightsTitle" value={formData.keyHighlightsTitle} onChange={handleChange}
-                                            placeholder="Key Highlights"
+                                            placeholder="Why Tangled Up in Green Stands Apart"
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                     </div>
-                                    <TipTapEditor
-                                        content={formData.keyHighlights}
-                                        onChange={(html) => setFormData(prev => ({ ...prev, keyHighlights: html }))}
-                                    />
+
+                                    {/* Highlight Cards (structured items) */}
+                                    <div className="mb-5 pt-5 border-t border-gray-200">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div>
+                                                <p className="text-sm font-semibold text-gray-700">Highlight Cards</p>
+                                                <p className="text-xs text-gray-400">Each card shows a title and short description.</p>
+                                            </div>
+                                            <button type="button" onClick={addHighlightItem}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#b27e02] text-white text-xs font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                                + Add More
+                                            </button>
+                                        </div>
+                                        {formData.highlightItems && formData.highlightItems.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {formData.highlightItems.map((h, i) => (
+                                                    <div key={i} className="relative border border-gray-200 rounded-xl p-4 bg-gray-50">
+                                                        <button type="button" onClick={() => removeHighlightItem(i)}
+                                                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition">✕</button>
+                                                        <div className="space-y-2 pr-8">
+                                                            <input type="text" value={h.title || ''} onChange={e => updateHighlightItem(i, 'title', e.target.value)}
+                                                                placeholder="Card title (e.g. Hand-Crafted Architecture)"
+                                                                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                            <textarea value={h.description || ''} onChange={e => updateHighlightItem(i, 'description', e.target.value)} rows={2}
+                                                                placeholder="Short description for this card."
+                                                                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white resize-y" />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs text-gray-400 italic">No cards yet. Click “+ Add More” to start.</p>
+                                        )}
+                                    </div>
+
+                                    <div className="pt-5 border-t border-gray-200">
+                                        <p className="text-sm font-semibold text-gray-700 mb-1">Rich Text (optional, legacy)</p>
+                                        <p className="text-xs text-gray-400 mb-2">Used as a fallback when no Highlight Cards are set.</p>
+                                        <TipTapEditor
+                                            content={formData.keyHighlights}
+                                            onChange={(html) => setFormData(prev => ({ ...prev, keyHighlights: html }))}
+                                        />
+                                    </div>
                                     <div className="mt-5 pt-5 border-t border-gray-200">
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">CTA Button Text</label>
                                         <input type="text" name="ctaButtonText" value={formData.ctaButtonText} onChange={handleChange}
@@ -1075,16 +1164,61 @@ export default function CreateProject() {
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
                                         <p className="text-xs text-gray-400 mt-1">Leave empty to use default title</p>
                                     </div>
-                                    <TipTapEditor
-                                        content={formData.configurations}
-                                        onChange={(html) => setFormData(prev => ({ ...prev, configurations: html }))}
-                                    />
+
+                                    {/* Configuration Rows (structured table) */}
+                                    <div className="mb-5 pt-5 border-t border-gray-200">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div>
+                                                <p className="text-sm font-semibold text-gray-700">Configuration Rows</p>
+                                                <p className="text-xs text-gray-400">Each row is one line in the pricing table (Configuration · Size · Price · Button).</p>
+                                            </div>
+                                            <button type="button" onClick={addConfigRow}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#b27e02] text-white text-xs font-semibold rounded-lg hover:bg-[#8a6002] transition">
+                                                + Add More
+                                            </button>
+                                        </div>
+                                        {formData.configurationRows && formData.configurationRows.length > 0 ? (
+                                            <div className="space-y-3">
+                                                {formData.configurationRows.map((row, i) => (
+                                                    <div key={i} className="relative border border-gray-200 rounded-xl p-4 bg-gray-50">
+                                                        <button type="button" onClick={() => removeConfigRow(i)}
+                                                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full text-xs font-bold hover:bg-red-600 transition">✕</button>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pr-8">
+                                                            <input type="text" value={row.configuration || ''} onChange={e => updateConfigRow(i, 'configuration', e.target.value)}
+                                                                placeholder="Configuration (e.g. 3 BHK Garden Residence)"
+                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                            <input type="text" value={row.size || ''} onChange={e => updateConfigRow(i, 'size', e.target.value)}
+                                                                placeholder="Size (e.g. 2,850 sq.ft)"
+                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                            <input type="text" value={row.price || ''} onChange={e => updateConfigRow(i, 'price', e.target.value)}
+                                                                placeholder="Price (e.g. ₹ 4.95 Cr* onwards)"
+                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                            <input type="text" value={row.buttonLabel || ''} onChange={e => updateConfigRow(i, 'buttonLabel', e.target.value)}
+                                                                placeholder="Button Name (e.g. Enquire)"
+                                                                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-[#b27e02] text-sm text-gray-800 bg-white" />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs text-gray-400 italic">No rows yet. Click “+ Add More” to start.</p>
+                                        )}
+                                    </div>
+
+                                    <div className="pt-5 border-t border-gray-200">
+                                        <p className="text-sm font-semibold text-gray-700 mb-1">Rich Text (optional, legacy)</p>
+                                        <p className="text-xs text-gray-400 mb-2">Used as a fallback when no Configuration Rows are set.</p>
+                                        <TipTapEditor
+                                            content={formData.configurations}
+                                            onChange={(html) => setFormData(prev => ({ ...prev, configurations: html }))}
+                                        />
+                                    </div>
                                     <div className="mt-5 pt-5 border-t border-gray-200">
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Button Label</label>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Section Button Label (below the table)</label>
                                         <input type="text" name="configurationsCtaLabel" value={formData.configurationsCtaLabel} onChange={handleChange}
                                             placeholder="e.g. View Floor Plans, Book a Visit"
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b27e02] focus:ring-2 focus:ring-[#faf0d0] text-gray-900" />
-                                        <p className="text-xs text-gray-400 mt-1">Leave empty to hide the button</p>
+                                        <p className="text-xs text-gray-400 mt-1">Leave empty to hide the section-level button.</p>
                                     </div>
                                 </div>
 

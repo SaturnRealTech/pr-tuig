@@ -2,8 +2,21 @@ import "./globals.css";
 import clientPromise from '@/lib/mongodb';
 import SettingsProvider from '@/components/SettingsProvider';
 import EnquireNowProvider from '@/components/EnquireNowProvider';
-
+import { Inter, Playfair_Display } from "next/font/google";
 export const dynamic = 'force-dynamic';
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://tangledupingreen.in';
 
@@ -60,7 +73,7 @@ export const metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "SaturnRealcon — Launch Your SaaS in 45 Days",
+    title: "SaturnRealcon",
     description:
       "A 45-day SaaS launch system built for founders who value speed, clarity, and execution.",
     images: [`${SITE_URL}/logos/SaturnRealcon.png`],
@@ -119,7 +132,10 @@ async function getSettings() {
 export default async function RootLayout({ children }) {
   const settings = await getSettings();
   return (
-    <html lang="en">
+    <html lang="en"
+
+      className={`${inter.variable} ${playfair.variable} h-full antialiased`}
+    >
       <head>
         <style dangerouslySetInnerHTML={{ __html: `:root{--primary:${settings.primary};--primary-dark:${settings.primaryDark};--primary-light:${settings.primaryLight};}` }} />
 
