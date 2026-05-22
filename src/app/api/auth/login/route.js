@@ -25,10 +25,11 @@ export async function POST(request) {
         }
 
         const userId = user._id ? String(user._id) : '';
+        // No `expiresIn` → token has no exp claim, so it stays valid until the
+        // user clicks logout (which clears the cookie). WordPress-style.
         const token = jwt.sign(
             { userId, email: user.email, role: user.role },
             JWT_SECRET,
-            { expiresIn: '7d' }
         );
 
         const response = NextResponse.json(
@@ -45,7 +46,8 @@ export async function POST(request) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 60 * 60 * 24 * 7,
+            // 10 years. Practically "forever" — only cleared by /api/auth/logout.
+            maxAge: 60 * 60 * 24 * 365 * 10,
             path: '/',
         });
 

@@ -6,8 +6,16 @@ export async function POST() {
         { status: 200 }
     );
 
-    // Clear auth cookie
-    response.cookies.delete('auth-token');
+    // Mirror the login cookie attributes so the browser actually overwrites
+    // the existing cookie (some browsers ignore Set-Cookie if path/sameSite
+    // don't match the existing entry).
+    response.cookies.set('auth-token', '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 0,
+    });
 
     return response;
 }

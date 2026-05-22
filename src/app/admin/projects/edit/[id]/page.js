@@ -701,14 +701,14 @@ export default function EditProject() {
             const diff = diffFormData(formData, originalFormRef.current);
             const payload = { ...diff, publishStatus };
 
-            // PATCH instead of PUT — Hostinger / mod_security is sometimes
-            // less aggressive on PATCH, and the server route already supports it.
-            const res = await fetch(`/api/projects/${params.id}`, {
+            // apiFetch surfaces a useful error when the host's WAF returns a
+            // plain "Forbidden" string, and transparently retries as POST with
+            // X-HTTP-Method-Override if PATCH gets bounced by mod_security.
+            const { apiFetch } = await import('@/lib/apiClient');
+            const { data: result } = await apiFetch(`/api/projects/${params.id}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: payload,
             });
-            const result = await res.json();
             if (result.success) {
                 // Reset the baseline so the next save only diffs against the
                 // freshly-persisted state.

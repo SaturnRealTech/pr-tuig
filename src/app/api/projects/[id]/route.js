@@ -131,3 +131,15 @@ export async function DELETE(request, { params }) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
+
+// POST handler used purely as a WAF-bypass channel. When the admin client
+// retries a PATCH/PUT/DELETE that the host's mod_security blocked, it sends
+// the same body via POST with `X-HTTP-Method-Override`. We dispatch to the
+// real verb handler here so the route logic stays in one place.
+export async function POST(request, ctx) {
+    const override = (request.headers.get('x-http-method-override') || '').toUpperCase();
+    if (override === 'PATCH') return PATCH(request, ctx);
+    if (override === 'PUT') return PUT(request, ctx);
+    if (override === 'DELETE') return DELETE(request, ctx);
+    return NextResponse.json({ success: false, error: 'Method not allowed' }, { status: 405 });
+}
