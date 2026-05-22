@@ -275,7 +275,7 @@ export default function BlogList() {
         prev.includes(id) ? prev.filter(bid => bid !== id) : [...prev, id]
     );
     const toggleSelectAll = () => setSelectedBlogs(
-        selectedBlogs.length === blogs.length ? [] : blogs.map(b => b.id)
+        selectedBlogs.length === blogs.length ? [] : blogs.map(b => b._id || b.id)
     );
 
     if (!user) return null;
@@ -526,11 +526,11 @@ export default function BlogList() {
                                         </thead>
                                         <tbody className="divide-y divide-gray-200">
                                             {blogs.map((blog) => (
-                                                <tr key={blog._id || blog.id} className="hover:bg-gray-50">
+                                                <tr key={blog._id || (blog._id || blog.id)} className="hover:bg-gray-50">
                                                     <td className="px-6 py-4">
                                                         <input type="checkbox"
-                                                            checked={selectedBlogs.includes(blog.id)}
-                                                            onChange={() => toggleSelectBlog(blog.id)}
+                                                            checked={selectedBlogs.includes((blog._id || blog.id))}
+                                                            onChange={() => toggleSelectBlog((blog._id || blog.id))}
                                                             className="w-4 h-4 text-gold rounded focus:ring-gold" />
                                                     </td>
                                                     <td className="px-6 py-4">
@@ -550,16 +550,16 @@ export default function BlogList() {
                                                     <td className="px-6 py-4 text-gray-700">{blog.date}</td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center justify-end gap-2">
-                                                            <a href={`/blog/${blog.id}`} target="_blank"
+                                                            <a href={`/blog/${blog.slug || blog._id || blog.id}`} target="_blank"
                                                                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View">
                                                                 <MdVisibility size={20} />
                                                             </a>
-                                                            <a href={`/admin/blog/edit/${blog.id}`}
+                                                            <a href={`/admin/blog/edit/${(blog._id || blog.id)}`}
                                                                 className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Edit">
                                                                 <MdEdit size={20} />
                                                             </a>
                                                             {user?.role === 'admin' && (
-                                                            <button onClick={() => handleDelete(blog.id)}
+                                                            <button onClick={() => handleDelete((blog._id || blog.id))}
                                                                 className="p-2 text-gold hover:bg-cream rounded-lg transition" title="Delete">
                                                                 <MdDelete size={20} />
                                                             </button>
