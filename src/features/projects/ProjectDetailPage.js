@@ -849,7 +849,7 @@ function FloorPlans({ project }) {
 
                 {floorPlans.length > 0 && (
                     <div className={masterPlans.length > 0 ? "mt-10" : "mt-12"}>
-                        <h3 className="font-display text-xl md:text-2xl text-moss mb-5">Floor Plans</h3>
+                        <h3 className="font-display text-xl md:text-2xl text-moss mb-5">Plot Sizes</h3>
                         <div className="grid md:grid-cols-2 gap-6">
                             {floorPlans.map((fp, i) => renderCard(fp, i, "Floor Plan"))}
                         </div>
