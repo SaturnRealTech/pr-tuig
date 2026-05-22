@@ -833,7 +833,7 @@ function FloorPlans({ project }) {
 
                 {hasContent && (
                     <div
-                        className="rich-content mt-6 max-w-3xl mx-auto text-center text-moss/80"
+                        className="rich-content mt-10 text-[15px] md:text-base text-foreground/85 leading-[1.85]"
                         dangerouslySetInnerHTML={{ __html: content }}
                     />
                 )}
