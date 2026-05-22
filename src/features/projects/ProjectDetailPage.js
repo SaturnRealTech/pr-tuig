@@ -554,13 +554,19 @@ function DetailedOverview({ project }) {
 }
 
 function Highlights({ project }) {
+    // Stricter filter — drop rows whose title AND description are blank or
+    // whitespace. Otherwise an empty "Add" click leaves [{title:'', description:''}]
+    // in the array and the cards branch wins, suppressing the legacy rich-text.
     const items = Array.isArray(project?.highlightItems)
         ? project.highlightItems
-            .filter(h => (h?.title || h?.description))
-            .map(h => ({ title: h.title || "", desc: h.description || h.desc || "" }))
+            .filter(h => ((h?.title || '').trim() || (h?.description || h?.desc || '').trim()))
+            .map(h => ({ title: (h.title || '').trim(), desc: (h.description || h.desc || '').trim() }))
         : [];
 
-    if (items.length === 0) return null;
+    const html = project?.keyHighlights;
+    const htmlHasContent = typeof html === 'string' && html.replace(/<[^>]*>/g, '').trim().length > 0;
+
+    if (items.length === 0 && !htmlHasContent) return null;
 
     const projectName = project?.title || "Project";
     const title = project?.keyHighlightsTitle || `Why ${projectName} Stands Apart`;
@@ -571,14 +577,23 @@ function Highlights({ project }) {
                 <SectionLabel>HIGHLIGHTS</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
 
-                <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {items.map((h, i) => (
-                        <article key={`${h.title}-${i}`} className="rounded-2xl bg-background border border-moss/10 p-6 hover:shadow-lg hover:shadow-moss/10 hover:border-gold/40 transition">
-                            <h3 className="font-display font-semibold text-moss text-lg">{h.title}</h3>
-                            <p className="mt-3 text-sm text-foreground/70 leading-[1.7]">{h.desc}</p>
-                        </article>
-                    ))}
-                </div>
+                {items.length > 0 ? (
+                    <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {items.map((h, i) => (
+                            <article key={`${h.title}-${i}`} className="rounded-2xl bg-background border border-moss/10 p-6 hover:shadow-lg hover:shadow-moss/10 hover:border-gold/40 transition">
+                                <h3 className="font-display font-semibold text-moss text-lg">{h.title}</h3>
+                                <p className="mt-3 text-sm text-foreground/70 leading-[1.7]">{h.desc}</p>
+                            </article>
+                        ))}
+                    </div>
+                ) : null}
+
+                {htmlHasContent ? (
+                    <div
+                        className={`${items.length > 0 ? 'mt-10' : 'mt-12'} rich-content text-foreground/80`}
+                        dangerouslySetInnerHTML={{ __html: html }}
+                    />
+                ) : null}
             </div>
         </section>
     );
