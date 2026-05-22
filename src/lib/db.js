@@ -1,13 +1,3 @@
-// Shared MongoDB client. Replaces the old SQLite (better-sqlite3) layer.
-//
-// Usage from any API route / page:
-//     import { col, findOneByAnyId } from '@/lib/db';
-//     const projects = await col('projects');
-//     const project = await projects.findOne({ slug });
-//
-// Helper signatures mirror the old sqlite.js where possible so most call sites
-// only need: (a) swap the import and (b) await the call (everything is async now).
-
 import { MongoClient, ObjectId } from 'mongodb';
 
 const MONGODB_URI = process.env.MONGODB_URI;
