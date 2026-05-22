@@ -4,14 +4,7 @@
 
 import { NextResponse } from 'next/server';
 import { col, upsertByKey, nowIso } from '@/lib/db';
-import {
-    requireAdmin,
-    getPermissions,
-    DEFAULT_PERMISSIONS,
-    ROLES,
-    MODULES,
-    ACTIONS,
-} from '@/lib/authHelper';
+import { ACTIONS, DEFAULT_PERMISSIONS, MODULES, ROLES, getPermissions, requireAdmin } from '@/lib/authHelper';
 
 const TYPE = 'brand';
 
@@ -35,7 +28,6 @@ export async function GET() {
 export async function PUT(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
     try {
         const body = await request.json();
         const incoming = body?.permissions;

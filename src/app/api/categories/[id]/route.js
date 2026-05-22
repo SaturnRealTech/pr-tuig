@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requirePermission } from '@/lib/authHelper';
 import { col, findOneByAnyId, updateByAnyId, nowIso } from '@/lib/db';
 
 // GET - Fetch single category
@@ -18,6 +19,8 @@ export async function GET(request, { params }) {
 
 // PUT - Update category
 export async function PUT(request, { params }) {
+    const guard = await requirePermission(request, 'categories', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;
         const {

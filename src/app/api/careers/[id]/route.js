@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 
 export async function GET(request, { params }) {
     try {
@@ -16,6 +16,8 @@ export async function GET(request, { params }) {
 }
 
 export async function PUT(request, { params }) {
+    const guard = await requirePermission(request, 'careers', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;
         const body = await request.json();
@@ -34,8 +36,8 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
+    const guard = await requirePermission(request, 'careers', 'delete');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;
         const changes = await deleteByAnyId('careers', id);

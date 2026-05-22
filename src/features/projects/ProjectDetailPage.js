@@ -766,8 +766,10 @@ function FloorPlans({ project }) {
         : [];
     const masterPlans = validPlans(project?.masterFloorPlan?.masterPlans);
     const floorPlans = validPlans(project?.masterFloorPlan?.floorPlans);
+    const content = project?.masterFloorPlan?.content || '';
+    const hasContent = !!content.replace(/<[^>]*>/g, '').trim();
 
-    if (masterPlans.length === 0 && floorPlans.length === 0) return null;
+    if (masterPlans.length === 0 && floorPlans.length === 0 && !hasContent) return null;
 
     const title = project?.masterFloorPlan?.title || `${projectName} Floor Plans`;
 
@@ -828,6 +830,13 @@ function FloorPlans({ project }) {
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>FLOOR PLANS</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
+
+                {hasContent && (
+                    <div
+                        className="rich-content mt-6 max-w-3xl mx-auto text-center text-moss/80"
+                        dangerouslySetInnerHTML={{ __html: content }}
+                    />
+                )}
 
                 {masterPlans.length > 0 && (
                     <div className="mt-12">

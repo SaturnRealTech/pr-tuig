@@ -2,6 +2,14 @@ import { notFound } from 'next/navigation';
 import BlogDetailPage from '@/features/blog/BlogDetailPage';
 import { col, findOneByAnyId } from '@/lib/db';
 import { processBlogPost } from '@/lib/imageSeo';
+import { buildSeoFor, detectFirstVideo, robotsMetaString } from '@/lib/titlesMeta';
+import { buildAttachedSchemas } from '@/lib/schemaTemplates';
+
+async function loadBrand() {
+    const settings = await col('settings');
+    const row = await settings.findOne({ type: 'brand' });
+    return row?.data || {};
+}
 import {
     SITE_URL,
     createBreadcrumbSchema,
@@ -59,21 +67,53 @@ export async function generateMetadata({ params }) {
     }
 
     const postPath = `/blog/${post.slug}`;
-    const description =
-        post.metaDescription ||
-        post.excerpt ||
-        'Read this SaaS and AI insight from Saturnrealcon.';
+    const brand = await loadBrand();
+    // Run the title/description through the Titles & Meta template engine.
+    // Per-post overrides (post.metaTitle / metaDescription) still win.
+    const seo = await buildSeoFor('post', {
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        metaTitle: post.metaTitle,
+        metaDescription: post.metaDescription,
+        category: post.category,
+        author: post.author,
+        keywords: post.keywords,
+    }, brand);
 
-    return createPageMetadata({
-        title: post.metaTitle || `${post.title} - Saturnrealcon`,
-        description,
+    // Per-post SEO overrides: the editor saves them under `post.seo.{title,description}`.
+    // Older imports may use `post.metaTitle / metaDescription`. Honor both.
+    const perPostTitle = post.metaTitle || post.seo?.title;
+    const perPostDescription = post.metaDescription || post.seo?.description;
+
+    // Fallback OG image when no heroImage exists. Per-post override wins:
+    // 'on' forces auto-gen, 'off' disables it, anything else inherits the
+    // post-type default from Titles & Meta.
+    const override = post.autogenerateImageOverride;
+    const shouldGenerate = override === 'on'
+        ? true
+        : override === 'off'
+            ? false
+            : !!seo.autogenerateImage;
+    const image = post.heroImage || post.image
+        || (shouldGenerate
+            ? `/api/og-image?title=${encodeURIComponent(post.title || '')}&subtitle=${encodeURIComponent(post.category || '')}&watermark=${encodeURIComponent(seo.defaultThumbnailWatermark || 'off')}`
+            : undefined);
+
+    const meta = createPageMetadata({
+        title: perPostTitle || seo.title,
+        description: perPostDescription || seo.description || post.excerpt || 'Read this insight from Saturnrealcon.',
         path: postPath,
         keywords: post.keywords
             ? String(post.keywords).split(',').map((k) => k.trim()).filter(Boolean)
             : ['SaaS insights', 'AI development', 'startup engineering'],
-        image: post.heroImage || post.image,
+        image,
         type: 'article',
     });
+
+    const robots = robotsMetaString(post.robotsMeta || seo.robotsMeta);
+    if (robots) meta.robots = robots;
+    return meta;
 }
 
 export default async function BlogDetailRoute({ params }) {
@@ -86,39 +126,75 @@ export default async function BlogDetailRoute({ params }) {
     const publishedAt = toIsoDate(post.publishedAt || post.createdAt || post.date);
     const modifiedAt = toIsoDate(post.updatedAt || post.modifiedAt || post.createdAt || post.date);
 
-    const blogSchema = {
-        '@context': 'https://schema.org',
-        '@graph': [
-            createWebPageSchema({
-                path: postPath,
-                name: post.title,
-                description: post.metaDescription || post.excerpt || 'Detailed article from Saturnrealcon.',
-                type: 'WebPage',
-                aboutOrg: true,
-            }),
-            createOrganizationSchema({
-                description: 'Saturnrealcon builds AI-first SaaS products for founders and fast-moving teams.',
-                sameAs: ['https://www.linkedin.com/company/Saturnrealcon/'],
-            }),
-            createBreadcrumbSchema([
-                { name: 'Home', path: '/' },
-                { name: 'Blog', path: '/blog' },
-                { name: post.title, path: postPath },
-            ]),
-            {
-                '@type': 'BlogPosting',
-                mainEntityOfPage: `${SITE_URL}${postPath}`,
-                headline: post.title,
-                description: post.metaDescription || post.excerpt || post.title,
-                articleSection: post.category,
-                image: post.heroImage || post.image,
-                ...(publishedAt ? { datePublished: publishedAt } : {}),
-                ...(modifiedAt ? { dateModified: modifiedAt } : {}),
-                author: { '@type': 'Person', name: post.author || 'Saturnrealcon Team' },
-                publisher: { '@id': `${SITE_URL}/#organization` },
-            },
-        ],
+    // Resolve the configured schema type + templated strings for this type.
+    const brandForGraph = await loadBrand();
+    const seoGraph = await buildSeoFor('post', {
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        metaTitle: post.metaTitle,
+        metaDescription: post.metaDescription,
+        category: post.category,
+        author: post.author,
+        keywords: post.keywords,
+    }, brandForGraph);
+
+    const articleNode = {
+        '@type': seoGraph.articleType || 'BlogPosting',
+        mainEntityOfPage: `${SITE_URL}${postPath}`,
+        headline: seoGraph.headline || post.title,
+        description: seoGraph.schemaDescription || post.metaDescription || post.excerpt || post.title,
+        articleSection: post.category,
+        image: post.heroImage || post.image,
+        ...(publishedAt ? { datePublished: publishedAt } : {}),
+        ...(modifiedAt ? { dateModified: modifiedAt } : {}),
+        author: { '@type': 'Person', name: post.author || 'Saturnrealcon Team' },
+        publisher: { '@id': `${SITE_URL}/#organization` },
     };
+
+    const graph = [
+        createWebPageSchema({
+            path: postPath,
+            name: post.title,
+            description: post.metaDescription || post.excerpt || 'Detailed article from Saturnrealcon.',
+            type: 'WebPage',
+            aboutOrg: true,
+        }),
+        createOrganizationSchema({
+            description: 'Saturnrealcon builds AI-first SaaS products for founders and fast-moving teams.',
+            sameAs: ['https://www.linkedin.com/company/Saturnrealcon/'],
+        }),
+        createBreadcrumbSchema([
+            { name: 'Home', path: '/' },
+            { name: 'Blog', path: '/blog' },
+            { name: post.title, path: postPath },
+        ]),
+        articleNode,
+    ];
+
+    // Autodetect Video — emit a VideoObject for the first YouTube / Vimeo
+    // embed inside the post content, if the type toggle is on.
+    if (seoGraph.autodetectVideo) {
+        const v = detectFirstVideo(post.content);
+        if (v) {
+            graph.push({
+                '@type': 'VideoObject',
+                name: post.title,
+                description: seoGraph.schemaDescription || post.excerpt || post.title,
+                ...(v.thumbnailLoc ? { thumbnailUrl: v.thumbnailLoc } : {}),
+                contentUrl: v.contentLoc,
+                embedUrl: v.playerLoc,
+                ...(publishedAt ? { uploadDate: publishedAt } : {}),
+            });
+        }
+    }
+
+    // Push every Schema Template attached to this post (or to "all blog posts")
+    // into the @graph so the JSON-LD ships with the page.
+    const attached = await buildAttachedSchemas('blog', post);
+    for (const node of attached) graph.push(node);
+
+    const blogSchema = { '@context': 'https://schema.org', '@graph': graph };
 
     return (
         <>

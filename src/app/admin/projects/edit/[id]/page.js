@@ -11,6 +11,7 @@ import Swal from 'sweetalert2';
 import AdminSidebar from '@/components/AdminSidebar';
 import ApiCurlPanel from '@/components/ApiCurlPanel';
 import SeoAnalyzer from '@/components/SeoAnalyzer';
+import SeoEditorPanel from '@/components/admin/SeoEditorPanel';
 
 const TipTapEditor = dynamic(() => import('@/components/TipTapEditor'), { ssr: false });
 const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: false });
@@ -389,6 +390,9 @@ export default function EditProject() {
         metaTitle: '',
         metaDescription: '',
         keywords: '',
+        robotsMeta: null,
+        schemaTemplates: [],
+        autogenerateImageOverride: 'inherit',
         schemaName: '',
         schemaDescription: '',
         schemaBrand: '',
@@ -493,6 +497,9 @@ export default function EditProject() {
                 metaTitle: p.metaTitle || '',
                 metaDescription: p.metaDescription || '',
                 keywords: p.keywords || '',
+                robotsMeta: p.robotsMeta || null,
+                schemaTemplates: Array.isArray(p.schemaTemplates) ? p.schemaTemplates.map(String) : [],
+                autogenerateImageOverride: p.autogenerateImageOverride || 'inherit',
                 schemaName: p.schemaName || p.title || '',
                 schemaDescription: p.schemaDescription || p.metaDescription || p.description || '',
                 schemaBrand: p.schemaBrand || p.company || '',
@@ -1233,6 +1240,16 @@ export default function EditProject() {
                                                 placeholder="real estate, luxury villa, 3BHK" />
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* SEO Controls — robots meta override + schema templates picker */}
+                                <div className="bg-white rounded-xl shadow-lg p-6">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-4">SEO Controls</h3>
+                                    <SeoEditorPanel
+                                        value={formData}
+                                        onChange={(next) => setFormData(d => ({ ...d, ...next }))}
+                                        kind="project"
+                                    />
                                 </div>
 
                                 {/* Product Schema */}

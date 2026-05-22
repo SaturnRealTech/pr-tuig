@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { col, nowIso } from '@/lib/db';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 
 function reEscape(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
@@ -77,9 +77,8 @@ export async function GET(request) {
 
 // POST /api/redirects  — create
 export async function POST(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
+    const guard = await requirePermission(request, 'redirects', 'create');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
         const source = normaliseSource(body.source);

@@ -2,13 +2,10 @@
 // DELETE /api/indexnow/history     — clear all rows
 
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 import { listHistory, clearHistory } from '@/lib/indexingHistory';
 
 export async function GET(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
     const { searchParams } = new URL(request.url);
     const page = searchParams.get('page') || 1;
     const limit = searchParams.get('limit') || 50;
@@ -23,9 +20,8 @@ export async function GET(request) {
 }
 
 export async function DELETE(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
+    const guard = await requirePermission(request, 'settings', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const ok = clearHistory();
         return NextResponse.json({ success: ok });

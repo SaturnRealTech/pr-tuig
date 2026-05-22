@@ -14,16 +14,40 @@ import {
     MdBolt,
     MdMap,
     MdVideoLibrary,
+    MdTitle,
+    MdSchema,
+    MdReportProblem,
 } from 'react-icons/md';
 import AdminSidebar from '@/components/AdminSidebar';
 
 const CARDS = [
+    {
+        href: '/admin/seo/titles-meta',
+        title: 'Titles & Meta',
+        description: 'Per-post-type title and description templates with variables (%title%, %excerpt%, %sitename%…), schema defaults and editor controls.',
+        icon: MdTitle,
+        tint: 'bg-slate-50 text-slate-700',
+    },
+    {
+        href: '/admin/seo/schema-templates',
+        title: 'Schema Templates',
+        description: 'Reusable FAQ / How-To / Recipe / Event / Product / Review structured data, attached to specific posts or all of them.',
+        icon: MdSchema,
+        tint: 'bg-violet-50 text-violet-700',
+    },
     {
         href: '/admin/seo/redirections',
         title: 'Redirections',
         description: 'Manage 301 / 302 redirects without redeploying. Hits are counted automatically.',
         icon: MdSwapHoriz,
         tint: 'bg-blue-50 text-blue-700',
+    },
+    {
+        href: '/admin/seo/404-monitor',
+        title: '404 Monitor',
+        description: 'Every broken inbound URL is captured here. One click turns any 404 into a redirect.',
+        icon: MdReportProblem,
+        tint: 'bg-orange-50 text-orange-700',
     },
     {
         href: '/admin/seo/image-seo',

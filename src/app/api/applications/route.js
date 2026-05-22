@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { col, nowIso, toObjectId } from '@/lib/db';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 import { deleteFromS3 } from '@/lib/s3-upload';
 
 function reEscape(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -83,8 +83,8 @@ export async function POST(request) {
 
 // DELETE - Delete applications
 export async function DELETE(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
+    const guard = await requirePermission(request, 'applications', 'delete');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { ids } = await request.json();
         if (!ids || !Array.isArray(ids) || ids.length === 0) {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { col, findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 import { deleteFromS3 } from '@/lib/s3-upload';
 
 // GET - Fetch all testimonials
@@ -16,6 +16,8 @@ export async function GET() {
 
 // POST - Create a new testimonial
 export async function POST(request) {
+    const guard = await requirePermission(request, 'testimonials', 'create');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
         const now = nowIso();
@@ -34,6 +36,8 @@ export async function POST(request) {
 
 // PUT - Update a testimonial
 export async function PUT(request) {
+    const guard = await requirePermission(request, 'testimonials', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
@@ -57,8 +61,8 @@ export async function PUT(request) {
 
 // DELETE - Delete a testimonial
 export async function DELETE(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
+    const guard = await requirePermission(request, 'testimonials', 'delete');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

@@ -44,6 +44,8 @@ export const MODULES = [
     'projects',
     'blog',
     'blogCategories',
+    'categories',
+    'builders',
     'leads',
     'contacts',
     'applications',

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { col, deleteByAnyId } from '@/lib/db';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 
 // GET - Fetch all users (excluding password)
 export async function GET() {
@@ -20,8 +20,8 @@ export async function GET() {
 
 // DELETE - Delete a user
 export async function DELETE(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
+    const guard = await requirePermission(request, 'users', 'delete');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('id');

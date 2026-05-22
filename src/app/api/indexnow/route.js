@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 import { submitToIndexNow, getIndexNowKey } from '@/lib/indexnow';
 import { submitIndexingBatch } from '@/lib/google/indexing';
 import { hasServiceAccount } from '@/lib/google/auth';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 import { logEntries, entriesFromIndexNow, entriesFromGoogle } from '@/lib/indexingHistory';
 
 export async function GET() {
@@ -18,9 +18,8 @@ export async function GET() {
 }
 
 export async function POST(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
+    const guard = await requirePermission(request, 'settings', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json().catch(() => ({}));
         const urls = Array.isArray(body.urls) ? body.urls : (body.url ? [body.url] : []);

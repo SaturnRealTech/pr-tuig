@@ -180,6 +180,7 @@ export default function ProjectsList() {
                                         <th className="px-4 py-3 text-left font-semibold text-gray-600">Views</th>
                                         <th className="px-4 py-3 text-left font-semibold text-gray-600">Launch / Created Date</th>
                                         <th className="px-4 py-3 text-center font-semibold text-gray-600">Status</th>
+                                        <th className="px-4 py-3 text-center font-semibold text-gray-600">SEO</th>
                                         <th className="px-4 py-3 text-center font-semibold text-gray-600">Actions</th>
                                     </tr>
                                 </thead>
@@ -233,6 +234,22 @@ export default function ProjectsList() {
                                                     }
                                                 </button>
                                             </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <ProjectIndexableBadge
+                                                    value={project.robotsMeta}
+                                                    onToggle={async () => {
+                                                        const nextIndex = !isProjectIndexable(project.robotsMeta);
+                                                        const robotsMeta = { ...(project.robotsMeta || {}), index: nextIndex, follow: project.robotsMeta?.follow ?? true };
+                                                        setProjects(prev => prev.map(p => p._id === project._id ? { ...p, robotsMeta } : p));
+                                                        try {
+                                                            const { apiFetch } = await import('@/lib/apiClient');
+                                                            await apiFetch(`/api/projects/${project._id}`, { method: 'PATCH', body: { robotsMeta } });
+                                                        } catch {
+                                                            setProjects(prev => prev.map(p => p._id === project._id ? { ...p, robotsMeta: project.robotsMeta } : p));
+                                                        }
+                                                    }}
+                                                />
+                                            </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-center gap-1">
                                                     <button onClick={() => router.push(`/admin/projects/edit/${project._id}`)}
@@ -256,5 +273,22 @@ export default function ProjectsList() {
                 </div>
             </main>
         </div>
+    );
+}
+
+// Inline indexable / noindex pill for the SEO column.
+function isProjectIndexable(robotsMeta) {
+    if (!robotsMeta) return true;
+    return robotsMeta.index !== false;
+}
+
+function ProjectIndexableBadge({ value, onToggle }) {
+    const ok = isProjectIndexable(value);
+    return (
+        <button type="button" onClick={onToggle}
+            className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition ${ok ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
+            title={ok ? 'Indexable — click to set noindex' : 'noindex — click to make indexable'}>
+            {ok ? 'Indexable' : 'noindex'}
+        </button>
     );
 }

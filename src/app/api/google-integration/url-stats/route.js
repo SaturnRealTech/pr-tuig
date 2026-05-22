@@ -27,7 +27,6 @@ function toPath(absolute) {
 export async function GET(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
     const { searchParams } = new URL(request.url);
     const raw = searchParams.get('url');
     const days = Math.min(Math.max(parseInt(searchParams.get('days') || '28', 10) || 28, 1), 90);

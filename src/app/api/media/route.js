@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { col, findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { deleteFromS3 } from '@/lib/s3-upload';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 
 function reEscape(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
@@ -38,6 +38,8 @@ export async function GET(request) {
 }
 
 export async function PUT(request) {
+    const guard = await requirePermission(request, 'media', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
@@ -53,8 +55,8 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
+    const guard = await requirePermission(request, 'media', 'delete');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

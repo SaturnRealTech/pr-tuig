@@ -44,11 +44,60 @@ function fleschReadingEase(text) {
     return Math.round(206.835 - 1.015 * (wc / sentences) - 84.6 * (syllables / wc));
 }
 
+// Words proven to lift CTR in titles (lifted from Rank Math's list).
+const POWER_WORDS = [
+    'best', 'top', 'ultimate', 'amazing', 'awesome', 'free', 'guide', 'how',
+    'new', 'now', 'proven', 'secret', 'simple', 'easy', 'instant', 'quick',
+    'effective', 'essential', 'powerful', 'definitive', 'complete', 'review',
+    'tips', 'tricks', 'why', 'before', 'after', 'incredible', 'exclusive',
+    'limited', 'unbelievable', 'must', 'biggest', 'fastest', 'cheapest',
+];
+
+const POSITIVE_SENTIMENT = [
+    'good', 'great', 'best', 'amazing', 'awesome', 'love', 'happy', 'easy',
+    'simple', 'powerful', 'proven', 'beautiful', 'perfect', 'win', 'winning',
+];
+const NEGATIVE_SENTIMENT = [
+    'bad', 'worst', 'avoid', 'mistake', 'mistakes', 'fail', 'failure', 'wrong',
+    'broken', 'painful', 'ugly', 'hate', 'never', 'stop',
+];
+
+function extractTextByTag(html, tag) {
+    if (!html) return [];
+    const re = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'gi');
+    const out = [];
+    let m;
+    while ((m = re.exec(html)) !== null) out.push(stripHtml(m[1]));
+    return out;
+}
+
+function extractFirstParagraph(html) {
+    const ps = extractTextByTag(html, 'p');
+    return ps.find(p => p && p.length > 0) || '';
+}
+
+function paragraphsOver(html, maxWords) {
+    return extractTextByTag(html, 'p').filter(p => p.split(/\s+/).length > maxWords).length;
+}
+
+function avgSentenceWords(text) {
+    const t = stripHtml(text);
+    if (!t) return 0;
+    const sentences = t.split(/[.!?]+/).map(s => s.trim()).filter(Boolean);
+    if (sentences.length === 0) return 0;
+    const total = sentences.reduce((s, x) => s + x.split(/\s+/).length, 0);
+    return total / sentences.length;
+}
+
 function buildChecks({ title, slug, metaTitle, metaDescription, content, focusKeyword, keywords, image }) {
     const fk = (focusKeyword || keywords || '').split(',')[0]?.trim() || '';
+    const fkLower = fk.toLowerCase();
     const plain = stripHtml(content || '');
+    const plainLower = plain.toLowerCase();
     const wc = wordCount(content || '');
     const checks = [];
+    const effectiveTitle = (metaTitle || title || '').toString();
+    const titleLower = effectiveTitle.toLowerCase();
 
     const push = (name, status, why) => checks.push({ name, status, why });
 
@@ -59,6 +108,20 @@ function buildChecks({ title, slug, metaTitle, metaDescription, content, focusKe
         if (len < 30) push('Meta title length', 'warn', `${len} chars — aim for 50–60.`);
         else if (len > 60) push('Meta title length', 'warn', `${len} chars — Google may truncate at 60.`);
         else push('Meta title length', 'pass', `${len} chars — perfect.`);
+    }
+
+    // --- Title qualities (number / power words / sentiment) – uses meta title when present, else page title.
+    if (effectiveTitle) {
+        if (/\d/.test(effectiveTitle)) push('Number in title', 'pass', 'Titles with numbers earn more clicks.');
+        else push('Number in title', 'warn', 'Adding a number (e.g. "7 ways", "2026 guide") usually lifts CTR.');
+
+        const powerHit = POWER_WORDS.find(w => titleLower.includes(w));
+        if (powerHit) push('Power word in title', 'pass', `Uses "${powerHit}".`);
+        else push('Power word in title', 'warn', 'Try a power word: Best, Top, Guide, Free, Proven, Easy…');
+
+        const sentimentHit = [...POSITIVE_SENTIMENT, ...NEGATIVE_SENTIMENT].find(w => titleLower.includes(w));
+        if (sentimentHit) push('Sentiment word in title', 'pass', `"${sentimentHit}" adds emotional pull.`);
+        else push('Sentiment word in title', 'warn', 'Emotional words (great, easy, avoid, mistake…) lift CTR.');
     }
 
     // --- Description checks
@@ -79,16 +142,20 @@ function buildChecks({ title, slug, metaTitle, metaDescription, content, focusKe
     // --- Focus keyword
     if (!fk) push('Focus keyword', 'warn', 'Set a focus keyword (in the Keywords field) so we can check density.');
     else {
-        if ((metaTitle || '').toLowerCase().includes(fk.toLowerCase())) push('Keyword in meta title', 'pass', `"${fk}" appears in the title.`);
+        if ((metaTitle || '').toLowerCase().includes(fkLower)) push('Keyword in meta title', 'pass', `"${fk}" appears in the title.`);
         else push('Keyword in meta title', 'warn', `Add "${fk}" to the meta title.`);
 
-        if ((metaDescription || '').toLowerCase().includes(fk.toLowerCase())) push('Keyword in meta description', 'pass', '');
+        // Bonus: keyword at the very start of the title — stronger CTR signal.
+        if ((metaTitle || '').toLowerCase().trim().startsWith(fkLower)) push('Keyword at title start', 'pass', 'Focus keyword is the first word(s).');
+        else push('Keyword at title start', 'warn', 'Moving the keyword to the start of the title can lift CTR.');
+
+        if ((metaDescription || '').toLowerCase().includes(fkLower)) push('Keyword in meta description', 'pass', '');
         else push('Keyword in meta description', 'warn', `Add "${fk}" to the meta description.`);
 
-        if (plain.toLowerCase().includes(fk.toLowerCase())) push('Keyword in content', 'pass', '');
+        if (plainLower.includes(fkLower)) push('Keyword in content', 'pass', '');
         else push('Keyword in content', 'warn', `Mention "${fk}" inside the content.`);
 
-        const slugMatch = (slug || '').toLowerCase().includes(fk.toLowerCase().replace(/\s+/g, '-'));
+        const slugMatch = (slug || '').toLowerCase().includes(fkLower.replace(/\s+/g, '-'));
         if (slugMatch) push('Keyword in URL', 'pass', '');
         else push('Keyword in URL', 'warn', `Include "${fk.replace(/\s+/g, '-')}" in the URL slug.`);
 
@@ -98,6 +165,25 @@ function buildChecks({ title, slug, metaTitle, metaDescription, content, focusKe
         else if (density < 0.5) push('Keyword density', 'warn', `${density.toFixed(2)}% — try for 0.5–2.5%.`);
         else if (density > 3) push('Keyword density', 'warn', `${density.toFixed(2)}% — looks like keyword stuffing.`);
         else push('Keyword density', 'pass', `${density.toFixed(2)}% — good.`);
+
+        // Keyword in first paragraph (search engines weight intro text more).
+        const firstPara = extractFirstParagraph(content || '');
+        if (!firstPara) push('Keyword in first paragraph', 'warn', 'Add an intro paragraph that mentions the focus keyword.');
+        else if (firstPara.toLowerCase().includes(fkLower)) push('Keyword in first paragraph', 'pass', '');
+        else push('Keyword in first paragraph', 'warn', `Mention "${fk}" in the opening paragraph.`);
+
+        // Keyword in any H2/H3 subheading.
+        const subheads = [...extractTextByTag(content || '', 'h2'), ...extractTextByTag(content || '', 'h3')];
+        if (subheads.length === 0) push('Keyword in subheadings', 'warn', 'No H2/H3 found — add subheadings that include the keyword.');
+        else if (subheads.some(s => s.toLowerCase().includes(fkLower))) push('Keyword in subheadings', 'pass', 'Found in at least one H2/H3.');
+        else push('Keyword in subheadings', 'warn', `Use "${fk}" in at least one H2/H3.`);
+
+        // Keyword in image alt text.
+        const altRe = /<img\b[^>]*\balt\s*=\s*"([^"]+)"[^>]*>/gi;
+        const alts = [...(content || '').matchAll(altRe)].map(m => m[1]);
+        if (alts.length === 0) push('Keyword in image alt', 'warn', 'Add an image with alt text containing the keyword.');
+        else if (alts.some(a => a.toLowerCase().includes(fkLower))) push('Keyword in image alt', 'pass', '');
+        else push('Keyword in image alt', 'warn', `Add "${fk}" to at least one image alt attribute.`);
     }
 
     // --- Content length
@@ -110,6 +196,13 @@ function buildChecks({ title, slug, metaTitle, metaDescription, content, focusKe
     const headingCount = (content || '').match(/<h[1-6][^>]*>/gi)?.length || 0;
     if (headingCount === 0) push('Headings present', 'warn', 'Add at least one heading (H2/H3) inside the body.');
     else push('Headings present', 'pass', `${headingCount} heading(s) found.`);
+
+    // --- Subheading distribution — Rank Math flags content with no heading per ~300 words.
+    if (wc >= 300) {
+        const expected = Math.max(1, Math.floor(wc / 300));
+        if (headingCount >= expected) push('Subheading distribution', 'pass', `${headingCount} heading(s) for ${wc} words.`);
+        else push('Subheading distribution', 'warn', `Add ~${expected - headingCount} more subheading(s) — one every ~300 words.`);
+    }
 
     // --- Image alt coverage
     const imgs = [...(content || '').matchAll(/<img\b[^>]*>/gi)].map(m => m[0]);
@@ -138,6 +231,25 @@ function buildChecks({ title, slug, metaTitle, metaDescription, content, focusKe
     else if (flesch >= 60) push('Readability', 'pass', `Flesch score ${flesch} — easy to read.`);
     else if (flesch >= 30) push('Readability', 'warn', `Flesch score ${flesch} — moderately difficult.`);
     else push('Readability', 'fail', `Flesch score ${flesch} — hard to read. Shorten sentences.`);
+
+    // --- Long paragraphs (Rank Math: each <p> under ~150 words).
+    if (plain) {
+        const longParas = paragraphsOver(content || '', 150);
+        if (longParas === 0) push('Paragraph length', 'pass', 'No paragraphs over 150 words.');
+        else push('Paragraph length', 'warn', `${longParas} paragraph(s) over 150 words — break them up.`);
+    }
+
+    // --- Sentence length (average should be ≤ 20 words).
+    if (plain) {
+        const avg = avgSentenceWords(content || '');
+        if (avg === 0) push('Sentence length', 'warn', 'Add some prose to score sentence length.');
+        else if (avg <= 20) push('Sentence length', 'pass', `Avg ${avg.toFixed(1)} words/sentence.`);
+        else push('Sentence length', 'warn', `Avg ${avg.toFixed(1)} words/sentence — try to stay under 20.`);
+    }
+
+    // --- Social/featured image
+    if (image) push('Featured image set', 'pass', 'Open Graph image will be present on social shares.');
+    else push('Featured image set', 'warn', 'Set a featured/social image — required for rich previews.');
 
     return checks;
 }

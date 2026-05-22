@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requirePermission } from '@/lib/authHelper';
 import { col, nowIso } from '@/lib/db';
 import { pingSearchEngines } from '@/lib/seoPing';
 
@@ -33,6 +34,8 @@ export async function GET(request) {
 
 // POST - Create a new blog post
 export async function POST(request) {
+    const guard = await requirePermission(request, 'blog', 'create');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
         const now = nowIso();

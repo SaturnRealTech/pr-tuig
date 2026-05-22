@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { col, findOneByAnyId, nowIso } from '@/lib/db';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 import { deleteFromS3 } from '@/lib/s3-upload';
 
 // GET - Fetch all categories or by slug
@@ -26,6 +26,8 @@ export async function GET(request) {
 
 // POST - Create new category or group
 export async function POST(request) {
+    const guard = await requirePermission(request, 'categories', 'create');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
         const {
@@ -95,8 +97,8 @@ export async function POST(request) {
 
 // DELETE - Delete category (also promotes its children to top-level)
 export async function DELETE(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
+    const guard = await requirePermission(request, 'categories', 'delete');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');

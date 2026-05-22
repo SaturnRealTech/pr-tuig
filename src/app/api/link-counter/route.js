@@ -5,7 +5,6 @@ import { requireAdmin } from '@/lib/authHelper';
 export async function GET(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
     try {
         const { searchParams } = new URL(request.url);
         const type = searchParams.get('type');

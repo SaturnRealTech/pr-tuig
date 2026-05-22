@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requirePermission } from '@/lib/authHelper';
 import { col, nowIso } from '@/lib/db';
 
 async function getBuilderGroupId(categories) {
@@ -27,6 +28,8 @@ export async function GET() {
 }
 
 export async function POST(request) {
+    const guard = await requirePermission(request, 'builders', 'create');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
         const { name, slug, title, description, content, heroImage, mobileBanner, logo, faqs } = body;

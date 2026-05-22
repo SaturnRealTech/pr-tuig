@@ -6,7 +6,6 @@ import { invalidateTokenCache } from '@/lib/google/auth';
 export async function POST(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
     try {
         await revokeToken();
         invalidateTokenCache();

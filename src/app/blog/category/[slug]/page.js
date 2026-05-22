@@ -2,6 +2,13 @@ import { notFound } from 'next/navigation';
 import { col } from '@/lib/db';
 import { createBreadcrumbSchema, createOrganizationSchema, createPageMetadata, createWebPageSchema } from '@/lib/seo';
 import BlogCategoryPageClient from '@/features/blog/BlogCategoryPageClient';
+import { buildSeoFor, robotsMetaString } from '@/lib/titlesMeta';
+
+async function loadBrand() {
+    const settings = await col('settings');
+    const row = await settings.findOne({ type: 'brand' });
+    return row?.data || {};
+}
 
 function normalizePost(post) {
     if (!post) return null;
@@ -43,12 +50,25 @@ export async function generateMetadata({ params }) {
         const data = await getData(slug);
         if (!data) return { title: 'Category Not Found' };
         const { category } = data;
-        return createPageMetadata({
-            title: category.metaTitle || `${category.name} - Blog`,
-            description: category.metaDescription || category.description || `Read all ${category.name} articles.`,
+        const brand = await loadBrand();
+        const seo = await buildSeoFor('category', {
+            title: category.name,
+            excerpt: category.description,
+            content: category.content,
+            metaTitle: category.metaTitle,
+            metaDescription: category.metaDescription,
+            category: category.name,
+            keywords: category.keywords,
+        }, brand);
+        const meta = createPageMetadata({
+            title: category.metaTitle || seo.title,
+            description: category.metaDescription || seo.description || category.description || `Read all ${category.name} articles.`,
             path: `/blog/category/${slug}`,
             image: category.heroImage,
         });
+        const robots = robotsMetaString(seo.robotsMeta);
+        if (robots) meta.robots = robots;
+        return meta;
     } catch {
         return { title: 'Blog' };
     }

@@ -12,6 +12,8 @@ const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: fal
 import AdminSidebar from '@/components/AdminSidebar';
 import RichTextEditor from '@/components/RichTextEditor';
 import ApiCurlPanel from '@/components/ApiCurlPanel';
+import SeoEditorPanel from '@/components/admin/SeoEditorPanel';
+import SeoAnalyzer from '@/components/SeoAnalyzer';
 import Swal from 'sweetalert2';
 import { calculateReadTime } from '@/utils/readTime';
 
@@ -39,6 +41,7 @@ export default function EditBlog() {
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
     const [showMediaPicker, setShowMediaPicker] = useState(false);
+    const [linkSuggestionsEnabled, setLinkSuggestionsEnabled] = useState(true);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -53,6 +56,9 @@ export default function EditBlog() {
         heroImage: '',
         heroImageAlt: '',
         content: '',
+        robotsMeta: null,           // null = use Titles & Meta default
+        schemaTemplates: [],        // array of template _id values
+        autogenerateImageOverride: 'inherit', // 'inherit' | 'on' | 'off'
     });
 
     useEffect(() => {
@@ -64,6 +70,14 @@ export default function EditBlog() {
         setUser(JSON.parse(userData));
         fetchBlog();
         fetchCategories();
+        // Honor the Titles & Meta → Posts toggle. If linkSuggestions is off,
+        // the editor's link button reverts to a plain URL prompt.
+        fetch('/api/titles-meta')
+            .then(r => r.json())
+            .then(j => {
+                if (j.success && j.data?.post?.linkSuggestions === false) setLinkSuggestionsEnabled(false);
+            })
+            .catch(() => { });
     }, [router, params.id]);
 
     const fetchBlog = async () => {
@@ -87,6 +101,9 @@ export default function EditBlog() {
                     heroImage: blog.heroImage || '',
                     heroImageAlt: blog.heroImageAlt || '',
                     content: blog.content || '',
+                    robotsMeta: blog.robotsMeta || null,
+                    schemaTemplates: Array.isArray(blog.schemaTemplates) ? blog.schemaTemplates.map(String) : [],
+                    autogenerateImageOverride: blog.autogenerateImageOverride || 'inherit',
                 });
             }
         } catch (error) {
@@ -184,17 +201,18 @@ export default function EditBlog() {
                     description: formData.seoDescription || formData.excerpt,
                     keywords: formData.keywords.split(',').map(k => k.trim()),
                 },
+                robotsMeta: formData.robotsMeta || null,
+                schemaTemplates: Array.isArray(formData.schemaTemplates) ? formData.schemaTemplates : [],
+                autogenerateImageOverride: formData.autogenerateImageOverride || 'inherit',
             };
 
-            const response = await fetch(`/api/blog/${params.id}`, {
+            // apiFetch surfaces real errors when the WAF blocks the save and
+            // retries via POST + method-override / base64 as needed.
+            const { apiFetch } = await import('@/lib/apiClient');
+            const { data: result } = await apiFetch(`/api/blog/${params.id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(blogData),
+                body: blogData,
             });
-
-            const result = await response.json();
 
             if (result.success) {
                 await Swal.fire('Success!', 'Blog post updated successfully!', 'success');
@@ -411,6 +429,17 @@ export default function EditBlog() {
                             </div>
                         </div>
 
+                        {/* SEO Analyzer — live Rank Math-style score */}
+                        <SeoAnalyzer
+                            title={formData.title}
+                            slug={formData.slug}
+                            metaTitle={formData.seoTitle}
+                            metaDescription={formData.seoDescription}
+                            content={formData.content}
+                            keywords={formData.keywords}
+                            image={formData.heroImage}
+                        />
+
                         {/* SEO Settings */}
                         <div className="bg-white rounded-xl shadow-lg p-6">
                             <h2 className="text-xl font-bold text-gray-800 mb-4">SEO Settings</h2>
@@ -468,12 +497,24 @@ export default function EditBlog() {
                             </div>
                         </div>
 
+                        {/* SEO Controls — robots meta override + schema templates */}
+                        <div className="bg-white rounded-xl shadow-lg p-6">
+                            <h2 className="text-xl font-bold text-gray-800 mb-4">SEO Controls</h2>
+                            <SeoEditorPanel
+                                value={formData}
+                                onChange={(next) => setFormData(d => ({ ...d, ...next }))}
+                                kind="blog"
+                            />
+                        </div>
+
                         {/* Content Editor */}
                         <div className="bg-white rounded-xl shadow-lg p-6">
                             <h2 className="text-xl font-bold text-gray-800 mb-4">Blog Content</h2>
                             <RichTextEditor
                                 content={formData.content}
                                 onChange={handleContentChange}
+                                excludeId={params.id}
+                                linkSuggestions={linkSuggestionsEnabled}
                             />
                         </div>
 

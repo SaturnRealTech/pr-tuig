@@ -12,7 +12,6 @@ const GA_ACCOUNT_SUMMARIES = 'https://analyticsadmin.googleapis.com/v1beta/accou
 export async function GET(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
     const [sitesRes, accountsRes] = await Promise.all([
         authedFetch(SCOPES.searchConsole, GSC_SITES),
         authedFetch(SCOPES.analytics, GA_ACCOUNT_SUMMARIES),

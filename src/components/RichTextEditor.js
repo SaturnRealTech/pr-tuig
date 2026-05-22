@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -30,7 +30,9 @@ import {
     MdFormatAlignJustify,
 } from 'react-icons/md';
 
-export default function RichTextEditor({ content, onChange }) {
+// `linkSuggestions` enables the inline link search popover (default: true).
+// `excludeId` is the current post / project _id so we don't suggest it.
+export default function RichTextEditor({ content, onChange, linkSuggestions = true, excludeId = '' }) {
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -227,19 +229,10 @@ export default function RichTextEditor({ content, onChange }) {
 
                 <div className="w-px bg-gray-300 mx-1" />
 
-                {/* Link Button */}
-                <MenuButton
-                    onClick={() => {
-                        const url = window.prompt('Enter URL:');
-                        if (url) {
-                            editor.chain().focus().setLink({ href: url }).run();
-                        }
-                    }}
-                    active={editor.isActive('link')}
-                    title="Add Link"
-                >
-                    <MdLink size={20} />
-                </MenuButton>
+                {/* Link Button — opens a search popover (Rank Math-style
+                    link suggestions) or falls back to a plain URL prompt when
+                    suggestions are disabled per type config. */}
+                <LinkInsertButton editor={editor} enabled={linkSuggestions} excludeId={excludeId} />
 
                 {/* Table Buttons */}
                 <MenuButton
@@ -449,4 +442,163 @@ export default function RichTextEditor({ content, onChange }) {
       `}</style>
         </div>
     );
+}
+
+// ----------------------------------------------------------------------------
+// Link insertion popover (Rank Math-style suggestions).
+// ----------------------------------------------------------------------------
+// Click the link button → popover opens with a search box. Typing fires
+// /api/link-suggestions which returns matching blog posts + projects. Picking
+// one applies the link to the current selection (or inserts the title as the
+// link text if nothing is selected).
+//
+// `enabled=false` reverts to the simple URL prompt for users / post types
+// where the Titles & Meta "Link Suggestions" toggle is off.
+
+function LinkInsertButton({ editor, enabled, excludeId }) {
+    const [open, setOpen] = useState(false);
+    const [q, setQ] = useState('');
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [urlOverride, setUrlOverride] = useState('');
+    const wrapRef = useRef(null);
+
+    // Debounced search.
+    useEffect(() => {
+        if (!open || !enabled || !q.trim()) { setItems([]); return; }
+        let cancelled = false;
+        setLoading(true);
+        const t = setTimeout(async () => {
+            try {
+                const params = new URLSearchParams({ q: q.trim() });
+                if (excludeId) params.set('excludeId', String(excludeId));
+                const res = await fetch(`/api/link-suggestions?${params.toString()}`);
+                const j = await res.json();
+                if (!cancelled && j.success) setItems(j.data || []);
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        }, 200);
+        return () => { cancelled = true; clearTimeout(t); };
+    }, [q, open, enabled, excludeId]);
+
+    // Click-outside to close.
+    useEffect(() => {
+        if (!open) return;
+        const onDown = (e) => {
+            if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+        };
+        document.addEventListener('mousedown', onDown);
+        return () => document.removeEventListener('mousedown', onDown);
+    }, [open]);
+
+    const applyLink = (url, title) => {
+        if (!url) return;
+        const { from, to, empty } = editor.state.selection;
+        const chain = editor.chain().focus();
+        if (empty) {
+            // No selection — insert the title text as a new link.
+            chain.insertContent(`<a href="${escapeAttr(url)}" title="${escapeAttr(title || '')}">${escapeText(title || url)}</a>`).run();
+        } else {
+            // Selection — wrap it with the link.
+            chain.extendMarkRange('link').setLink({ href: url }).run();
+        }
+        setOpen(false);
+        setQ('');
+        setItems([]);
+        setUrlOverride('');
+    };
+
+    const handleClick = () => {
+        if (!enabled) {
+            const url = window.prompt('Enter URL:');
+            if (url) editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+            return;
+        }
+        setOpen(o => !o);
+    };
+
+    return (
+        <div ref={wrapRef} style={{ position: 'relative', display: 'inline-block' }}>
+            <button
+                type="button"
+                onClick={handleClick}
+                title="Add Link"
+                className={`p-2 rounded transition ${editor.isActive('link') ? 'bg-gold text-white' : 'hover:bg-gray-100 text-gray-700'}`}
+            >
+                <MdLink size={20} />
+            </button>
+
+            {open && enabled ? (
+                <div
+                    className="absolute z-40 mt-2 w-96 bg-white border border-gray-200 rounded-xl shadow-xl p-3"
+                    style={{ top: '100%', left: 0 }}
+                >
+                    <input
+                        type="text"
+                        autoFocus
+                        value={q}
+                        onChange={e => setQ(e.target.value)}
+                        placeholder="Search posts and projects…"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-gold mb-2"
+                    />
+
+                    <div className="max-h-64 overflow-y-auto -mx-3">
+                        {loading ? (
+                            <p className="px-3 py-2 text-xs text-gray-500">Searching…</p>
+                        ) : items.length === 0 && q.trim() ? (
+                            <p className="px-3 py-2 text-xs text-gray-500">No matches.</p>
+                        ) : items.length === 0 ? (
+                            <p className="px-3 py-2 text-xs text-gray-400">Type to search internal posts and projects.</p>
+                        ) : (
+                            items.map(it => (
+                                <button
+                                    key={`${it.kind}-${it._id}`}
+                                    type="button"
+                                    onClick={() => applyLink(it.url, it.title)}
+                                    className="w-full text-left px-3 py-2 hover:bg-gray-50 border-t border-gray-100 first:border-t-0"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${it.kind === 'blog' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                                            {it.kind}
+                                        </span>
+                                        <span className="text-sm font-medium text-gray-800 truncate">{it.title}</span>
+                                    </div>
+                                    <div className="text-[11px] text-gray-400 font-mono truncate">{it.url}</div>
+                                </button>
+                            ))
+                        )}
+                    </div>
+
+                    <div className="mt-2 pt-2 border-t border-gray-100">
+                        <p className="text-[11px] text-gray-500 mb-1">Or paste a URL</p>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={urlOverride}
+                                onChange={e => setUrlOverride(e.target.value)}
+                                placeholder="https://… or /relative"
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs font-mono focus:outline-none focus:border-gold"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => applyLink(urlOverride.trim(), urlOverride.trim())}
+                                disabled={!urlOverride.trim()}
+                                className="px-3 py-2 bg-gold text-white text-xs font-semibold rounded-lg hover:opacity-90 disabled:opacity-50"
+                            >
+                                Insert
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
+        </div>
+    );
+}
+
+function escapeAttr(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function escapeText(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

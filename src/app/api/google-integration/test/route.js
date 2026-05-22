@@ -11,7 +11,6 @@ import { pingAnalytics } from '@/lib/google/analytics';
 export async function POST(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
     const out = {
         serviceAccount: { ok: false, error: null },
         indexing: { ok: false, error: null, skipped: false },

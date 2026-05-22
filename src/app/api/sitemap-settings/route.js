@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { col, upsertByKey, nowIso } from '@/lib/db';
 import { collectSitemapItems, readSitemapSettings, GROUP_KEYS } from '@/lib/sitemap';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 
 const TYPE = 'brand';
 
@@ -16,9 +16,8 @@ export async function GET() {
 }
 
 export async function PUT(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
+    const guard = await requirePermission(request, 'settings', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
         const incoming = body.excludes || {};

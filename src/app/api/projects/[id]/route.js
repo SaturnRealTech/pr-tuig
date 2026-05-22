@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 import { pingSearchEngines } from '@/lib/seoPing';
 import { deleteFromS3 } from '@/lib/s3-upload';
 import { readJsonBody } from '@/lib/serverBody';
@@ -57,6 +57,8 @@ function projectUrlFor(row) {
 
 // PATCH - Quick field update (e.g. toggle publishStatus)
 export async function PATCH(request, { params }) {
+    const guard = await requirePermission(request, 'projects', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;
         const body = await readJsonBody(request);
@@ -78,6 +80,8 @@ export async function PATCH(request, { params }) {
 
 // PUT - Update a project
 export async function PUT(request, { params }) {
+    const guard = await requirePermission(request, 'projects', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;
         const body = await readJsonBody(request);
@@ -101,9 +105,8 @@ export async function PUT(request, { params }) {
 
 // DELETE - Delete a project
 export async function DELETE(request, { params }) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
+    const guard = await requirePermission(request, 'projects', 'delete');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;
         const row = await findOneByAnyId('projects', id);
@@ -138,6 +141,8 @@ export async function DELETE(request, { params }) {
 // the same body via POST with `X-HTTP-Method-Override`. We dispatch to the
 // real verb handler here so the route logic stays in one place.
 export async function POST(request, ctx) {
+    const guard = await requirePermission(request, 'projects', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     const override = (request.headers.get('x-http-method-override') || '').toUpperCase();
     if (override === 'PATCH') return PATCH(request, ctx);
     if (override === 'PUT') return PUT(request, ctx);

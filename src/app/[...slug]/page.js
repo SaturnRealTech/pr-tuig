@@ -7,6 +7,14 @@ import {
     createBreadcrumbSchema,
     createPageMetadata,
 } from '@/lib/seo';
+import { buildSeoFor, detectFirstVideo, robotsMetaString } from '@/lib/titlesMeta';
+import { buildAttachedSchemas } from '@/lib/schemaTemplates';
+
+async function loadBrand() {
+    const settings = await col('settings');
+    const row = await settings.findOne({ type: 'brand' });
+    return row?.data || {};
+}
 
 async function normalizeProject(project) {
     if (!project) return null;
@@ -51,17 +59,43 @@ export async function generateMetadata({ params }) {
         if (slugArr.length === 1) {
             const project = await findProjectByAny(slug);
             if (project) {
-                const description = project.metaDescription || project.description || project.title || '';
-                return createPageMetadata({
-                    title: project.metaTitle || `${project.title} - Saturn RealCon`,
-                    description,
+                const brand = await loadBrand();
+                // Pages-type SEO template. Per-project overrides (metaTitle /
+                // metaDescription) still win.
+                const seo = await buildSeoFor('page', {
+                    title: project.title,
+                    excerpt: project.shortOverview,
+                    content: project.content,
+                    metaTitle: project.metaTitle,
+                    metaDescription: project.metaDescription,
+                    author: project.company,
+                    keywords: project.keywords,
+                }, brand);
+                // Per-project override wins over the type-level default.
+                const projOverride = project.autogenerateImageOverride;
+                const projShouldGenerate = projOverride === 'on'
+                    ? true
+                    : projOverride === 'off'
+                        ? false
+                        : !!seo.autogenerateImage;
+                const image = project.desktopBanner || project.mobileBanner
+                    || (projShouldGenerate
+                        ? `/api/og-image?title=${encodeURIComponent(project.title || '')}&subtitle=${encodeURIComponent(project.company || project.projectAddress || '')}&watermark=${encodeURIComponent(seo.defaultThumbnailWatermark || 'off')}`
+                        : undefined);
+                const meta = createPageMetadata({
+                    title: project.metaTitle || seo.title,
+                    description: project.metaDescription || seo.description || project.description || project.title || '',
                     path: `/${slug}`,
                     keywords: project.keywords
                         ? String(project.keywords).split(',').map(k => k.trim()).filter(Boolean)
                         : [],
-                    image: project.desktopBanner || project.mobileBanner,
+                    image,
                     type: 'article',
                 });
+                // Per-project override wins over the type-level default.
+                const robots = robotsMetaString(project.robotsMeta || seo.robotsMeta);
+                if (robots) meta.robots = robots;
+                return meta;
             }
         }
         return { title: 'Saturn RealCon' };
@@ -126,6 +160,39 @@ export default async function SlugPage({ params }) {
                     })),
                 });
             }
+
+            // Autodetect Video — scan the project's rich-text fields for
+            // YouTube / Vimeo embeds and emit a VideoObject when found.
+            const brandForVideo = await loadBrand();
+            const seoForVideo = await buildSeoFor('page', {
+                title: project.title,
+                excerpt: project.shortOverview,
+                content: project.content,
+                metaTitle: project.metaTitle,
+                metaDescription: project.metaDescription,
+            }, brandForVideo);
+            if (seoForVideo.autodetectVideo) {
+                const v =
+                    detectFirstVideo(project.walkthroughUrl) ||
+                    detectFirstVideo(project.content) ||
+                    detectFirstVideo(project.detailedOverview && project.detailedOverview.map(d => d?.content).join(' '));
+                if (v) {
+                    projectGraphItems.push({
+                        '@type': 'VideoObject',
+                        name: project.walkthroughTitle || `${project.title} walkthrough`,
+                        description: seoForVideo.schemaDescription || project.shortOverview || project.title,
+                        ...(v.thumbnailLoc ? { thumbnailUrl: v.thumbnailLoc } : {}),
+                        contentUrl: v.contentLoc,
+                        embedUrl: v.playerLoc,
+                        ...(publishedAt ? { uploadDate: publishedAt } : {}),
+                    });
+                }
+            }
+
+            // Push every Schema Template attached to this project (or to
+            // "all projects") into the @graph.
+            const attached = await buildAttachedSchemas('project', project);
+            for (const node of attached) projectGraphItems.push(node);
 
             const schema = {
                 '@context': 'https://schema.org',

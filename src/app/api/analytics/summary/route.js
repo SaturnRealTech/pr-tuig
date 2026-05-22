@@ -4,14 +4,13 @@
 
 import { NextResponse } from 'next/server';
 import { col } from '@/lib/db';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 
 const RANGES = { '24h': 1, '7d': 7, '30d': 30, '90d': 90, '365d': 365 };
 
 export async function GET(request) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
+    const guard = await requirePermission(request, 'analytics', 'view');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { searchParams } = new URL(request.url);
         const range = searchParams.get('range') || '30d';

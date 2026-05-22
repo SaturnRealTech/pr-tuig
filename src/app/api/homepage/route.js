@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requirePermission } from '@/lib/authHelper';
 import { col, nowIso } from '@/lib/db';
 
 function reEscape(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -53,6 +54,8 @@ export async function GET(request) {
 
 // POST - Update homepage content
 export async function POST(request) {
+    const guard = await requirePermission(request, 'pages', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
         const homepageBlob = {

@@ -13,7 +13,6 @@ export const dynamic = 'force-dynamic';
 export async function GET(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
     const projects = await col('projects');
     const home =
         (await projects.findOne({ publishStatus: 'published', isHomePage: true })) ||

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
-import { requireAdmin } from '@/lib/authHelper';
+import { requirePermission } from '@/lib/authHelper';
 import { pingSearchEngines } from '@/lib/seoPing';
 import { deleteFromS3 } from '@/lib/s3-upload';
 
@@ -28,6 +28,8 @@ export async function GET(request, { params }) {
 
 // PUT - Update a blog post
 export async function PUT(request, { params }) {
+    const guard = await requirePermission(request, 'blog', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;
         const body = await request.json();
@@ -51,9 +53,8 @@ export async function PUT(request, { params }) {
 
 // DELETE - Delete a blog post
 export async function DELETE(request, { params }) {
-    const authError = requireAdmin(request);
-    if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
+    const guard = await requirePermission(request, 'blog', 'delete');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;
         const row = await findOneByAnyId('blog_posts', id);

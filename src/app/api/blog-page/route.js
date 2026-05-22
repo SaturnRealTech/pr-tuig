@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requirePermission } from '@/lib/authHelper';
 import { col, upsertByKey, nowIso } from '@/lib/db';
 
 export async function GET() {
@@ -13,6 +14,8 @@ export async function GET() {
 }
 
 export async function POST(request) {
+    const guard = await requirePermission(request, 'pages', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
         const dataBlob = {

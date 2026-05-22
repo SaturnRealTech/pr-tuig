@@ -521,6 +521,7 @@ export default function BlogList() {
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Author</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Views</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
+                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">SEO</th>
                                                 <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Actions</th>
                                             </tr>
                                         </thead>
@@ -548,6 +549,24 @@ export default function BlogList() {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-gray-700">{blog.date}</td>
+                                                    <td className="px-6 py-4">
+                                                        <IndexableBadge
+                                                            value={blog.robotsMeta}
+                                                            onToggle={async () => {
+                                                                const id = blog._id || blog.id;
+                                                                const nextIndex = !isIndexable(blog.robotsMeta);
+                                                                const robotsMeta = { ...(blog.robotsMeta || {}), index: nextIndex, follow: blog.robotsMeta?.follow ?? true };
+                                                                setBlogs(prev => prev.map(b => (b._id || b.id) === id ? { ...b, robotsMeta } : b));
+                                                                try {
+                                                                    const { apiFetch } = await import('@/lib/apiClient');
+                                                                    await apiFetch(`/api/blog/${id}`, { method: 'PUT', body: { robotsMeta } });
+                                                                } catch (e) {
+                                                                    setBlogs(prev => prev.map(b => (b._id || b.id) === id ? { ...b, robotsMeta: blog.robotsMeta } : b));
+                                                                    Swal.fire('Error', e.message, 'error');
+                                                                }
+                                                            }}
+                                                        />
+                                                    </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center justify-end gap-2">
                                                             <a href={`/blog/${blog.slug || blog._id || blog.id}`} target="_blank"
@@ -578,5 +597,23 @@ export default function BlogList() {
                 </div>
             </main>
         </div>
+    );
+}
+
+// Indexable-or-noindex pill with an inline toggle. Lives at the bottom of the
+// file so the list table stays readable.
+function isIndexable(robotsMeta) {
+    if (!robotsMeta) return true;
+    return robotsMeta.index !== false;
+}
+
+function IndexableBadge({ value, onToggle }) {
+    const ok = isIndexable(value);
+    return (
+        <button type="button" onClick={onToggle}
+            className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition ${ok ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
+            title={ok ? 'Indexable — click to set noindex' : 'noindex — click to make indexable'}>
+            {ok ? 'Indexable' : 'noindex'}
+        </button>
     );
 }

@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
+import { requirePermission } from '@/lib/authHelper';
 import { uploadToS3, uploadMultipleToS3, deleteFromS3 } from '@/lib/s3-upload';
 import { col, findOneByAnyId, updateByAnyId, nowIso } from '@/lib/db';
 import sharp from 'sharp';
 
 // POST - Upload single or multiple images with metadata
 export async function POST(request) {
+    const guard = await requirePermission(request, 'media', 'create');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const formData = await request.formData();
         const files = formData.getAll('files');

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requirePermission } from '@/lib/authHelper';
 import { col, upsertByKey, nowIso } from '@/lib/db';
 
 const TYPE = 'brand';
@@ -55,6 +56,8 @@ export async function GET() {
 }
 
 export async function PUT(request) {
+    const guard = await requirePermission(request, 'settings', 'edit');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
         const blob = {

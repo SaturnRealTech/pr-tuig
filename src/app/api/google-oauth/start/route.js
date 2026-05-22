@@ -10,7 +10,6 @@ import { buildAuthUrl, hasOAuthClient } from '@/lib/google/oauth';
 export async function GET(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
-
     if (!(await hasOAuthClient())) {
         return NextResponse.json({ success: false, error: 'Save OAuth Client ID + Secret first.' }, { status: 400 });
     }
