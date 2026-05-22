@@ -3,6 +3,7 @@ import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
 import { pingSearchEngines } from '@/lib/seoPing';
 import { deleteFromS3 } from '@/lib/s3-upload';
+import { readJsonBody } from '@/lib/serverBody';
 
 // Walk a project doc and return every image URL stored on it (top-level
 // banners + nested gallery / master plan / floor plan / detailed-overview).
@@ -58,7 +59,7 @@ function projectUrlFor(row) {
 export async function PATCH(request, { params }) {
     try {
         const { id } = await params;
-        const body = await request.json();
+        const body = await readJsonBody(request);
         const updateData = buildUpdate(body);
         const changes = await updateByAnyId('projects', id, updateData);
         if (!changes) {
@@ -79,7 +80,7 @@ export async function PATCH(request, { params }) {
 export async function PUT(request, { params }) {
     try {
         const { id } = await params;
-        const body = await request.json();
+        const body = await readJsonBody(request);
         const updateData = buildUpdate(body);
 
         const changes = await updateByAnyId('projects', id, updateData);
