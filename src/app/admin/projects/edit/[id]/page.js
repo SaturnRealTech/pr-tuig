@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {
@@ -10,6 +10,7 @@ import {
 import Swal from 'sweetalert2';
 import AdminSidebar from '@/components/AdminSidebar';
 import ApiCurlPanel from '@/components/ApiCurlPanel';
+import SeoAnalyzer from '@/components/SeoAnalyzer';
 
 const TipTapEditor = dynamic(() => import('@/components/TipTapEditor'), { ssr: false });
 const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: false });
@@ -267,6 +268,9 @@ export default function EditProject() {
                 ...(p('company', 'builder', 'brand') !== undefined && { company: str('company', 'builder', 'brand') }),
                 ...(p('shortOverview', 'overviewShort', 'briefOverview', 'summary') !== undefined && { shortOverview: str('shortOverview', 'overviewShort', 'briefOverview', 'summary') }),
                 ...(p('bhkConfig', 'configurationLabel', 'bhk', 'configurationsShort') !== undefined && { bhkConfig: str('bhkConfig', 'configurationLabel', 'bhk', 'configurationsShort') }),
+                ...(p('heroBadge1') !== undefined && { heroBadge1: str('heroBadge1') }),
+                ...(p('heroBadge2') !== undefined && { heroBadge2: str('heroBadge2') }),
+                ...(p('heroBadge3') !== undefined && { heroBadge3: str('heroBadge3') }),
                 ...(p('carpetArea', 'carpet', 'carpetRange') !== undefined && { carpetArea: str('carpetArea', 'carpet', 'carpetRange') }),
                 ...(p('landParcel', 'density', 'landSize') !== undefined && { landParcel: str('landParcel', 'density', 'landSize') }),
                 ...(p('lat', 'latitude') !== undefined && { lat: str('lat', 'latitude') }),
@@ -372,6 +376,9 @@ export default function EditProject() {
         bhkConfig: '',
         carpetArea: '',
         landParcel: '',
+        heroBadge1: '',
+        heroBadge2: '',
+        heroBadge3: '',
         lat: '',
         lng: '',
         company: '',
@@ -447,13 +454,17 @@ export default function EditProject() {
         fetchProject();
     }, [router, params.id]);
 
+    // Snapshot of the formData as loaded from the server. Diff against this
+    // on Save so we only send fields the user actually changed.
+    const originalFormRef = useRef(null);
+
     const fetchProject = async () => {
         try {
             const res = await fetch(`/api/projects/${params.id}`);
             const result = await res.json();
             if (!result.success) { Swal.fire('Error', 'Failed to load project', 'error'); return; }
             const p = result.data;
-            setFormData({
+            const loaded = {
                 title: p.title || '',
                 slug: p.slug || '',
                 projectAddress: p.projectAddress || '',
@@ -469,6 +480,9 @@ export default function EditProject() {
                 bhkConfig: p.bhkConfig || '',
                 carpetArea: p.carpetArea || '',
                 landParcel: p.landParcel || '',
+                heroBadge1: p.heroBadge1 || '',
+                heroBadge2: p.heroBadge2 || '',
+                heroBadge3: p.heroBadge3 || '',
                 lat: p.lat || '',
                 lng: p.lng || '',
                 company: p.company || '',
@@ -535,7 +549,10 @@ export default function EditProject() {
                 isHomePage: p.isHomePage || false,
                 detailedOverview: p.detailedOverview || [],
                 hideDetailedOverview: p.hideDetailedOverview || false,
-            });
+            };
+            setFormData(loaded);
+            // Deep-clone so subsequent edits to formData don't mutate the snapshot.
+            originalFormRef.current = JSON.parse(JSON.stringify(loaded));
         } catch (e) {
             console.error(e);
             Swal.fire('Error', 'Failed to load project', 'error');
@@ -655,22 +672,47 @@ export default function EditProject() {
     const removeSpec = (i) => setFormData(prev => ({ ...prev, projectSpecifications: { ...prev.projectSpecifications, specs: prev.projectSpecifications.specs.filter((_, idx) => idx !== i) } }));
     const updateSpec = (i, field, val) => setFormData(prev => ({ ...prev, projectSpecifications: { ...prev.projectSpecifications, specs: prev.projectSpecifications.specs.map((s, idx) => idx === i ? { ...s, [field]: val } : s) } }));
 
+    // Build a minimal PATCH body — only fields that changed since fetch.
+    // Compares scalar values directly and deep-compares nested objects/arrays
+    // via JSON.stringify. Drops payload from megabytes to kilobytes on a typical
+    // edit, which also avoids tripping mod_security on Hostinger.
+    const diffFormData = (current, baseline) => {
+        if (!baseline) return { ...current };
+        const out = {};
+        for (const key of Object.keys(current)) {
+            const a = current[key];
+            const b = baseline[key];
+            const isObj = (v) => v !== null && typeof v === 'object';
+            const changed = isObj(a) || isObj(b)
+                ? JSON.stringify(a) !== JSON.stringify(b)
+                : a !== b;
+            if (changed) out[key] = a;
+        }
+        return out;
+    };
+
     const handleSubmit = async (e, publishStatus = formData.publishStatus) => {
         e.preventDefault();
         if (!formData.title) { Swal.fire('Error', 'Project title is required', 'error'); return; }
         setLoading(true);
         try {
-            const payload = {
-                ...formData,
-                publishStatus,
-            };
+            // Only send fields the user actually touched. Always include
+            // publishStatus because it's driven by the button the user clicked.
+            const diff = diffFormData(formData, originalFormRef.current);
+            const payload = { ...diff, publishStatus };
+
+            // PATCH instead of PUT — Hostinger / mod_security is sometimes
+            // less aggressive on PATCH, and the server route already supports it.
             const res = await fetch(`/api/projects/${params.id}`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
             const result = await res.json();
             if (result.success) {
+                // Reset the baseline so the next save only diffs against the
+                // freshly-persisted state.
+                originalFormRef.current = JSON.parse(JSON.stringify({ ...formData, publishStatus }));
                 await Swal.fire({
                     icon: 'success',
                     title: publishStatus === 'published' ? 'Published!' : 'Saved as Draft',
@@ -714,6 +756,17 @@ export default function EditProject() {
                                 patchPayload={PATCH_PROJECT_PAYLOAD}
                             />
                         )}
+
+                        {/* SEO Analyzer — live score against the current form state */}
+                        <SeoAnalyzer
+                            title={formData.title}
+                            slug={formData.slug}
+                            metaTitle={formData.metaTitle}
+                            metaDescription={formData.metaDescription}
+                            content={formData.content}
+                            keywords={formData.keywords}
+                            image={formData.contentImage}
+                        />
 
                         {/* Import from JSON */}
                         <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-dashed border-gold mb-6">
@@ -1024,6 +1077,23 @@ export default function EditProject() {
                                                 <input type="text" name="landParcel" value={formData.landParcel} onChange={handleChange}
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="Only 1 Tower on 7.5 Acres" />
+                                            </div>
+                                        </div>
+
+                                        {/* Hero badges — three small chips overlaid on the hero image */}
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-700 mb-1">Hero Badges</p>
+                                            <p className="text-xs text-gray-400 mb-3">Three small chips shown above the project title on the hero banner. Leave any field empty to hide that chip.</p>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <input type="text" name="heroBadge1" value={formData.heroBadge1} onChange={handleChange}
+                                                    className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
+                                                    placeholder="★ New Launch 2026" />
+                                                <input type="text" name="heroBadge2" value={formData.heroBadge2} onChange={handleChange}
+                                                    className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
+                                                    placeholder="Total Environment" />
+                                                <input type="text" name="heroBadge3" value={formData.heroBadge3} onChange={handleChange}
+                                                    className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
+                                                    placeholder="▼ Pre-Launch Pricing Live" />
                                             </div>
                                         </div>
 

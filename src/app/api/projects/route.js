@@ -1,59 +1,70 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { col, nowIso } from '@/lib/db';
+import { requirePermission } from '@/lib/authHelper';
+import { pingSearchEngines } from '@/lib/seoPing';
 
 export async function GET(request) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { searchParams } = new URL(request.url);
         const admin = searchParams.get('admin') === '1';
         const category = searchParams.get('category');
         const status = searchParams.get('status'); // 'draft' | 'published' | '' (all, admin only)
 
-        const query = {};
+        // Admin-mode listing requires view permission. Public listing is open.
+        if (admin) {
+            const guard = await requirePermission(request, 'projects', 'view');
+            if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
+        }
 
-        // Public pages only see published projects
+        const filter = {};
         if (!admin) {
-            query.publishStatus = 'published';
+            filter.publishStatus = 'published';
         } else if (status === 'draft' || status === 'published') {
-            query.publishStatus = status;
+            filter.publishStatus = status;
         }
+        if (category && category !== 'All') filter.category = category;
 
-        if (category && category !== 'All') {
-            query.category = category;
-        }
-
-        const projects = await db
-            .collection('projects')
-            .find(query)
+        const projects = await col('projects');
+        const rows = await projects
+            .find(filter)
             .sort({ createdDate: -1, createdAt: -1 })
             .toArray();
 
-        return NextResponse.json({ success: true, data: projects });
+        return NextResponse.json({ success: true, data: rows });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
 export async function POST(request) {
+    const guard = await requirePermission(request, 'projects', 'create');
+    if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const body = await request.json();
+        const now = nowIso();
 
-        const newProject = {
+        const doc = {
             ...body,
             publishStatus: body.publishStatus || 'draft',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: now,
+            updatedAt: now,
         };
+        // Strip undefined and the synthetic numeric `id` if present.
+        delete doc.id;
+        Object.keys(doc).forEach(k => { if (doc[k] === undefined) delete doc[k]; });
 
-        const result = await db.collection('projects').insertOne(newProject);
+        const projects = await col('projects');
+        const result = await projects.insertOne(doc);
+        const row = await projects.findOne({ _id: result.insertedId });
+
+        if (row?.publishStatus === 'published') {
+            const slug = row.isHomePage ? '/' : (row.slug || (row._id ? String(row._id) : ''));
+            const path = slug === '/' ? '/' : (slug.startsWith('/') ? slug : `/${slug}`);
+            pingSearchEngines([path]);
+        }
 
         return NextResponse.json(
-            { success: true, data: { _id: result.insertedId, ...newProject } },
+            { success: true, data: row },
             { status: 201 }
         );
     } catch (error) {

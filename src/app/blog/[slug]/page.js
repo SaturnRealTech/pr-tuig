@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import { ObjectId } from 'mongodb';
 import BlogDetailPage from '@/features/blog/BlogDetailPage';
-import clientPromise from '@/lib/mongodb';
+import { col, findOneByAnyId } from '@/lib/db';
+import { processBlogPost } from '@/lib/imageSeo';
 import {
     SITE_URL,
     createBreadcrumbSchema,
@@ -10,14 +10,13 @@ import {
     createWebPageSchema,
 } from '@/lib/seo';
 
-function normalizePost(post) {
+async function normalizePost(post) {
     if (!post) return null;
-
-    return {
+    return processBlogPost({
         ...post,
-        _id: post?._id?.toString?.() || post?._id,
-        slug: post?.slug || (post?.id ? String(post.id) : post?._id?.toString?.()),
-    };
+        _id: post._id ? String(post._id) : null,
+        slug: post.slug || (post._id ? String(post._id) : ''),
+    });
 }
 
 function toIsoDate(value) {
@@ -27,38 +26,20 @@ function toIsoDate(value) {
 }
 
 async function getPostBySlug(slug) {
-    const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-    let post = await db.collection('blog_posts').findOne({ slug });
-
-    if (!post) {
-        const numericId = Number(slug);
-        if (!Number.isNaN(numericId)) {
-            post = await db.collection('blog_posts').findOne({ id: numericId });
-        }
-    }
-
-    if (!post && ObjectId.isValid(slug)) {
-        post = await db.collection('blog_posts').findOne({ _id: new ObjectId(slug) });
-    }
-
-    return normalizePost(post);
+    const blogPosts = await col('blog_posts');
+    let row = await blogPosts.findOne({ slug });
+    if (!row) row = await findOneByAnyId('blog_posts', slug);
+    return normalizePost(row);
 }
 
 export async function generateStaticParams() {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-        const posts = await db
-            .collection('blog_posts')
-            .find({}, { projection: { slug: 1, id: 1, _id: 1 } })
-            .toArray();
-
+        const blogPosts = await col('blog_posts');
+        const posts = await blogPosts.find({}).project({ slug: 1, _id: 1 }).toArray();
         return posts
-            .map((post) => normalizePost(post)?.slug)
+            .map(p => p.slug || (p._id ? String(p._id) : null))
             .filter(Boolean)
-            .map((slug) => ({ slug }));
+            .map(slug => ({ slug: String(slug) }));
     } catch (error) {
         console.error('[blog] generateStaticParams failed:', error.message);
         return [];
@@ -88,10 +69,7 @@ export async function generateMetadata({ params }) {
         description,
         path: postPath,
         keywords: post.keywords
-            ? String(post.keywords)
-                .split(',')
-                .map((keyword) => keyword.trim())
-                .filter(Boolean)
+            ? String(post.keywords).split(',').map((k) => k.trim()).filter(Boolean)
             : ['SaaS insights', 'AI development', 'startup engineering'],
         image: post.heroImage || post.image,
         type: 'article',
@@ -102,9 +80,7 @@ export default async function BlogDetailRoute({ params }) {
     const resolvedParams = params?.then ? await params : params;
     const post = await getPostBySlug(resolvedParams.slug);
 
-    if (!post) {
-        notFound();
-    }
+    if (!post) notFound();
 
     const postPath = `/blog/${post.slug}`;
     const publishedAt = toIsoDate(post.publishedAt || post.createdAt || post.date);
@@ -116,16 +92,12 @@ export default async function BlogDetailRoute({ params }) {
             createWebPageSchema({
                 path: postPath,
                 name: post.title,
-                description:
-                    post.metaDescription ||
-                    post.excerpt ||
-                    'Detailed article from Saturnrealcon.',
+                description: post.metaDescription || post.excerpt || 'Detailed article from Saturnrealcon.',
                 type: 'WebPage',
                 aboutOrg: true,
             }),
             createOrganizationSchema({
-                description:
-                    'Saturnrealcon builds AI-first SaaS products for founders and fast-moving teams.',
+                description: 'Saturnrealcon builds AI-first SaaS products for founders and fast-moving teams.',
                 sameAs: ['https://www.linkedin.com/company/Saturnrealcon/'],
             }),
             createBreadcrumbSchema([
@@ -142,13 +114,8 @@ export default async function BlogDetailRoute({ params }) {
                 image: post.heroImage || post.image,
                 ...(publishedAt ? { datePublished: publishedAt } : {}),
                 ...(modifiedAt ? { dateModified: modifiedAt } : {}),
-                author: {
-                    '@type': 'Person',
-                    name: post.author || 'Saturnrealcon Team',
-                },
-                publisher: {
-                    '@id': `${SITE_URL}/#organization`,
-                },
+                author: { '@type': 'Person', name: post.author || 'Saturnrealcon Team' },
+                publisher: { '@id': `${SITE_URL}/#organization` },
             },
         ],
     };

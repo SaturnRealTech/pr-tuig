@@ -1,26 +1,26 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { col, nowIso } from '@/lib/db';
 
-async function getBuilderGroupId(db) {
-    const group = await db.collection('categories').findOne({ type: 'group', name: { $regex: /^builder$/i } });
+async function getBuilderGroupId(categories) {
+    const group = await categories.findOne(
+        { type: 'group', name: { $regex: /^builder$/i } },
+        { projection: { _id: 1 } },
+    );
     return group?._id || null;
 }
 
 export async function GET() {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-        const groupId = await getBuilderGroupId(db);
+        const categories = await col('categories');
+        const groupId = await getBuilderGroupId(categories);
         if (!groupId) return NextResponse.json({ success: true, data: [] });
 
-        const builders = await db
-            .collection('categories')
-            .find({ groupId, type: { $ne: 'group' } })
+        const rows = await categories
+            .find({ groupId: String(groupId), type: { $ne: 'group' } })
+            .collation({ locale: 'en', strength: 2 })
             .sort({ name: 1 })
             .toArray();
-
-        return NextResponse.json({ success: true, data: builders });
+        return NextResponse.json({ success: true, data: rows });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
@@ -34,23 +34,22 @@ export async function POST(request) {
         if (!name) {
             return NextResponse.json({ success: false, error: 'Builder name is required' }, { status: 400 });
         }
+        const now = nowIso();
+        const categories = await col('categories');
 
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-        let groupId = await getBuilderGroupId(db);
+        let groupId = await getBuilderGroupId(categories);
         if (!groupId) {
-            const result = await db.collection('categories').insertOne({
-                name: 'Builder', type: 'group', createdAt: new Date(), updatedAt: new Date(),
-            });
-            groupId = result.insertedId;
+            const groupResult = await categories.insertOne({ name: 'Builder', type: 'group', createdAt: now, updatedAt: now });
+            groupId = groupResult.insertedId;
         }
+        const groupIdStr = String(groupId);
 
         const builderSlug = slug || name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/--+/g, '-').trim();
 
-        const existing = await db.collection('categories').findOne({
-            $or: [{ name, groupId }, { slug: builderSlug }],
-        });
+        const existing = await categories.findOne(
+            { $or: [{ name, groupId: groupIdStr }, { slug: builderSlug }] },
+            { projection: { _id: 1 } },
+        );
         if (existing) {
             return NextResponse.json({ success: false, error: 'Builder name or slug already exists' }, { status: 400 });
         }
@@ -65,14 +64,13 @@ export async function POST(request) {
             mobileBanner: mobileBanner || '',
             logo: logo || '',
             faqs: Array.isArray(faqs) ? faqs.filter(f => f.question || f.answer) : [],
-            groupId,
+            groupId: groupIdStr,
             type: 'category',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: now,
+            updatedAt: now,
         };
-
-        const result = await db.collection('categories').insertOne(doc);
-        return NextResponse.json({ success: true, data: { _id: result.insertedId, ...doc } }, { status: 201 });
+        const result = await categories.insertOne(doc);
+        return NextResponse.json({ success: true, data: { _id: String(result.insertedId), ...doc } }, { status: 201 });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }

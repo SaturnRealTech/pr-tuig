@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { col, upsertByKey, nowIso } from '@/lib/db';
 
 export async function GET() {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-        const doc = await db.collection('pages').findOne({ type: 'blog' });
-        return NextResponse.json({ success: true, data: doc || {} });
+        const pages = await col('pages');
+        const row = await pages.findOne({ type: 'blog' });
+        const doc = row ? { ...row, ...(row.data || {}) } : {};
+        return NextResponse.json({ success: true, data: doc });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
@@ -15,36 +15,28 @@ export async function GET() {
 export async function POST(request) {
     try {
         const body = await request.json();
-        const {
-            desktopBanner, desktopBannerAlt,
-            mobileBanner, mobileBannerAlt,
-            bannerTitle, bannerDescription,
-            metaTitle, metaDescription, keywords,
-        } = body;
+        const dataBlob = {
+            desktopBanner: body.desktopBanner || '',
+            desktopBannerAlt: body.desktopBannerAlt || '',
+            mobileBanner: body.mobileBanner || '',
+            mobileBannerAlt: body.mobileBannerAlt || '',
+            bannerTitle: body.bannerTitle || '',
+            bannerDescription: body.bannerDescription || '',
+            metaTitle: body.metaTitle || '',
+            metaDescription: body.metaDescription || '',
+            keywords: body.keywords || '',
+        };
 
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-        await db.collection('pages').updateOne(
-            { type: 'blog' },
-            {
-                $set: {
-                    type: 'blog',
-                    desktopBanner: desktopBanner || '',
-                    desktopBannerAlt: desktopBannerAlt || '',
-                    mobileBanner: mobileBanner || '',
-                    mobileBannerAlt: mobileBannerAlt || '',
-                    bannerTitle: bannerTitle || '',
-                    bannerDescription: bannerDescription || '',
-                    metaTitle: metaTitle || '',
-                    metaDescription: metaDescription || '',
-                    keywords: keywords || '',
-                    updatedAt: new Date(),
-                },
-            },
-            { upsert: true }
-        );
-
+        const pages = await col('pages');
+        const existing = await pages.findOne({ type: 'blog' }, { projection: { _id: 1 } });
+        const payload = {
+            data: dataBlob,
+            metaTitle: body.metaTitle || '',
+            metaDescription: body.metaDescription || '',
+            updatedAt: nowIso(),
+        };
+        if (!existing) payload.createdAt = nowIso();
+        await upsertByKey('pages', 'type', 'blog', payload);
         return NextResponse.json({ success: true, message: 'Blog page settings saved' });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

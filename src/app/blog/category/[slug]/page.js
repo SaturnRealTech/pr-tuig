@@ -1,43 +1,37 @@
 import { notFound } from 'next/navigation';
-import clientPromise from '@/lib/mongodb';
+import { col } from '@/lib/db';
 import { createBreadcrumbSchema, createOrganizationSchema, createPageMetadata, createWebPageSchema } from '@/lib/seo';
 import BlogCategoryPageClient from '@/features/blog/BlogCategoryPageClient';
 
 function normalizePost(post) {
+    if (!post) return null;
     return {
         ...post,
-        _id: post?._id?.toString?.() || post?._id,
-        slug: post?.slug || (post?.id ? String(post.id) : post?._id?.toString?.()),
+        _id: post._id ? String(post._id) : null,
+        slug: post.slug || (post._id ? String(post._id) : ''),
     };
 }
 
 async function getData(slug) {
-    const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-    const [category, allPosts] = await Promise.all([
-        db.collection('blogCategories').findOne({ slug }),
-        db.collection('blog_posts').find({ category: { $exists: true } }).sort({ date: -1, createdAt: -1 }).toArray(),
-    ]);
-
+    const [blogCats, blogPosts] = await Promise.all([col('blogCategories'), col('blog_posts')]);
+    const category = await blogCats.findOne({ slug });
     if (!category) return null;
-
-    const posts = allPosts
-        .filter((p) => p.category === category.name)
-        .map(normalizePost);
-
+    const posts = (await blogPosts
+        .find({ category: category.name })
+        .sort({ date: -1, createdAt: -1 })
+        .toArray()
+    ).map(normalizePost).filter(Boolean);
     return {
-        category: { ...category, _id: category._id?.toString() },
+        category: { ...category, _id: category._id ? String(category._id) : '' },
         posts,
     };
 }
 
 export async function generateStaticParams() {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-        const cats = await db.collection('blogCategories').find({}, { projection: { slug: 1 } }).toArray();
-        return cats.filter((c) => c?.slug).map((c) => ({ slug: c.slug }));
+        const blogCats = await col('blogCategories');
+        const cats = await blogCats.find({ slug: { $ne: null } }).project({ slug: 1 }).toArray();
+        return cats.filter((c) => c.slug).map((c) => ({ slug: c.slug }));
     } catch {
         return [];
     }

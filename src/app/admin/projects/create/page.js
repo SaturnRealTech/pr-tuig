@@ -200,6 +200,9 @@ export default function CreateProject() {
                 ...(p('publishStatus') !== undefined && { publishStatus: str('publishStatus') }),
                 ...(p('shortOverview', 'overviewShort', 'briefOverview', 'summary') !== undefined && { shortOverview: str('shortOverview', 'overviewShort', 'briefOverview', 'summary') }),
                 ...(p('bhkConfig', 'configurationLabel', 'bhk', 'configurationsShort') !== undefined && { bhkConfig: str('bhkConfig', 'configurationLabel', 'bhk', 'configurationsShort') }),
+                ...(p('heroBadge1') !== undefined && { heroBadge1: str('heroBadge1') }),
+                ...(p('heroBadge2') !== undefined && { heroBadge2: str('heroBadge2') }),
+                ...(p('heroBadge3') !== undefined && { heroBadge3: str('heroBadge3') }),
                 ...(p('carpetArea', 'carpet', 'carpetRange', 'plotSize') !== undefined && { carpetArea: str('carpetArea', 'carpet', 'carpetRange', 'plotSize') }),
                 ...(p('landParcel', 'density', 'landSize') !== undefined && { landParcel: str('landParcel', 'density', 'landSize') }),
                 ...(p('keyHighlightsTitle') !== undefined && { keyHighlightsTitle: str('keyHighlightsTitle') }),
@@ -290,6 +293,9 @@ export default function CreateProject() {
         bhkConfig: '',
         carpetArea: '',
         landParcel: '',
+        heroBadge1: '',
+        heroBadge2: '',
+        heroBadge3: '',
         lat: '',
         lng: '',
         company: '',
@@ -828,6 +834,23 @@ export default function CreateProject() {
                                                 <input type="text" name="landParcel" value={formData.landParcel} onChange={handleChange}
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="Only 1 Tower on 7.5 Acres" />
+                                            </div>
+                                        </div>
+
+                                        {/* Hero badges — three small chips overlaid on the hero image */}
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-700 mb-1">Hero Badges</p>
+                                            <p className="text-xs text-gray-400 mb-3">Three small chips shown above the project title on the hero banner. Leave any field empty to hide that chip.</p>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <input type="text" name="heroBadge1" value={formData.heroBadge1} onChange={handleChange}
+                                                    className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
+                                                    placeholder="★ New Launch 2026" />
+                                                <input type="text" name="heroBadge2" value={formData.heroBadge2} onChange={handleChange}
+                                                    className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
+                                                    placeholder="Total Environment" />
+                                                <input type="text" name="heroBadge3" value={formData.heroBadge3} onChange={handleChange}
+                                                    className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
+                                                    placeholder="▼ Pre-Launch Pricing Live" />
                                             </div>
                                         </div>
 

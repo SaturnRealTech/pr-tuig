@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { uploadToS3, uploadMultipleToS3, deleteFromS3 } from '@/lib/s3-upload';
-import clientPromise from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { col, findOneByAnyId, updateByAnyId, nowIso } from '@/lib/db';
 import sharp from 'sharp';
 
 // POST - Upload single or multiple images with metadata
@@ -11,7 +10,6 @@ export async function POST(request) {
         const files = formData.getAll('files');
         const folder = formData.get('folder') || 'uploads';
 
-        // Per-file metadata (JSON string arrays sent alongside files)
         const namesRaw = formData.get('names');
         const altsRaw = formData.get('alts');
         const typesRaw = formData.get('types');
@@ -24,7 +22,6 @@ export async function POST(request) {
             return NextResponse.json({ success: false, error: 'No files provided' }, { status: 400 });
         }
 
-        // Process files: read buffer + get image dimensions
         const fileBuffers = await Promise.all(
             files.map(async (file, i) => {
                 const bytes = await file.arrayBuffer();
@@ -35,7 +32,7 @@ export async function POST(request) {
                     const meta = await sharp(buffer).metadata();
                     width = meta.width || null;
                     height = meta.height || null;
-                } catch { }
+                } catch { /* ignore */ }
 
                 const baseName = file.name.replace(/\.[^.]+$/, '');
                 const autoAlt = baseName.replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim()
@@ -54,7 +51,6 @@ export async function POST(request) {
             })
         );
 
-        // Upload files to local storage
         let urls;
         if (fileBuffers.length === 1) {
             const fb = fileBuffers[0];
@@ -66,57 +62,51 @@ export async function POST(request) {
             );
         }
 
-        // Save to media library with full metadata
         try {
-            const client = await clientPromise;
-            const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
             const replaceId = formData.get('replaceId');
+            const now = nowIso();
+            const media = await col('media');
 
-            if (replaceId && ObjectId.isValid(replaceId)) {
-                // Replace mode: delete old file, update existing record
-                const existing = await db.collection('media').findOne({ _id: new ObjectId(replaceId) });
+            if (replaceId) {
+                const existing = await findOneByAnyId('media', replaceId, { withSlug: false });
                 if (existing?.url) {
-                    try { await deleteFromS3(existing.url); } catch { }
+                    try { await deleteFromS3(existing.url); } catch { /* ignore */ }
                 }
                 const fb = fileBuffers[0];
-                await db.collection('media').updateOne(
-                    { _id: new ObjectId(replaceId) },
-                    {
-                        $set: {
-                            url: urls[0],
-                            fileName: fb.name,
-                            mimeType: fb.type,
-                            size: fb.size,
-                            width: fb.width,
-                            height: fb.height,
-                            updatedAt: new Date(),
-                        },
-                    }
-                );
+                await updateByAnyId('media', replaceId, {
+                    url: urls[0],
+                    fileName: fb.name,
+                    mimeType: fb.type,
+                    size: fb.size,
+                    width: fb.width,
+                    height: fb.height,
+                    updatedAt: now,
+                });
             } else {
-                // Normal upload: insert new records
-                const mediaRecords = urls.map((url, i) => ({
-                    url,
-                    fileName: fileBuffers[i]?.name || url.split('/').pop(),
-                    customName: fileBuffers[i]?.customName || '',
-                    alt: fileBuffers[i]?.alt || '',
-                    imageType: fileBuffers[i]?.imageType || 'gallery',
-                    folder,
-                    mimeType: fileBuffers[i]?.type || 'image/jpeg',
-                    size: fileBuffers[i]?.size || 0,
-                    width: fileBuffers[i]?.width || null,
-                    height: fileBuffers[i]?.height || null,
-                    uploadedAt: new Date(),
-                }));
-                await db.collection('media').insertMany(mediaRecords);
+                const docs = urls.map((url, i) => {
+                    const fb = fileBuffers[i] || {};
+                    return {
+                        url,
+                        fileName: fb.name || url.split('/').pop(),
+                        customName: fb.customName || '',
+                        alt: fb.alt || '',
+                        imageType: fb.imageType || 'gallery',
+                        folder,
+                        mimeType: fb.type || 'image/jpeg',
+                        size: fb.size || 0,
+                        width: fb.width || null,
+                        height: fb.height || null,
+                        uploadedAt: now,
+                        createdAt: now,
+                    };
+                });
+                if (docs.length) await media.insertMany(docs, { ordered: false });
             }
         } catch (dbErr) {
             console.error('[UPLOAD] Failed to save to media library:', dbErr.message);
         }
 
         return NextResponse.json({ success: true, urls, count: urls.length }, { status: 200 });
-
     } catch (error) {
         console.error('[UPLOAD] Error:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

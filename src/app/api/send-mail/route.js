@@ -1,17 +1,14 @@
 import nodemailer from "nodemailer";
 import { UAParser } from "ua-parser-js";
-import clientPromise from "@/lib/mongodb";
+import { col, nowIso } from "@/lib/db";
 
 export async function POST(request) {
     try {
         const body = await request.json();
         const { name, email, message, mobileNumber } = body;
 
-        // Get additional request metadata
         const currentDate = new Date().toLocaleDateString();
-        const currentTime = new Date().toLocaleTimeString([], {
-            hour: "2-digit", minute: "2-digit", hour12: true,
-        });
+        const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
 
         const remoteIP =
             request.headers.get("x-real-ip") ||
@@ -27,33 +24,26 @@ export async function POST(request) {
         const browserDetails = `${browser.name} ${browser.version}`;
         const osDetails = `${os.name} ${os.version}`;
 
-        // Store in MongoDB database
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || "Saturnrealcon");
-
-        const contactData = {
-            name,
-            email,
-            mobileNumber,
-            message,
-            remoteIP,
-            browser: browserDetails,
-            os: osDetails,
-            userAgent: userAgentString,
-            submittedAt: new Date(),
-            status: "new", // Can be: new, contacted, closed
+        const now = nowIso();
+        const doc = {
+            name, email, mobileNumber, message,
+            status: 'new', submittedAt: now, createdAt: now,
+            meta: { remoteIP, browser: browserDetails, os: osDetails, userAgent: userAgentString },
         };
+        const contacts = await col('contacts');
+        const result = await contacts.insertOne(doc);
+        const insertedId = String(result.insertedId);
 
-        const result = await db.collection("contacts").insertOne(contactData);
-
-        // Send email notification (async - don't wait for it)
+        // Send email notification (fire and forget)
         (async () => {
             try {
-                const settings = await db.collection('settings').findOne({ type: 'brand' });
+                const settingsCol = await col('settings');
+                const row = await settingsCol.findOne({ type: 'brand' });
+                const settings = row?.data || {};
 
-                const smtpHost = settings?.smtpHost;
-                const smtpUser = settings?.smtpUser;
-                const smtpPass = settings?.smtpPass;
+                const smtpHost = settings.smtpHost;
+                const smtpUser = settings.smtpUser;
+                const smtpPass = settings.smtpPass;
 
                 if (!smtpHost || !smtpUser || !smtpPass) {
                     console.warn('Mail settings not configured — skipping email notification');
@@ -62,22 +52,22 @@ export async function POST(request) {
 
                 const transporter = nodemailer.createTransport({
                     host: smtpHost,
-                    port: parseInt(settings?.smtpPort || '465', 10),
-                    secure: settings?.smtpSecure !== false,
+                    port: parseInt(settings.smtpPort || '465', 10),
+                    secure: settings.smtpSecure !== false,
                     auth: { user: smtpUser, pass: smtpPass },
                 });
 
-                const siteName = settings?.siteName || 'Site';
-                const fromName = settings?.mailFromName || siteName;
-                const fromEmail = settings?.mailFrom || smtpUser;
-                const toEmail = settings?.mailTo || smtpUser;
-                const subject = settings?.mailSubject
+                const siteName = settings.siteName || 'Site';
+                const fromName = settings.mailFromName || siteName;
+                const fromEmail = settings.mailFrom || smtpUser;
+                const toEmail = settings.mailTo || smtpUser;
+                const subject = settings.mailSubject
                     ? `${settings.mailSubject}: New Inquiry from ${name}`
                     : `New Inquiry from ${name}`;
 
                 const htmlContent = `
                     <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
-                        <h2 style="color: #b27e02; margin-bottom: 16px;">${siteName} — New Inquiry</h2>
+                        <h2 style="color: #c8a96a; margin-bottom: 16px;">${siteName} — New Inquiry</h2>
                         <table style="width:100%; border-collapse:collapse; font-size:14px;">
                             <tr><td style="padding:8px; font-weight:bold; width:140px;">Name</td><td style="padding:8px;">${name}</td></tr>
                             <tr style="background:#f9f9f9;"><td style="padding:8px; font-weight:bold;">Email</td><td style="padding:8px;">${email}</td></tr>
@@ -106,7 +96,7 @@ export async function POST(request) {
             JSON.stringify({
                 success: true,
                 message: "Contact form submitted successfully",
-                data: { _id: result.insertedId },
+                data: { _id: insertedId },
             }),
             { status: 201, headers: { "Content-Type": "application/json" } }
         );

@@ -1,19 +1,18 @@
-import clientPromise from '@/lib/mongodb';
+import { col } from '@/lib/db';
 import { SITE_URL, createBreadcrumbSchema, createOrganizationSchema, createPageMetadata, createWebPageSchema } from '@/lib/seo';
 import BlogCategoriesListClient from '@/features/blog/BlogCategoriesListClient';
 
 async function getData() {
-    const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-    const [categories, posts, pageDoc] = await Promise.all([
-        db.collection('blogCategories').find({}).sort({ name: 1 }).toArray(),
-        db.collection('blog_posts').find({}, { projection: { category: 1 } }).toArray(),
-        db.collection('pages').findOne({ type: 'blog-category-list' }),
+    const [blogCats, blogPosts, pages] = await Promise.all([col('blogCategories'), col('blog_posts'), col('pages')]);
+    const [categories, posts, pageRow] = await Promise.all([
+        blogCats.find({}).collation({ locale: 'en', strength: 2 }).sort({ name: 1 }).toArray(),
+        blogPosts.find({}).project({ category: 1 }).toArray(),
+        pages.findOne({ type: 'blog-category-list' }),
     ]);
+    const pageDoc = pageRow ? { ...(pageRow.data || {}), ...pageRow } : null;
 
     const normalizedCategories = categories.map((c) => ({
-        _id: c._id?.toString(),
+        _id: c._id ? String(c._id) : '',
         name: c.name || '',
         slug: c.slug || '',
         description: c.description || '',
@@ -39,9 +38,9 @@ async function getData() {
 
 export async function generateMetadata() {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-        const pageDoc = await db.collection('pages').findOne({ type: 'blog-category-list' });
+        const pages = await col('pages');
+        const pageRow = await pages.findOne({ type: 'blog-category-list' });
+        const pageDoc = pageRow ? { ...(pageRow.data || {}), ...pageRow } : null;
         if (pageDoc?.metaTitle || pageDoc?.metaDescription) {
             return createPageMetadata({
                 title: pageDoc.metaTitle || 'Blog Categories',
@@ -74,7 +73,6 @@ export default async function BlogCategoryListPage() {
                 type: 'CollectionPage',
                 aboutOrg: true,
             }),
-            // ItemList — Google uses this for rich result carousels
             {
                 '@type': 'ItemList',
                 '@id': `${SITE_URL}/blog/category#category-list`,

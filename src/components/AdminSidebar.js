@@ -5,6 +5,7 @@ import { useSettings } from '@/lib/SettingsContext';
 import {
     MdDashboard, MdArticle, MdWork, MdPeople, MdLogout,
     MdMenu, MdClose, MdCategory, MdFormatQuote, MdImage, MdHome, MdPrivacyTip, MdGavel, MdCookie, MdBusiness, MdContactMail, MdInbox,
+    MdSwapHoriz, MdShowChart, MdAdminPanelSettings, MdImageAspectRatio, MdSearch,
 } from 'react-icons/md';
 
 const NAV_ITEMS = [
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
     // { href: '/admin/testimonials', icon: MdFormatQuote, label: 'Testimonials' },
     { href: '/admin/media', icon: MdImage, label: 'Media' },
     { href: '/admin/leads', icon: MdInbox, label: 'Leads' },
+    { href: '/admin/seo', icon: MdSearch, label: 'SEO' },
     // { href: '/admin/careers', icon: MdWork, label: 'Careers' },
     // { href: '/admin/applications', icon: MdPeople, label: 'Applications' },
     // { href: '/admin/contacts', icon: MdContactMail, label: 'Contacts' },

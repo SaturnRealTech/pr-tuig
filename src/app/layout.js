@@ -1,7 +1,10 @@
 import "./globals.css";
-import clientPromise from '@/lib/mongodb';
+import { Suspense } from 'react';
+import { col } from '@/lib/db';
 import SettingsProvider from '@/components/SettingsProvider';
 import EnquireNowProvider from '@/components/EnquireNowProvider';
+import AnalyticsTracker from '@/components/AnalyticsTracker';
+import { buildLocalBusinessSchema } from '@/lib/localSeo';
 import { Inter, Playfair_Display } from "next/font/google";
 export const dynamic = 'force-dynamic';
 
@@ -104,43 +107,89 @@ export const metadata = {
 };
 
 
+const THEME_DEFAULTS = {
+  themeBackground: '#f7f5ef',
+  themeForeground: '#14241b',
+  themeLeaf: '#1f5d3a',
+  themeMoss: '#244a36',
+  themeForest: '#0f2a1e',
+  themeBark: '#3a2a1c',
+  themeGold: '#c8a96a',
+  themeCream: '#f1ead7',
+};
+
 async function getSettings() {
   try {
-    const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-    const doc = await db.collection('settings').findOne({ type: 'brand' });
+    const settings = await col('settings');
+    const row = await settings.findOne({ type: 'brand' });
+    const doc = row?.data || {};
     return {
-      primary: doc?.primaryColor || '#b27e02',
-      primaryDark: doc?.primaryDark || '#8a6002',
-      primaryLight: doc?.primaryLight || '#d4a030',
-      headerScrollBg: doc?.headerScrollBg || '#ffffff',
-      siteName: doc?.siteName || '',
-      siteLogo: doc?.siteLogo || '',
-      contactPhone: doc?.contactPhone || '',
-      whatsappNumber: doc?.whatsappNumber || '',
-      cinNumber: doc?.cinNumber || '',
-      copyrightText: doc?.copyrightText || '',
-      footerTagline: doc?.footerTagline || '',
-      footerDescription: doc?.footerDescription || '',
-      footerTrustText: doc?.footerTrustText || '',
+      primary: doc.primaryColor || '#b27e02',
+      primaryDark: doc.primaryDark || '#8a6002',
+      primaryLight: doc.primaryLight || '#d4a030',
+      headerScrollBg: doc.headerScrollBg || '#ffffff',
+      themeBackground: doc.themeBackground || THEME_DEFAULTS.themeBackground,
+      themeForeground: doc.themeForeground || THEME_DEFAULTS.themeForeground,
+      themeLeaf: doc.themeLeaf || THEME_DEFAULTS.themeLeaf,
+      themeMoss: doc.themeMoss || THEME_DEFAULTS.themeMoss,
+      themeForest: doc.themeForest || THEME_DEFAULTS.themeForest,
+      themeBark: doc.themeBark || THEME_DEFAULTS.themeBark,
+      themeGold: doc.themeGold || THEME_DEFAULTS.themeGold,
+      themeCream: doc.themeCream || THEME_DEFAULTS.themeCream,
+      siteName: doc.siteName || '',
+      siteLogo: doc.siteLogo || '',
+      favicon: doc.favicon || '',
+      contactPhone: doc.contactPhone || '',
+      whatsappNumber: doc.whatsappNumber || '',
+      cinNumber: doc.cinNumber || '',
+      copyrightText: doc.copyrightText || '',
+      footerTagline: doc.footerTagline || '',
+      footerDescription: doc.footerDescription || '',
+      footerTrustText: doc.footerTrustText || '',
     };
   } catch {
-    return { primary: '#b27e02', primaryDark: '#8a6002', primaryLight: '#d4a030', headerScrollBg: '#ffffff', siteName: '', siteLogo: '', contactPhone: '', whatsappNumber: '', cinNumber: '', copyrightText: '', footerTagline: '', footerDescription: '', footerTrustText: '' };
+    return { primary: '#b27e02', primaryDark: '#8a6002', primaryLight: '#d4a030', headerScrollBg: '#ffffff', ...THEME_DEFAULTS, siteName: '', siteLogo: '', favicon: '', contactPhone: '', whatsappNumber: '', cinNumber: '', copyrightText: '', footerTagline: '', footerDescription: '', footerTrustText: '' };
   }
+}
+
+function faviconMime(url) {
+  const ext = String(url || '').split('?')[0].split('.').pop().toLowerCase();
+  if (ext === 'svg') return 'image/svg+xml';
+  if (ext === 'ico') return 'image/x-icon';
+  if (ext === 'png') return 'image/png';
+  if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg';
+  if (ext === 'webp') return 'image/webp';
+  return undefined;
 }
 
 export default async function RootLayout({ children }) {
   const settings = await getSettings();
+  const localBusinessSchema = await buildLocalBusinessSchema(SITE_URL);
   return (
     <html lang="en"
 
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
       <head>
-        <style dangerouslySetInnerHTML={{ __html: `:root{--primary:${settings.primary};--primary-dark:${settings.primaryDark};--primary-light:${settings.primaryLight};}` }} />
-
+        <style dangerouslySetInnerHTML={{ __html: `:root{--primary:${settings.primary};--primary-dark:${settings.primaryDark};--primary-light:${settings.primaryLight};--background:${settings.themeBackground};--foreground:${settings.themeForeground};--leaf:${settings.themeLeaf};--moss:${settings.themeMoss};--forest:${settings.themeForest};--bark:${settings.themeBark};--gold:${settings.themeGold};--cream:${settings.themeCream};}` }} />
+        {settings.favicon && (
+          <>
+            <link rel="icon" href={settings.favicon} type={faviconMime(settings.favicon)} />
+            <link rel="shortcut icon" href={settings.favicon} type={faviconMime(settings.favicon)} />
+            <link rel="apple-touch-icon" href={settings.favicon} />
+          </>
+        )}
+        {localBusinessSchema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+          />
+        )}
       </head>
       <body className="antialiased">
+        <Suspense fallback={null}>
+          <AnalyticsTracker />
+        </Suspense>
         <SettingsProvider settings={{ siteName: settings.siteName, siteLogo: settings.siteLogo, contactPhone: settings.contactPhone, whatsappNumber: settings.whatsappNumber, cinNumber: settings.cinNumber, copyrightText: settings.copyrightText, footerTagline: settings.footerTagline, footerDescription: settings.footerDescription, footerTrustText: settings.footerTrustText, headerScrollBg: settings.headerScrollBg }}>
           <EnquireNowProvider>
             {children}

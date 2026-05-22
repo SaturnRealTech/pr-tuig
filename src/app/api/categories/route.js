@@ -1,33 +1,25 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { col, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
 
 // GET - Fetch all categories or by slug
 export async function GET(request) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { searchParams } = new URL(request.url);
         const slug = searchParams.get('slug');
 
-        const query = {};
-        if (slug) query.slug = slug;
-
-        const categories = await db
-            .collection('categories')
-            .find(query)
+        const categories = await col('categories');
+        const filter = slug ? { slug } : {};
+        const rows = await categories
+            .find(filter)
+            .collation({ locale: 'en', strength: 2 })
             .sort({ name: 1 })
             .toArray();
 
-        return NextResponse.json({ success: true, data: categories });
+        return NextResponse.json({ success: true, data: rows });
     } catch (error) {
         console.error('Error fetching categories:', error);
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
@@ -44,39 +36,31 @@ export async function POST(request) {
         } = body;
 
         if (!name) {
-            return NextResponse.json(
-                { success: false, error: 'Name is required' },
-                { status: 400 }
-            );
+            return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 });
         }
+        const now = nowIso();
+        const categories = await col('categories');
 
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-        // ── Group: just a name, no slug ──────────────────────────────────────
+        // ── Group ────────────────────────────────────────────────────────────
         if (bodyType === 'group') {
-            const existing = await db.collection('categories').findOne({ name, type: 'group' });
+            const existing = await categories.findOne({ name, type: 'group' }, { projection: { _id: 1 } });
             if (existing) {
                 return NextResponse.json({ success: false, error: 'Group already exists' }, { status: 400 });
             }
-            const group = { name, type: 'group', createdAt: new Date(), updatedAt: new Date() };
-            const result = await db.collection('categories').insertOne(group);
-            return NextResponse.json({ success: true, data: { _id: result.insertedId, ...group } }, { status: 201 });
+            const doc = { name, type: 'group', createdAt: now, updatedAt: now };
+            const result = await categories.insertOne(doc);
+            return NextResponse.json({ success: true, data: { _id: result.insertedId, ...doc } }, { status: 201 });
         }
 
-        // ── Category: has slug, groupId, SEO ─────────────────────────────────
+        // ── Category ─────────────────────────────────────────────────────────
         const categorySlug = slug || name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/--+/g, '-').trim();
 
-        const existing = await db.collection('categories').findOne({
-            $or: [{ name, type: { $ne: 'group' } }, { slug: categorySlug }],
-        });
+        const existing = await categories.findOne(
+            { $or: [{ name, type: { $ne: 'group' } }, { slug: categorySlug }] },
+            { projection: { _id: 1 } },
+        );
         if (existing) {
             return NextResponse.json({ success: false, error: 'Category name or slug already exists' }, { status: 400 });
-        }
-
-        let resolvedGroupId = null;
-        if (groupId && ObjectId.isValid(groupId)) {
-            resolvedGroupId = new ObjectId(groupId);
         }
 
         const category = {
@@ -94,14 +78,13 @@ export async function POST(request) {
             mobileBannerAlt: mobileBannerAlt || '',
             logo: logo || '',
             faqs: Array.isArray(faqs) ? faqs.filter(f => f.question || f.answer) : [],
-            groupId: resolvedGroupId,
+            groupId: groupId || null,
             type: 'category',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: now,
+            updatedAt: now,
             count: 0,
         };
-
-        const result = await db.collection('categories').insertOne(category);
+        const result = await categories.insertOne(category);
         return NextResponse.json({ success: true, data: { _id: result.insertedId, ...category } }, { status: 201 });
     } catch (error) {
         console.error('Error creating category:', error);
@@ -109,47 +92,33 @@ export async function POST(request) {
     }
 }
 
-// DELETE - Delete category (also removes children's parent reference)
+// DELETE - Delete category (also promotes its children to top-level)
 export async function DELETE(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
     try {
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
-
         if (!id) {
-            return NextResponse.json(
-                { success: false, error: 'Category ID is required' },
-                { status: 400 }
-            );
+            return NextResponse.json({ success: false, error: 'Category ID is required' }, { status: 400 });
         }
 
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
+        const categories = await col('categories');
+        const { findOneByAnyId } = await import('@/lib/db');
+        const target = await findOneByAnyId('categories', id, { withSlug: false });
+        if (!target) {
+            return NextResponse.json({ success: false, error: 'Category not found' }, { status: 404 });
+        }
 
-        const objectId = new ObjectId(id);
-
-        // Promote children to parent when their parent is deleted
-        await db.collection('categories').updateMany(
-            { parentId: objectId },
-            { $set: { parentId: null, type: 'parent' } }
+        const targetKey = String(target._id);
+        await categories.updateMany(
+            { parentId: targetKey },
+            { $set: { parentId: null, type: 'parent' } },
         );
-
-        const result = await db.collection('categories').deleteOne({ _id: objectId });
-
-        if (result.deletedCount === 0) {
-            return NextResponse.json(
-                { success: false, error: 'Category not found' },
-                { status: 404 }
-            );
-        }
-
+        await categories.deleteOne({ _id: target._id });
         return NextResponse.json({ success: true, message: 'Category deleted successfully' });
     } catch (error) {
         console.error('Error deleting category:', error);
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

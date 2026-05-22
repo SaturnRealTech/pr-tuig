@@ -1,50 +1,51 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
+import { pingSearchEngines } from '@/lib/seoPing';
+
+function buildUpdate(body) {
+    const out = { ...body, updatedAt: nowIso() };
+    delete out.id;
+    Object.keys(out).forEach(k => { if (out[k] === undefined) delete out[k]; });
+    return out;
+}
 
 // GET - Fetch a single project by ID
 export async function GET(request, { params }) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { id } = await params;
-
-        // Try to find by numeric ID first, then by MongoDB _id
-        let project = await db.collection('projects').findOne({ id: parseInt(id) });
-
-        if (!project && ObjectId.isValid(id)) {
-            project = await db.collection('projects').findOne({ _id: new ObjectId(id) });
+        const row = await findOneByAnyId('projects', id);
+        if (!row) {
+            return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 });
         }
-
-        if (!project) {
-            return NextResponse.json(
-                { success: false, error: 'Project not found' },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({ success: true, data: project });
+        return NextResponse.json({ success: true, data: row });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
+}
+
+function projectUrlFor(row) {
+    if (!row) return null;
+    if (row.isHomePage) return '/';
+    const slug = row.slug || (row._id ? String(row._id) : '');
+    return slug ? `/${slug}` : null;
 }
 
 // PATCH - Quick field update (e.g. toggle publishStatus)
 export async function PATCH(request, { params }) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
         const { id } = await params;
         const body = await request.json();
-
-        const filter = ObjectId.isValid(id) ? { _id: new ObjectId(id) } : { id: parseInt(id) };
-        await db.collection('projects').updateOne(filter, { $set: { ...body, updatedAt: new Date() } });
-
+        const updateData = buildUpdate(body);
+        const changes = await updateByAnyId('projects', id, updateData);
+        if (!changes) {
+            return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 });
+        }
+        if (body && body.publishStatus === 'published') {
+            const row = await findOneByAnyId('projects', id);
+            const url = projectUrlFor(row);
+            if (url) pingSearchEngines([url]);
+        }
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -54,43 +55,23 @@ export async function PATCH(request, { params }) {
 // PUT - Update a project
 export async function PUT(request, { params }) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { id } = await params;
         const body = await request.json();
+        const updateData = buildUpdate(body);
 
-        const updateData = {
-            ...body,
-            updatedAt: new Date()
-        };
-
-        let result;
-        if (ObjectId.isValid(id)) {
-            result = await db.collection('projects').updateOne(
-                { _id: new ObjectId(id) },
-                { $set: updateData }
-            );
-        } else {
-            result = await db.collection('projects').updateOne(
-                { id: parseInt(id) },
-                { $set: updateData }
-            );
+        const changes = await updateByAnyId('projects', id, updateData);
+        if (!changes) {
+            return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 });
         }
 
-        if (result.matchedCount === 0) {
-            return NextResponse.json(
-                { success: false, error: 'Project not found' },
-                { status: 404 }
-            );
+        const row = await findOneByAnyId('projects', id);
+        if (row?.publishStatus === 'published') {
+            const url = projectUrlFor(row);
+            if (url) pingSearchEngines([url]);
         }
-
-        return NextResponse.json({ success: true, data: updateData });
+        return NextResponse.json({ success: true, data: row });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
@@ -98,82 +79,32 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
+
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { id } = await params;
-
-        console.log('[DELETE] Attempting to delete project with id:', id);
-
-        // Find project first to get image URL
-        let project;
-        if (ObjectId.isValid(id)) {
-            project = await db.collection('projects').findOne({ _id: new ObjectId(id) });
-        } else {
-            project = await db.collection('projects').findOne({ id: parseInt(id) });
+        const row = await findOneByAnyId('projects', id);
+        if (!row) {
+            return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 });
         }
 
-        console.log('[DELETE] Project found:', project ? 'Yes' : 'No');
-
-        if (!project) {
-            console.log('[DELETE] Project not found in database');
-            return NextResponse.json(
-                { success: false, error: 'Project not found' },
-                { status: 404 }
-            );
-        }
-
-        // Delete local image if exists
-        if (project.image) {
+        if (row.desktopBanner && row.desktopBanner.startsWith('/images/')) {
             try {
-                const imageUrl = project.image;
-                console.log('[DELETE] Project has image:', imageUrl);
-
-                if (imageUrl.startsWith('/images/')) {
-                    const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/s3-delete`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ key: imageUrl })
-                    });
-                    const deleteResult = await deleteResponse.json();
-                    console.log('[DELETE] Image delete result:', deleteResult);
-                } else {
-                    console.log('[DELETE] Image is not a local file, skipping deletion');
-                }
-            } catch (deleteError) {
-                console.error('[DELETE] Failed to delete image:', deleteError);
-            }
-        } else {
-            console.log('[DELETE] Project has no image to delete');
+                await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/s3-delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: row.desktopBanner }),
+                });
+            } catch { /* ignore */ }
         }
 
-        // Delete project from database
-        let result;
-        if (ObjectId.isValid(id)) {
-            result = await db.collection('projects').deleteOne({ _id: new ObjectId(id) });
-        } else {
-            result = await db.collection('projects').deleteOne({ id: parseInt(id) });
+        const wasPublishedUrl = row.publishStatus === 'published' ? projectUrlFor(row) : null;
+        const changes = await deleteByAnyId('projects', id);
+        if (!changes) {
+            return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 });
         }
-
-        console.log('[DELETE] Delete result:', result);
-        console.log('[DELETE] Deleted count:', result.deletedCount);
-
-        if (result.deletedCount === 0) {
-            console.log('[DELETE] No documents were deleted');
-            return NextResponse.json(
-                { success: false, error: 'Project not found' },
-                { status: 404 }
-            );
-        }
-
-        console.log('[DELETE] Project successfully deleted');
+        if (wasPublishedUrl) pingSearchEngines([wasPublishedUrl], { type: 'URL_DELETED' });
         return NextResponse.json({ success: true, message: 'Project deleted' });
     } catch (error) {
-        console.error('[DELETE] Error:', error);
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

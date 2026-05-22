@@ -1,23 +1,20 @@
 import { notFound } from 'next/navigation';
-import clientPromise from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { col, findOneByAnyId } from '@/lib/db';
+import { processProject } from '@/lib/imageSeo';
 import ProjectDetailPage from '@/features/projects/ProjectDetailPage';
 import {
     SITE_URL,
     createBreadcrumbSchema,
-    createOrganizationSchema,
     createPageMetadata,
 } from '@/lib/seo';
 
-// ── Normalizers ───────────────────────────────────────────────────────────────
-
-function normalizeProject(project) {
+async function normalizeProject(project) {
     if (!project) return null;
-    return {
+    return processProject({
         ...project,
-        _id: project?._id?.toString?.() || project?._id,
-        slug: project?.slug || (project?.id ? String(project.id) : project?._id?.toString?.()),
-    };
+        _id: project._id ? String(project._id) : null,
+        slug: project.slug || (project._id ? String(project._id) : ''),
+    });
 }
 
 function toIsoDate(value) {
@@ -26,57 +23,33 @@ function toIsoDate(value) {
     return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
-// ── DB helpers ────────────────────────────────────────────────────────────────
-
-async function getDb() {
-    const client = await clientPromise;
-    return client.db(process.env.DB_NAME || 'SaturnRealcon');
+async function findProjectByAny(slug) {
+    const projects = await col('projects');
+    let row = await projects.findOne({ slug });
+    if (!row) row = await findOneByAnyId('projects', slug);
+    return normalizeProject(row);
 }
-
-async function findProject(db, slug) {
-    let project = await db.collection('projects').findOne({ slug });
-    if (!project) {
-        const numericId = Number(slug);
-        if (!Number.isNaN(numericId)) {
-            project = await db.collection('projects').findOne({ id: numericId });
-        }
-    }
-    if (!project && ObjectId.isValid(slug)) {
-        project = await db.collection('projects').findOne({ _id: new ObjectId(slug) });
-    }
-    return normalizeProject(project);
-}
-
-// ── Static params: projects only ─────────────────────────────────────────────
 
 export async function generateStaticParams() {
     try {
-        const db = await getDb();
-        const projects = await db
-            .collection('projects')
-            .find({}, { projection: { slug: 1, id: 1, _id: 1 } })
-            .toArray();
-
-        return projects
-            .map(p => normalizeProject(p)?.slug)
-            .filter(s => s && !s.includes('/'))
-            .map(s => ({ slug: [s] }));
+        const projects = await col('projects');
+        const rows = await projects.find({}).project({ slug: 1, _id: 1 }).toArray();
+        return rows
+            .map(r => r.slug || (r._id ? String(r._id) : null))
+            .filter(s => s && !String(s).includes('/'))
+            .map(s => ({ slug: [String(s)] }));
     } catch {
         return [];
     }
 }
-
-// ── Metadata ──────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }) {
     const { slug: slugArr } = await params;
     const slug = slugArr.join('/');
 
     try {
-        const db = await getDb();
-
         if (slugArr.length === 1) {
-            const project = await findProject(db, slug);
+            const project = await findProjectByAny(slug);
             if (project) {
                 const description = project.metaDescription || project.description || project.title || '';
                 return createPageMetadata({
@@ -91,29 +64,25 @@ export async function generateMetadata({ params }) {
                 });
             }
         }
-
         return { title: 'Saturn RealCon' };
     } catch {
         return { title: 'Saturn RealCon' };
     }
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default async function SlugPage({ params }) {
     const { slug: slugArr } = await params;
     const slug = slugArr.join('/');
 
-    const db = await getDb();
-
     if (slugArr.length === 1) {
-        const project = await findProject(db, slug);
+        const project = await findProjectByAny(slug);
 
         if (project) {
-            db.collection('projects').updateOne(
-                { slug: project.slug },
-                { $inc: { views: 1 } }
-            ).catch(() => { });
+            // Fire-and-forget view counter; ignore failures.
+            try {
+                const projects = await col('projects');
+                await projects.updateOne({ _id: project._id }, { $inc: { views: 1 } });
+            } catch { /* ignore */ }
 
             const projectPath = `/${slug}`;
             const publishedAt = toIsoDate(project.publishedAt || project.createdAt || project.date);
@@ -130,18 +99,7 @@ export default async function SlugPage({ params }) {
                     description: project.schemaDescription || project.metaDescription || project.description || project.title,
                     url: `${SITE_URL}${projectPath}`,
                     image: [project.desktopBanner, project.mobileBanner].filter(Boolean),
-                    // ...((project.schemaBrand || project.company) ? {
-                    //     brand: { '@type': 'Brand', name: project.schemaBrand || project.company },
-                    // } : {}),
                     ...(publishedAt ? { releaseDate: publishedAt } : {}),
-                    // offers: {
-                    //     '@type': 'Offer',
-                    //     priceCurrency: project.schemaPriceCurrency || 'INR',
-                    //     availability: `https://schema.org/${project.schemaAvailability || 'InStock'}`,
-                    //     url: `${SITE_URL}${projectPath}`,
-                    //     seller: { '@id': `${SITE_URL}/#organization` },
-                    //     ...((project.schemaPrice || project.price) ? { price: project.schemaPrice || project.price } : {}),
-                    // },
                     additionalProperty: [
                         ...((project.schemaLocation || project.projectAddress) ? [{ '@type': 'PropertyValue', name: 'Location', value: project.schemaLocation || project.projectAddress }] : []),
                         ...((project.schemaPossession || project.possession) ? [{ '@type': 'PropertyValue', name: 'Possession', value: project.schemaPossession || project.possession }] : []),

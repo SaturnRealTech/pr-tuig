@@ -1,67 +1,58 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { col, nowIso } from '@/lib/db';
+import { pingSearchEngines } from '@/lib/seoPing';
 
-// GET - Fetch all blog posts
+// Build a case-insensitive substring regex for Mongo $regex queries.
+function reEscape(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+// GET - Fetch all blog posts (optional category + search)
 export async function GET(request) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { searchParams } = new URL(request.url);
         const category = searchParams.get('category');
         const search = searchParams.get('search');
 
-        let query = {};
-
-        if (category && category !== 'All') {
-            query.category = category;
-        }
-
+        const filter = {};
+        if (category && category !== 'All') filter.category = category;
         if (search) {
-            query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { excerpt: { $regex: search, $options: 'i' } }
-            ];
+            const re = new RegExp(reEscape(search), 'i');
+            filter.$or = [{ title: re }, { excerpt: re }];
         }
 
-        const posts = await db
-            .collection('blog_posts')
-            .find(query)
-            .sort({ date: -1 })
+        const blogPosts = await col('blog_posts');
+        const posts = await blogPosts
+            .find(filter)
+            .sort({ date: -1, createdAt: -1 })
             .toArray();
 
         return NextResponse.json({ success: true, data: posts });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
 // POST - Create a new blog post
 export async function POST(request) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const body = await request.json();
-        const newPost = {
-            ...body,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
+        const now = nowIso();
+        const doc = { ...body, createdAt: now, updatedAt: now };
+        // Strip undefined to keep the document clean.
+        Object.keys(doc).forEach(k => { if (doc[k] === undefined) delete doc[k]; });
 
-        const result = await db.collection('blog_posts').insertOne(newPost);
+        const blogPosts = await col('blog_posts');
+        const result = await blogPosts.insertOne(doc);
+        const row = await blogPosts.findOne({ _id: result.insertedId });
+
+        const isPublished = !row?.publishStatus || row.publishStatus === 'published';
+        const slug = row?.slug || (row?._id ? String(row._id) : '');
+        if (slug && isPublished) pingSearchEngines([`/blog/${slug}`]);
 
         return NextResponse.json(
-            { success: true, data: { _id: result.insertedId, ...newPost } },
+            { success: true, data: row },
             { status: 201 }
         );
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

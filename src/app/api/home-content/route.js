@@ -1,20 +1,16 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
-
-async function getDb() {
-    const client = await clientPromise;
-    return client.db(process.env.DB_NAME || 'Saturnrealcon');
-}
+import { col, nowIso } from '@/lib/db';
 
 export async function GET() {
     try {
-        const db = await getDb();
-        const doc = await db.collection('homepage').findOne({});
+        const homepage = await col('homepage');
+        const row = await homepage.findOne({});
+        const doc = row?.data || {};
         return NextResponse.json({
             success: true,
             data: {
-                homeWriteupTitle: doc?.homeWriteupTitle || '',
-                homeWriteup: doc?.homeWriteup || '',
+                homeWriteupTitle: doc.homeWriteupTitle || '',
+                homeWriteup: doc.homeWriteup || '',
             },
         });
     } catch (error) {
@@ -25,13 +21,18 @@ export async function GET() {
 export async function PUT(request) {
     try {
         const { homeWriteupTitle, homeWriteup } = await request.json();
-        const db = await getDb();
+        const now = nowIso();
 
-        await db.collection('homepage').updateOne(
-            {},
-            { $set: { homeWriteupTitle: homeWriteupTitle || '', homeWriteup: homeWriteup || '', updatedAt: new Date() } },
-            { upsert: true }
-        );
+        const homepage = await col('homepage');
+        const existing = await homepage.findOne({});
+        const current = existing?.data || {};
+        const merged = { ...current, homeWriteupTitle: homeWriteupTitle || '', homeWriteup: homeWriteup || '' };
+
+        if (existing) {
+            await homepage.updateOne({ _id: existing._id }, { $set: { data: merged, updatedAt: now } });
+        } else {
+            await homepage.insertOne({ data: merged, createdAt: now, updatedAt: now });
+        }
 
         return NextResponse.json({ success: true });
     } catch (error) {

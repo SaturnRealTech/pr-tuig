@@ -136,10 +136,16 @@ export default function MediaPicker({ onSelect, onClose, multiple = false, filte
             const res = await fetch('/api/upload', { method: 'POST', body: formData });
             const result = await res.json();
             if (result.success) {
+                // Pair each returned URL with the auto-derived alt from the
+                // matching staged file. Order is preserved server-side, so
+                // index alignment is safe.
+                const stagedMeta = staged.map(s => s.alt || '');
                 setStaged([]);
                 // For single-select: auto-insert the first uploaded image immediately
                 if (!multiple && result.urls?.length > 0) {
-                    onSelect(result.urls[0]);
+                    const url = result.urls[0];
+                    const alt = stagedMeta[0] || '';
+                    onSelect(returnMeta ? { url, alt } : url);
                     onClose();
                     return;
                 }

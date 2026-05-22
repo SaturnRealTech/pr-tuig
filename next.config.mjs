@@ -2,6 +2,17 @@
 const nextConfig = {
   reactCompiler: true,
   trailingSlash: false,
+  allowedDevOrigins: [
+    'localhost',
+    '127.0.0.1',
+    'localhost:3000',
+    '127.0.0.1:3000',
+  ],
+
+  experimental: {
+    serverActions: { bodySizeLimit: '10mb' },
+    nodeMiddleware: true,
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
@@ -23,19 +34,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-
-
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   reactCompiler: true,
-//   trailingSlash: false,
-//   images: {
-//     remotePatterns: [
-//       { protocol: 'https', hostname: '**' },
-//       { protocol: 'http', hostname: '**' },
-//     ],
-//     formats: ['image/avif', 'image/webp'],
-//   },
-// };
-
-// export default nextConfig;

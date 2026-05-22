@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { col, nowIso } from '@/lib/db';
 
 export async function GET() {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-        const categories = await db
-            .collection('blogCategories')
+        const blogCats = await col('blogCategories');
+        const rows = await blogCats
             .find({})
+            .collation({ locale: 'en', strength: 2 })
             .sort({ name: 1 })
             .toArray();
-        return NextResponse.json({ success: true, data: categories });
+        return NextResponse.json({ success: true, data: rows });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
@@ -29,15 +28,13 @@ export async function POST(request) {
             return NextResponse.json({ success: false, error: 'Name and slug are required' }, { status: 400 });
         }
 
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-        const existing = await db.collection('blogCategories').findOne({ slug });
+        const blogCats = await col('blogCategories');
+        const existing = await blogCats.findOne({ slug }, { projection: { _id: 1 } });
         if (existing) {
             return NextResponse.json({ success: false, error: 'A blog category with this slug already exists' }, { status: 400 });
         }
 
-        const result = await db.collection('blogCategories').insertOne({
+        const doc = {
             name: name.trim(),
             slug: slug.trim(),
             description: description?.trim() || '',
@@ -49,10 +46,11 @@ export async function POST(request) {
             heroImageAlt: heroImageAlt?.trim() || '',
             mobileBanner: mobileBanner || '',
             mobileBannerAlt: mobileBannerAlt?.trim() || '',
-            createdAt: new Date(),
-        });
-
-        return NextResponse.json({ success: true, data: { _id: result.insertedId } }, { status: 201 });
+            createdAt: nowIso(),
+        };
+        const result = await blogCats.insertOne(doc);
+        const row = await blogCats.findOne({ _id: result.insertedId });
+        return NextResponse.json({ success: true, data: row }, { status: 201 });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }

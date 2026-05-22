@@ -1,95 +1,56 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { col, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
 
 // GET - Fetch all testimonials
 export async function GET() {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-        const testimonials = await db
-            .collection('testimonials')
-            .find({})
-            .toArray();
-
-        return NextResponse.json({ success: true, data: testimonials });
+        const testimonials = await col('testimonials');
+        const rows = await testimonials.find({}).sort({ createdAt: -1 }).toArray();
+        return NextResponse.json({ success: true, data: rows });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
 // POST - Create a new testimonial
 export async function POST(request) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const body = await request.json();
-        const newTestimonial = {
-            ...body,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-
-        const result = await db.collection('testimonials').insertOne(newTestimonial);
-
+        const now = nowIso();
+        const doc = { ...body, createdAt: now, updatedAt: now };
+        Object.keys(doc).forEach(k => { if (doc[k] === undefined) delete doc[k]; });
+        const testimonials = await col('testimonials');
+        const result = await testimonials.insertOne(doc);
         return NextResponse.json(
-            { success: true, data: { _id: result.insertedId, ...newTestimonial } },
+            { success: true, data: { _id: String(result.insertedId), ...doc } },
             { status: 201 }
         );
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
 // PUT - Update a testimonial
 export async function PUT(request) {
     try {
-        const { ObjectId } = await import('mongodb');
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
-
         if (!id) {
-            return NextResponse.json(
-                { success: false, error: 'Testimonial ID is required' },
-                { status: 400 }
-            );
+            return NextResponse.json({ success: false, error: 'Testimonial ID is required' }, { status: 400 });
         }
-
         const body = await request.json();
-        const updateData = {
-            ...body,
-            updatedAt: new Date()
-        };
-
-        const result = await db.collection('testimonials').updateOne(
-            { _id: new ObjectId(id) },
-            { $set: updateData }
-        );
-
-        if (result.matchedCount === 0) {
-            return NextResponse.json(
-                { success: false, error: 'Testimonial not found' },
-                { status: 404 }
-            );
+        const updateData = { ...body, updatedAt: nowIso() };
+        delete updateData.id;
+        delete updateData._id;
+        Object.keys(updateData).forEach(k => { if (updateData[k] === undefined) delete updateData[k]; });
+        const changes = await updateByAnyId('testimonials', id, updateData);
+        if (!changes) {
+            return NextResponse.json({ success: false, error: 'Testimonial not found' }, { status: 404 });
         }
-
         return NextResponse.json({ success: true, data: { _id: id, ...updateData } });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
@@ -98,34 +59,17 @@ export async function DELETE(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
     try {
-        const { ObjectId } = await import('mongodb');
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
-
         if (!id) {
-            return NextResponse.json(
-                { success: false, error: 'Testimonial ID is required' },
-                { status: 400 }
-            );
+            return NextResponse.json({ success: false, error: 'Testimonial ID is required' }, { status: 400 });
         }
-
-        const result = await db.collection('testimonials').deleteOne({ _id: new ObjectId(id) });
-
-        if (result.deletedCount === 0) {
-            return NextResponse.json(
-                { success: false, error: 'Testimonial not found' },
-                { status: 404 }
-            );
+        const changes = await deleteByAnyId('testimonials', id);
+        if (!changes) {
+            return NextResponse.json({ success: false, error: 'Testimonial not found' }, { status: 404 });
         }
-
         return NextResponse.json({ success: true, message: 'Testimonial deleted successfully' });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

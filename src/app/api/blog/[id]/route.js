@@ -1,83 +1,50 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
+import { pingSearchEngines } from '@/lib/seoPing';
+
+function buildUpdate(body) {
+    const out = { ...body, updatedAt: nowIso() };
+    // Strip undefined and the synthetic `id` field if present (Mongo uses _id).
+    delete out.id;
+    Object.keys(out).forEach(k => { if (out[k] === undefined) delete out[k]; });
+    return out;
+}
 
 // GET - Fetch a single blog post by ID or slug
 export async function GET(request, { params }) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { id } = await params;
-
-        // Try to find by slug first, then numeric ID, then MongoDB _id
-        let post = await db.collection('blog_posts').findOne({ slug: id });
-
-        if (!post) {
-            post = await db.collection('blog_posts').findOne({ id: parseInt(id) });
+        const row = await findOneByAnyId('blog_posts', id);
+        if (!row) {
+            return NextResponse.json({ success: false, error: 'Blog post not found' }, { status: 404 });
         }
-
-        if (!post && ObjectId.isValid(id)) {
-            post = await db.collection('blog_posts').findOne({ _id: new ObjectId(id) });
-        }
-
-        if (!post) {
-            return NextResponse.json(
-                { success: false, error: 'Blog post not found' },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({ success: true, data: post });
+        return NextResponse.json({ success: true, data: row });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
 // PUT - Update a blog post
 export async function PUT(request, { params }) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { id } = await params;
         const body = await request.json();
+        const updateData = buildUpdate(body);
 
-        const updateData = {
-            ...body,
-            updatedAt: new Date()
-        };
-
-        let result;
-        if (ObjectId.isValid(id)) {
-            result = await db.collection('blog_posts').updateOne(
-                { _id: new ObjectId(id) },
-                { $set: updateData }
-            );
-        } else {
-            result = await db.collection('blog_posts').updateOne(
-                { id: parseInt(id) },
-                { $set: updateData }
-            );
+        const changes = await updateByAnyId('blog_posts', id, updateData);
+        if (!changes) {
+            return NextResponse.json({ success: false, error: 'Blog post not found' }, { status: 404 });
         }
 
-        if (result.matchedCount === 0) {
-            return NextResponse.json(
-                { success: false, error: 'Blog post not found' },
-                { status: 404 }
-            );
-        }
+        const row = await findOneByAnyId('blog_posts', id);
+        const isPublished = !row?.publishStatus || row.publishStatus === 'published';
+        const slug = row?.slug || (row?._id ? String(row._id) : '');
+        if (slug && isPublished) pingSearchEngines([`/blog/${slug}`]);
 
-        return NextResponse.json({ success: true, data: updateData });
+        return NextResponse.json({ success: true, data: row });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
@@ -85,71 +52,35 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
+
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { id } = await params;
-
-        // Find the blog post first to get image URLs
-        let blog;
-        if (ObjectId.isValid(id)) {
-            blog = await db.collection('blog_posts').findOne({ _id: new ObjectId(id) });
-        } else {
-            blog = await db.collection('blog_posts').findOne({ id: parseInt(id) });
+        const row = await findOneByAnyId('blog_posts', id);
+        if (!row) {
+            return NextResponse.json({ success: false, error: 'Blog post not found' }, { status: 404 });
         }
 
-        if (!blog) {
-            return NextResponse.json(
-                { success: false, error: 'Blog post not found' },
-                { status: 404 }
-            );
-        }
-
-        // Delete local images if they exist
-        const imagesToDelete = [];
-        if (blog.heroImage) imagesToDelete.push(blog.heroImage);
-        if (blog.image) imagesToDelete.push(blog.image);
-
+        const imagesToDelete = [row.heroImage, row.image].filter(u => typeof u === 'string' && u.startsWith('/images/'));
         if (imagesToDelete.length > 0) {
             try {
-                const deletePromises = imagesToDelete
-                    .filter(imageUrl => imageUrl.startsWith('/images/'))
-                    .map(async (imageUrl) => {
-                        const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/s3-delete`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ key: imageUrl })
-                        });
-                        return deleteResponse.json();
-                    });
-
-                await Promise.all(deletePromises);
-            } catch (error) {
-                console.error('Error deleting images:', error);
+                await Promise.all(imagesToDelete.map(imageUrl =>
+                    fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/s3-delete`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ key: imageUrl }),
+                    }).then(r => r.json())
+                ));
+            } catch (e) {
+                console.error('Error deleting blog images:', e);
             }
         }
 
-        // Delete the blog post
-        let result;
-        if (ObjectId.isValid(id)) {
-            result = await db.collection('blog_posts').deleteOne({ _id: new ObjectId(id) });
-        } else {
-            result = await db.collection('blog_posts').deleteOne({ id: parseInt(id) });
-        }
-
-        if (result.deletedCount === 0) {
-            return NextResponse.json(
-                { success: false, error: 'Blog post not found' },
-                { status: 404 }
-            );
-        }
-
+        const slug = row.slug || (row._id ? String(row._id) : '');
+        const wasPublished = !row.publishStatus || row.publishStatus === 'published';
+        await deleteByAnyId('blog_posts', id);
+        if (slug && wasPublished) pingSearchEngines([`/blog/${slug}`], { type: 'URL_DELETED' });
         return NextResponse.json({ success: true, message: 'Blog post and images deleted' });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

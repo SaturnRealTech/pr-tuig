@@ -1,15 +1,12 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { col } from '@/lib/db';
+import { readSitemapSettings } from '@/lib/sitemap';
 
 export const dynamic = 'force-dynamic';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://SaturnRealcon.com';
-const dbName = process.env.DB_NAME || 'SaturnRealcon';
 
-const staticRoutes = [
-    '/',
-    '/blog',
-];
+const staticRoutes = ['/', '/blog'];
 
 function toPath(prefix, value) {
     if (value === undefined || value === null) return null;
@@ -31,31 +28,43 @@ function toXml(routes) {
 
 export async function GET() {
     try {
-        const client = await clientPromise;
-        const db = client.db(dbName);
+        const { excludes } = await readSitemapSettings();
+        const ex = {
+            static: new Set(excludes.static || []),
+            blogs: new Set(excludes.blogs || []),
+            blogCategories: new Set(excludes.blogCategories || []),
+            projects: new Set(excludes.projects || []),
+        };
 
+        const [blogPostsCol, projectsCol] = await Promise.all([col('blog_posts'), col('projects')]);
         const [blogPosts, projects] = await Promise.all([
-            db.collection('blog_posts')
-                .find({ publishStatus: 'published' }, { projection: { slug: 1, id: 1, category: 1, updatedAt: 1, createdAt: 1 } })
+            blogPostsCol
+                .find({ $or: [{ publishStatus: null }, { publishStatus: 'published' }] })
+                .project({ slug: 1, category: 1, updatedAt: 1, createdAt: 1 })
                 .toArray(),
-            db.collection('projects')
-                .find({ publishStatus: 'published' }, { projection: { slug: 1, id: 1, updatedAt: 1, createdAt: 1 } })
+            projectsCol
+                .find({ publishStatus: 'published' })
+                .project({ slug: 1, updatedAt: 1, createdAt: 1 })
                 .toArray(),
         ]);
 
-        const staticEntries = staticRoutes.map((route) => ({
-            url: `${siteUrl}${route}`,
-            lastModified: new Date(),
-            priority: route === '/' ? '1.0' : '0.8',
-        }));
+        const staticEntries = staticRoutes
+            .filter((route) => !ex.static.has(route))
+            .map((route) => ({
+                url: `${siteUrl}${route}`,
+                lastModified: new Date(),
+                priority: route === '/' ? '1.0' : '0.8',
+            }));
 
         const blogEntries = blogPosts
             .map((post) => {
-                const path = toPath('/blog', post.slug || post.id);
+                const slug = post.slug || (post._id ? String(post._id) : null);
+                if (!slug || ex.blogs.has(slug)) return null;
+                const path = toPath('/blog', slug);
                 if (!path) return null;
                 return {
                     url: `${siteUrl}${path}`,
-                    lastModified: post.updatedAt || post.createdAt || new Date(),
+                    lastModified: post.updatedAt ? new Date(post.updatedAt) : (post.createdAt ? new Date(post.createdAt) : new Date()),
                     priority: '0.8',
                 };
             })
@@ -63,19 +72,18 @@ export async function GET() {
 
         const projectEntries = projects
             .map((project) => {
-                const slug = project.slug || project.id;
-                if (!slug) return null;
+                const slug = project.slug || (project._id ? String(project._id) : null);
+                if (!slug || ex.projects.has(slug)) return null;
                 return {
                     url: `${siteUrl}/${encodeURIComponent(String(slug).trim())}`,
-                    lastModified: project.updatedAt || project.createdAt || new Date(),
+                    lastModified: project.updatedAt ? new Date(project.updatedAt) : (project.createdAt ? new Date(project.createdAt) : new Date()),
                     priority: '0.9',
                 };
             })
             .filter(Boolean);
 
-        const blogCategories = [...new Set(
-            blogPosts.map(p => p.category).filter(Boolean)
-        )];
+        const blogCategories = [...new Set(blogPosts.map(p => p.category).filter(Boolean))]
+            .filter(cat => !ex.blogCategories.has(cat));
 
         const blogCategoryEntries = blogCategories.map((cat) => ({
             url: `${siteUrl}/blog?category=${encodeURIComponent(cat)}`,
@@ -85,12 +93,8 @@ export async function GET() {
 
         const uniqueEntries = Array.from(
             new Map(
-                [
-                    ...staticEntries,
-                    ...projectEntries,
-                    ...blogEntries,
-                    ...blogCategoryEntries,
-                ].map((entry) => [entry.url, entry])
+                [...staticEntries, ...projectEntries, ...blogEntries, ...blogCategoryEntries]
+                    .map((entry) => [entry.url, entry])
             ).values()
         );
 
@@ -99,7 +103,7 @@ export async function GET() {
         return new NextResponse(xml, {
             headers: {
                 'Content-Type': 'application/xml; charset=utf-8',
-                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+                'Cache-Control': 'no-store, max-age=0, must-revalidate',
             },
         });
     } catch (error) {
@@ -112,9 +116,7 @@ export async function GET() {
         }));
 
         return new NextResponse(toXml(fallbackEntries), {
-            headers: {
-                'Content-Type': 'application/xml; charset=utf-8',
-            },
+            headers: { 'Content-Type': 'application/xml; charset=utf-8' },
         });
     }
 }

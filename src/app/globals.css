@@ -21,15 +21,17 @@
   --color-gold: var(--gold);
   --color-cream: var(--cream);
   --font-sans:
-    "Optima", "Candara", "Gill Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+    var(--font-inter), system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-display:
+    var(--font-playfair), "Times New Roman", serif;
   --font-mono: var(--font-geist-mono);
 }
 
+/* Inherit the body font everywhere (no !important override). Components that
+   want display type use Tailwind's `font-display` utility (mapped to Playfair). */
 *,
 *::before,
 *::after {
-  font-family:
-    "Optima", "Candara", "Gill Sans", "Segoe UI", Helvetica, Arial, sans-serif !important;
   font-weight: inherit;
 }
 

@@ -1,31 +1,43 @@
-// import HomeClient from '@/features/home/HomeClient';
 import ProjectDetailPage from '@/features/projects/ProjectDetailPage';
-import clientPromise from '@/lib/mongodb';
+import { col } from '@/lib/db';
+import { processProject } from '@/lib/imageSeo';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-
-
-
 export const dynamic = 'force-dynamic';
+
+async function loadHomepageProject() {
+  const projects = await col('projects');
+  return (
+    (await projects.findOne({ publishStatus: 'published', isHomePage: true })) ||
+    (await projects.findOne({ publishStatus: 'published' }, { sort: { createdAt: 1 } }))
+  );
+}
+
+async function loadHomepageSettings() {
+  const homepage = await col('homepage');
+  const row = await homepage.findOne({});
+  if (!row) return null;
+  const data = row.data || {};
+  return { ...data, localBusinessSchema: row.localBusinessSchema, organizationSchema: row.organizationSchema };
+}
+
+async function loadBrandSettings() {
+  const settings = await col('settings');
+  const row = await settings.findOne({ type: 'brand' });
+  return row?.data || null;
+}
 
 export async function generateMetadata() {
   let metaTitle = '';
   let metaDescription = '';
   let metaKeywords = [];
-
   let siteLogo = '';
   let siteName = '';
 
   try {
-    const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-    const [doc, settings] = await Promise.all([
-      db.collection('projects').findOne({ publishStatus: 'published', isHomePage: true })
-        .then(d => d || db.collection('projects').findOne({ publishStatus: 'published' }, { sort: { createdAt: 1 } })),
-      db.collection('settings').findOne({ type: 'brand' }),
-    ]);
+    const doc = await loadHomepageProject();
+    const settings = await loadBrandSettings();
 
     metaTitle = doc?.metaTitle || '';
     metaDescription = doc?.metaDescription || '';
@@ -54,9 +66,7 @@ export async function generateMetadata() {
     title,
     description,
     keywords,
-    alternates: {
-      canonical: `${siteUrl}/`,
-    },
+    alternates: { canonical: `${siteUrl}/` },
     openGraph: {
       title,
       description,
@@ -71,10 +81,7 @@ export async function generateMetadata() {
       description,
       ...(siteLogo && { images: [siteLogo] }),
     },
-    robots: {
-      index: true,
-      follow: true,
-    },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -83,33 +90,25 @@ export default async function Page() {
   let localBusinessSchema = null;
 
   try {
-    const client = await clientPromise;
-    const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-    const [doc, homepageSettings, brandSettings] = await Promise.all([
-      db.collection('projects').findOne({ publishStatus: 'published', isHomePage: true })
-        .then(d => d || db.collection('projects').findOne({ publishStatus: 'published' }, { sort: { createdAt: 1 } })),
-      db.collection('homepage').findOne({}),
-      db.collection('settings').findOne({ type: 'brand' }),
-    ]);
+    const doc = await loadHomepageProject();
+    const homepageSettings = await loadHomepageSettings();
+    const brandSettings = await loadBrandSettings();
 
     if (doc) {
-      project = {
+      project = await processProject({
         ...doc,
-        _id: doc._id?.toString?.() || doc._id,
-        slug: doc.slug || doc._id?.toString?.(),
-      };
+        _id: doc._id ? String(doc._id) : null,
+        slug: doc.slug || (doc._id ? String(doc._id) : ''),
+      });
     }
 
     // Build ONE combined RealEstateAgent schema (covers both LocalBusiness + Organization)
-    // Sources: homepage admin JSON textarea → project structured org fields → brand settings
     let base = {};
     if (homepageSettings?.localBusinessSchema) {
       try { base = JSON.parse(homepageSettings.localBusinessSchema); } catch (e) {
         console.error('[home] Invalid localBusinessSchema JSON:', e.message);
       }
     }
-    // Merge homepage-admin org textarea on top
     if (homepageSettings?.organizationSchema) {
       try {
         const orgJson = JSON.parse(homepageSettings.organizationSchema);
@@ -152,8 +151,6 @@ export default async function Page() {
     console.error('[home] Failed to fetch project:', error.message);
   }
 
-
-  // Build Product schema from the homepage project if schema fields are present
   let productSchema = null;
   if (project) {
     const projectUrl = `${siteUrl}/`;
@@ -206,4 +203,3 @@ export default async function Page() {
     </>
   );
 }
-

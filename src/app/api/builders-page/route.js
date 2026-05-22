@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { col, upsertByKey, nowIso } from '@/lib/db';
+
+const TYPE = 'builders';
 
 export async function GET() {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-        const doc = await db.collection('pages').findOne({ type: 'builders' });
-        return NextResponse.json({ success: true, data: doc || {} });
+        const pages = await col('pages');
+        const row = await pages.findOne({ type: TYPE });
+        const doc = row ? { ...(row.data || {}), ...row } : {};
+        return NextResponse.json({ success: true, data: doc });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
@@ -15,13 +17,11 @@ export async function GET() {
 export async function POST(request) {
     try {
         const body = await request.json();
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-        await db.collection('pages').updateOne(
-            { type: 'builders' },
-            { $set: { type: 'builders', ...body, updatedAt: new Date() } },
-            { upsert: true }
-        );
+        const pages = await col('pages');
+        const existing = await pages.findOne({ type: TYPE }, { projection: { _id: 1 } });
+        const payload = { data: body || {}, updatedAt: nowIso() };
+        if (!existing) payload.createdAt = nowIso();
+        await upsertByKey('pages', 'type', TYPE, payload);
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

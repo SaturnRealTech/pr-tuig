@@ -26,13 +26,24 @@ export default function AdminDashboard() {
         primaryDark: '#8a6002',
         primaryLight: '#d4a030',
         headerScrollBg: '#ffffff',
+        // Site-wide theme palette (mirrors globals.css :root). Changing any of
+        // these here re-themes the whole site at request time via layout.js.
+        themeBackground: '#f7f5ef',
+        themeForeground: '#14241b',
+        themeLeaf: '#1f5d3a',
+        themeMoss: '#244a36',
+        themeForest: '#0f2a1e',
+        themeBark: '#3a2a1c',
+        themeGold: '#c8a96a',
+        themeCream: '#f1ead7',
     });
     const [colorSaving, setColorSaving] = useState(false);
     const [colorSaved, setColorSaved] = useState(false);
 
     const [siteSettings, setSiteSettings] = useState({
-        siteName: '', siteLogo: '', contactPhone: '', whatsappNumber: '',
+        siteName: '', siteLogo: '', favicon: '', contactPhone: '', whatsappNumber: '',
         cinNumber: '', copyrightText: '', footerTagline: '', footerDescription: '', footerTrustText: '',
+        indexNowKey: '',
     });
 
     const [mailSettings, setMailSettings] = useState({
@@ -46,6 +57,7 @@ export default function AdminDashboard() {
     const [settingsSaving, setSettingsSaving] = useState(false);
     const [settingsSaved, setSettingsSaved] = useState(false);
     const [showLogoPicker, setShowLogoPicker] = useState(false);
+    const [showFaviconPicker, setShowFaviconPicker] = useState(false);
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -65,10 +77,19 @@ export default function AdminDashboard() {
                     primaryDark: result.data.primaryDark,
                     primaryLight: result.data.primaryLight,
                     headerScrollBg: result.data.headerScrollBg || '#ffffff',
+                    themeBackground: result.data.themeBackground || '#f7f5ef',
+                    themeForeground: result.data.themeForeground || '#14241b',
+                    themeLeaf: result.data.themeLeaf || '#1f5d3a',
+                    themeMoss: result.data.themeMoss || '#244a36',
+                    themeForest: result.data.themeForest || '#0f2a1e',
+                    themeBark: result.data.themeBark || '#3a2a1c',
+                    themeGold: result.data.themeGold || '#c8a96a',
+                    themeCream: result.data.themeCream || '#f1ead7',
                 });
                 setSiteSettings({
                     siteName: result.data.siteName || '',
                     siteLogo: result.data.siteLogo || '',
+                    favicon: result.data.favicon || '',
                     contactPhone: result.data.contactPhone || '',
                     whatsappNumber: result.data.whatsappNumber || '',
                     cinNumber: result.data.cinNumber || '',
@@ -76,6 +97,7 @@ export default function AdminDashboard() {
                     footerTagline: result.data.footerTagline || '',
                     footerDescription: result.data.footerDescription || '',
                     footerTrustText: result.data.footerTrustText || '',
+                    indexNowKey: result.data.indexNowKey || '',
                 });
                 setMailSettings({
                     smtpHost: result.data.smtpHost || '',
@@ -315,6 +337,69 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Theme Palette — drives the whole site (homepage, footer, admin) */}
+                        <div className="mt-8 pt-6 border-t border-gray-200">
+                            <div className="flex items-baseline justify-between mb-1">
+                                <h4 className="text-base font-bold text-gray-800">Theme Palette</h4>
+                                <span className="text-[11px] text-gray-400 uppercase tracking-wider">Site-wide</span>
+                            </div>
+                            <p className="text-xs text-gray-500 mb-5">Changes here re-theme the homepage, the project pages, the footer and the admin chrome. They override the defaults in <code className="bg-gray-100 px-1 py-0.5 rounded">globals.css</code>.</p>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {[
+                                    { key: 'themeBackground', label: 'Background', hint: 'Page background (--background)' },
+                                    { key: 'themeForeground', label: 'Foreground', hint: 'Body text colour (--foreground)' },
+                                    { key: 'themeLeaf', label: 'Leaf', hint: 'Secondary green (--leaf)' },
+                                    { key: 'themeMoss', label: 'Moss', hint: 'Primary dark green (--moss)' },
+                                    { key: 'themeForest', label: 'Forest', hint: 'Deepest green (--forest)' },
+                                    { key: 'themeBark', label: 'Bark', hint: 'Brown accent (--bark)' },
+                                    { key: 'themeGold', label: 'Gold', hint: 'Gold accent (--gold)' },
+                                    { key: 'themeCream', label: 'Cream', hint: 'Soft tint (--cream)' },
+                                ].map(({ key, label, hint }) => (
+                                    <div key={key} className="space-y-1.5">
+                                        <label className="block text-xs font-semibold text-gray-700">{label}</label>
+                                        <div className="flex items-center gap-2 p-2 border-2 border-gray-200 rounded-lg hover:border-gray-300 transition">
+                                            <input
+                                                type="color"
+                                                value={colors[key]}
+                                                onChange={e => setColors(prev => ({ ...prev, [key]: e.target.value }))}
+                                                className="w-8 h-8 rounded cursor-pointer border-0 p-0 bg-transparent flex-shrink-0"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={colors[key]}
+                                                onChange={e => {
+                                                    const v = e.target.value;
+                                                    if (/^#[0-9a-fA-F]{0,6}$/.test(v)) setColors(prev => ({ ...prev, [key]: v }));
+                                                }}
+                                                className="flex-1 min-w-0 text-xs font-mono text-gray-800 bg-transparent focus:outline-none uppercase"
+                                                maxLength={7}
+                                            />
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 leading-snug">{hint}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Live preview */}
+                            <div className="mt-5 rounded-xl overflow-hidden border" style={{ borderColor: colors.themeMoss + '33' }}>
+                                <div style={{ backgroundColor: colors.themeBackground, color: colors.themeForeground }} className="p-5">
+                                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                                        <span className="text-[10px] uppercase tracking-[0.25em] font-bold" style={{ color: colors.themeGold }}>OVERVIEW</span>
+                                    </div>
+                                    <h3 className="font-display text-2xl" style={{ color: colors.themeMoss }}>About the Project</h3>
+                                    <p className="mt-2 text-sm" style={{ color: colors.themeForeground }}>Sample body text rendered with the theme palette to preview the changes.</p>
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: colors.themeGold, color: colors.themeMoss }}>Gold pill</span>
+                                        <span className="px-3 py-1 rounded-full text-xs font-bold border" style={{ backgroundColor: colors.themeCream, color: colors.themeMoss, borderColor: colors.themeMoss + '22' }}>Cream pill</span>
+                                        <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: colors.themeForest, color: colors.themeCream }}>Forest pill</span>
+                                    </div>
+                                </div>
+                                <div style={{ backgroundColor: colors.themeMoss, color: colors.themeCream }} className="px-5 py-3 text-xs">
+                                    Footer surface — uses --moss / --cream
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Site Identity */}
@@ -368,11 +453,39 @@ export default function AdminDashboard() {
                                 )}
                                 <p className="text-xs text-gray-400 mt-1">If set, shown in header instead of text name</p>
                             </div>
+                            {/* Favicon */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Favicon</label>
+                                {siteSettings.favicon ? (
+                                    <div className="flex items-center gap-3">
+                                        <img src={siteSettings.favicon} alt="Favicon" className="h-10 w-10 object-contain rounded border border-gray-200 bg-gray-50 p-1" />
+                                        <div className="flex flex-col gap-1">
+                                            <button type="button" onClick={() => setShowFaviconPicker(true)} className="text-xs text-gold underline">Change</button>
+                                            <button type="button" onClick={() => setSiteSettings(p => ({ ...p, favicon: '' }))} className="text-xs text-red-500 underline">Remove</button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowFaviconPicker(true)}
+                                        className="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-gold hover:text-gold transition w-full"
+                                    >
+                                        <MdImage size={18} /> Upload Favicon from Media Library
+                                    </button>
+                                )}
+                                <p className="text-xs text-gray-400 mt-1">Square 32×32 or 64×64 (.ico, .png, .svg). Used as the browser-tab icon.</p>
+                            </div>
                         </div>
                         {showLogoPicker && (
                             <MediaPicker
                                 onSelect={url => { setSiteSettings(p => ({ ...p, siteLogo: url })); setShowLogoPicker(false); }}
                                 onClose={() => setShowLogoPicker(false)}
+                            />
+                        )}
+                        {showFaviconPicker && (
+                            <MediaPicker
+                                onSelect={url => { setSiteSettings(p => ({ ...p, favicon: url })); setShowFaviconPicker(false); }}
+                                onClose={() => setShowFaviconPicker(false)}
                             />
                         )}
                     </div>
@@ -446,6 +559,19 @@ export default function AdminDashboard() {
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                     />
                                     <p className="text-xs text-gray-400 mt-1">Leave blank to hide the CIN line</p>
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">IndexNow Key</label>
+                                    <input
+                                        type="text"
+                                        value={siteSettings.indexNowKey}
+                                        onChange={e => setSiteSettings(p => ({ ...p, indexNowKey: e.target.value.trim() }))}
+                                        placeholder="32-character key (generate at https://www.bing.com/indexnow)"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm font-mono"
+                                    />
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        Used to instantly notify Bing, Yandex (and Google via shared infra) when you publish. Verification file is auto-served at <code className="bg-gray-100 px-1 py-0.5 rounded">{`/indexnow/<key>.txt`}</code>.
+                                    </p>
                                 </div>
                             </div>
                         </div>

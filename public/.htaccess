@@ -1,0 +1,46 @@
+# Hostinger / Apache / LiteSpeed mod_security tweaks.
+# The Next.js admin posts large bodies with HTML in them (TipTap content,
+# rich-text overview blocks, FAQ HTML). mod_security's default OWASP rules
+# flag that as XSS and return a plain "Forbidden " 403, which breaks
+# /api/projects/[id], /api/blog/[id] and similar admin saves.
+
+<IfModule mod_security.c>
+    # Turn the engine OFF only inside the admin write paths. Everything else
+    # (public site, marketing pages) keeps the WAF enabled.
+    <LocationMatch "^/api/(projects|blog|blog-categories|categories|builders|builders-page|blog-page|blog-category-page|home-content|homepage|settings|roles|redirects|careers|applications|leads|contact|send-mail|testimonials|media|upload|users|auth|indexnow)">
+        SecRuleEngine Off
+        SecRequestBodyLimit 33554432
+    </LocationMatch>
+</IfModule>
+
+# LiteSpeed equivalent (Hostinger Premium/Business runs LiteSpeed).
+<IfModule LiteSpeed>
+    <LocationMatch "^/api/(projects|blog|blog-categories|categories|builders|builders-page|blog-page|blog-category-page|home-content|homepage|settings|roles|redirects|careers|applications|leads|contact|send-mail|testimonials|media|upload|users|auth|indexnow)">
+        SecRuleEngine Off
+    </LocationMatch>
+</IfModule>
+
+# Some Hostinger plans expose ModSecurity via mod_lsapi instead.
+<IfModule mod_lsapi.c>
+    <LocationMatch "^/api/">
+        SecRuleEngine Off
+    </LocationMatch>
+</IfModule>
+
+# Bigger payload allowance — rich-text homepage / project saves can be 5–20 MB
+# once you have many amenities, gallery images, FAQs and detailed-overview blocks.
+LimitRequestBody 67108864
+
+# LiteSpeed-specific request size cap. Hostinger Premium/Business runs LiteSpeed
+# under the hood — this directive is ignored on plain Apache.
+<IfModule LiteSpeed>
+    LimitRequestBody 67108864
+</IfModule>
+
+# Make sure POST/PUT/PATCH/DELETE on /api/* aren't intercepted by any
+# pretty-URL rewrite rules added by Hostinger.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^/api/
+    RewriteRule .* - [L]
+</IfModule>

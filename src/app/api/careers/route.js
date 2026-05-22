@@ -1,88 +1,48 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { col, nowIso, toObjectId } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
+
+function reEscape(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 // GET - Fetch all careers
 export async function GET(request) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const { searchParams } = new URL(request.url);
         const search = searchParams.get('search') || '';
-        const page = parseInt(searchParams.get('page')) || 1;
-        const limit = parseInt(searchParams.get('limit')) || 10;
+        const page = Math.max(parseInt(searchParams.get('page'), 10) || 1, 1);
+        const limit = Math.min(Math.max(parseInt(searchParams.get('limit'), 10) || 10, 1), 200);
         const activeOnly = searchParams.get('activeOnly') === 'true';
         const skip = (page - 1) * limit;
 
-        let query = {};
-
-        // Only show active jobs for public view
-        if (activeOnly) {
-            query.isActive = true;
-        }
-
-        // Search filter
+        const filter = {};
+        if (activeOnly) filter.isActive = true;
         if (search) {
-            query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { location: { $regex: search, $options: 'i' } },
-                { department: { $regex: search, $options: 'i' } },
-                { type: { $regex: search, $options: 'i' } }
-            ];
+            const re = new RegExp(reEscape(search), 'i');
+            filter.$or = [{ title: re }, { location: re }, { department: re }, { type: re }];
         }
 
-        // Get total count
-        const total = await db.collection('careers').countDocuments(query);
-
-        // Get paginated careers
-        const careers = await db
-            .collection('careers')
-            .find(query)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .toArray();
+        const careers = await col('careers');
+        const [total, rows] = await Promise.all([
+            careers.countDocuments(filter),
+            careers.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+        ]);
 
         return NextResponse.json({
             success: true,
-            data: careers,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.ceil(total / limit)
-            }
+            data: rows,
+            pagination: { page, limit, total, totalPages: Math.max(1, Math.ceil(total / limit)) },
         });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
 // POST - Create a new job position
 export async function POST(request) {
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
         const body = await request.json();
-        const {
-            title,
-            department,
-            location,
-            type,
-            experience,
-            salary,
-            description,
-            requirements,
-            benefits
-        } = body;
+        const { title, department, location, type, experience, salary, description, requirements, benefits } = body;
 
-        // Validate required fields
         if (!title || !location || !type || !description) {
             return NextResponse.json(
                 { success: false, error: 'Missing required fields: title, location, type, description' },
@@ -90,33 +50,30 @@ export async function POST(request) {
             );
         }
 
-        const newCareer = {
+        const now = nowIso();
+        const doc = {
             title,
             department: department || '',
             location,
-            type, // Full-time, Part-time, Contract, Remote
+            type,
             experience: experience || '',
             salary: salary || '',
             description,
-            requirements: requirements || [],
-            benefits: benefits || [],
+            requirements: Array.isArray(requirements) ? requirements : [],
+            benefits: Array.isArray(benefits) ? benefits : [],
             isActive: true,
             applicationsCount: 0,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            createdAt: now,
+            updatedAt: now,
         };
-
-        const result = await db.collection('careers').insertOne(newCareer);
-
+        const careers = await col('careers');
+        const result = await careers.insertOne(doc);
         return NextResponse.json(
-            { success: true, data: { _id: result.insertedId, ...newCareer } },
+            { success: true, data: { _id: String(result.insertedId), ...doc } },
             { status: 201 }
         );
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
@@ -125,34 +82,20 @@ export async function DELETE(request) {
     const authError = requireAdmin(request);
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
     try {
-        const client = await clientPromise;
-        const db = client.db(process.env.DB_NAME || 'Saturnrealcon');
-
-        const body = await request.json();
-        const { ids } = body;
-
+        const { ids } = await request.json();
         if (!ids || !Array.isArray(ids) || ids.length === 0) {
-            return NextResponse.json(
-                { success: false, error: 'No career IDs provided' },
-                { status: 400 }
-            );
+            return NextResponse.json({ success: false, error: 'No career IDs provided' }, { status: 400 });
         }
-
-        const objectIds = ids.map(id => new ObjectId(id));
-
-        const result = await db.collection('careers').deleteMany({
-            _id: { $in: objectIds }
-        });
-
+        const objectIds = ids.map(toObjectId).filter(Boolean);
+        const stringIds = ids.map(String);
+        const careers = await col('careers');
+        const result = await careers.deleteMany({ $or: [{ _id: { $in: objectIds } }, { _id: { $in: stringIds } }] });
         return NextResponse.json({
             success: true,
             message: `${result.deletedCount} position(s) deleted successfully`,
-            deletedCount: result.deletedCount
+            deletedCount: result.deletedCount,
         });
     } catch (error) {
-        return NextResponse.json(
-            { success: false, error: error.message },
-            { status: 500 }
-        );
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

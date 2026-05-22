@@ -136,17 +136,15 @@ function Hero({ project }) {
         project?.image ||
         null;
 
-    const titleParts = splitTitle(project?.title || "Tangled Up in Green");
+    const titleParts = splitTitle(project?.title || "");
     const tagline = project?.contentTitle || project?.metaDescription;
-    const subhead = project?.projectAddress
-        ? `${project.projectAddress}`
-        : "";
+    const subhead = project?.projectAddress || "";
     const launchYear = project?.createdDate ? new Date(project.createdDate).getFullYear() : null;
 
     const handleEnquire = (source) => {
         if (typeof openEnquire === "function") {
             openEnquire({
-                title: project?.title || "Tangled Up in Green",
+                title: project?.title || "Enquiry",
                 source,
                 image: bannerImage,
             });
@@ -163,15 +161,8 @@ function Hero({ project }) {
         project?.reraNo && { l: "RERA No.", v: project.reraNo },
     ].filter(Boolean);
 
-    const statsToShow = stats.length
-        ? stats
-        : [
-            { l: "Starting Price", v: "₹ 4.95 Cr*" },
-            { l: "Configurations", v: "3 & 4 BHK" },
-            { l: "Carpet Area", v: "2,850 – 5,600 sq.ft" },
-            { l: "Density", v: "Only 1 Tower on 7.5 Acres" },
-            { l: "Launch Date", v: "01 Sep 2026" },
-        ];
+    // Render only the stats the admin has actually filled — no demo fallbacks.
+    const statsToShow = stats;
 
     if (!bannerImage) return null;
 
@@ -192,11 +183,20 @@ function Hero({ project }) {
                 <div aria-hidden className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(900px,90%)] h-[420px] bg-[radial-gradient(ellipse_at_center,rgba(13,31,21,0.6)_0%,rgba(13,31,21,0.3)_45%,transparent_70%)] pointer-events-none" />
 
                 <div className="relative h-full max-w-[1300px] mx-auto px-6 flex flex-col justify-center items-center text-center [text-shadow:0_2px_18px_rgba(0,0,0,0.55)]">
-                    <div className="flex flex-wrap items-center justify-center gap-2.5 mb-7">
-                        <Badge variant="gold">★ New Launch{launchYear ? ` ${launchYear}` : ""}</Badge>
-                        {project?.company && <Badge variant="cream">{project.company}</Badge>}
-                        <Badge variant="gold">Pre-Launch Pricing Live</Badge>
-                    </div>
+                    {(() => {
+                        const has = (v) => typeof v === "string" && v.trim().length > 0;
+                        const b1 = has(project?.heroBadge1) ? project.heroBadge1 : null;
+                        const b2 = has(project?.heroBadge2) ? project.heroBadge2 : null;
+                        const b3 = has(project?.heroBadge3) ? project.heroBadge3 : null;
+                        if (!b1 && !b2 && !b3) return null;
+                        return (
+                            <div className="flex flex-wrap items-center justify-center gap-2.5 mb-7">
+                                {b1 && <Badge variant="gold">{b1}</Badge>}
+                                {b2 && <Badge variant="cream">{b2}</Badge>}
+                                {b3 && <Badge variant="gold">{b3}</Badge>}
+                            </div>
+                        );
+                    })()}
 
                     <div className="flex items-center gap-4 text-gold">
                         <span className="block w-10 h-px bg-gold/70" />
@@ -259,27 +259,29 @@ function Hero({ project }) {
                 </div>
             </div>
 
-            <div className="bg-moss text-background">
-                <div className="max-w-[1300px] mx-auto px-6 grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-background/15">
-                    {statsToShow.map((s) => {
-                        const isRera = /rera/i.test(s.l);
-                        return (
-                            <div key={s.l} className="px-5 py-5 text-center min-w-0">
-                                <div className="text-[10px] uppercase tracking-[0.25em] text-gold">{s.l}</div>
-                                <div
-                                    className={
-                                        isRera
-                                            ? "mt-1.5 font-mono font-medium text-xs md:text-sm whitespace-nowrap"
-                                            : "mt-1.5 font-display font-medium text-lg md:text-xl whitespace-nowrap"
-                                    }
-                                >
-                                    {s.v}
+            {statsToShow.length > 0 && (
+                <div className="bg-moss text-background">
+                    <div className="max-w-[1300px] mx-auto px-6 grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-background/15">
+                        {statsToShow.map((s) => {
+                            const isRera = /rera/i.test(s.l);
+                            return (
+                                <div key={s.l} className="px-5 py-5 text-center min-w-0">
+                                    <div className="text-[10px] uppercase tracking-[0.25em] text-gold">{s.l}</div>
+                                    <div
+                                        className={
+                                            isRera
+                                                ? "mt-1.5 font-mono font-medium text-xs md:text-sm whitespace-nowrap"
+                                                : "mt-1.5 font-display font-medium text-lg md:text-xl whitespace-nowrap"
+                                        }
+                                    >
+                                        {s.v}
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            )}
         </section>
     );
 }
@@ -614,17 +616,17 @@ function Pricing({ project }) {
                 {rows.length > 0 && (
                     <div className="mt-10 rounded-2xl overflow-hidden border border-moss/12 bg-white">
                         <div className="grid grid-cols-12 bg-moss text-background text-[11px] uppercase tracking-[0.25em] font-semibold">
-                            <div className="col-span-5 md:col-span-5 px-6 py-4">Configuration</div>
+                            <div className="col-span-5 md:col-span-4 px-6 py-4">Configuration</div>
                             <div className="col-span-3 md:col-span-3 px-6 py-4">Size</div>
-                            <div className="col-span-4 md:col-span-2 px-6 py-4">Price</div>
+                            <div className="col-span-4 md:col-span-3 px-6 py-4">Price</div>
                             <div className="hidden md:block col-span-2 px-6 py-4 text-right" />
                         </div>
                         {rows.map((row, i) => (
                             <div key={`${row.configuration || "row"}-${i}`}
                                 className={`grid grid-cols-12 items-center text-[14px] ${i % 2 === 0 ? "bg-white" : "bg-background/40"} hover:bg-cream/50 transition`}>
-                                <div className="col-span-5 md:col-span-5 px-6 py-5 font-semibold text-moss">{row.configuration}</div>
+                                <div className="col-span-5 md:col-span-4 px-6 py-5 font-semibold text-moss">{row.configuration}</div>
                                 <div className="col-span-3 md:col-span-3 px-6 py-5 text-foreground/80">{row.size}</div>
-                                <div className="col-span-4 md:col-span-2 px-6 py-5 font-display text-lg font-medium text-gold">{row.price}</div>
+                                <div className="col-span-4 md:col-span-3 px-6 py-5 font-display text-lg font-medium text-gold whitespace-nowrap">{row.price}</div>
                                 <div className="hidden md:flex col-span-2 px-6 py-5 justify-end">
                                     {(row.buttonLabel || "").trim() && (
                                         <button
