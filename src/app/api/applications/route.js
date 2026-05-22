@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { col, nowIso, toObjectId } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
+import { deleteFromS3 } from '@/lib/s3-upload';
 
 function reEscape(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
@@ -92,7 +93,19 @@ export async function DELETE(request) {
         const objectIds = ids.map(toObjectId).filter(Boolean);
         const stringIds = ids.map(String);
         const apps = await col('applications');
-        const result = await apps.deleteMany({ $or: [{ _id: { $in: objectIds } }, { _id: { $in: stringIds } }] });
+        const filter = { $or: [{ _id: { $in: objectIds } }, { _id: { $in: stringIds } }] };
+
+        // Grab the resume URLs first so we can purge them from S3 after the
+        // DB delete succeeds. If a row has no resumeUrl we just skip.
+        const rows = await apps.find(filter).project({ resumeUrl: 1 }).toArray();
+        const resumeUrls = rows.map(r => r.resumeUrl).filter(Boolean);
+
+        const result = await apps.deleteMany(filter);
+
+        await Promise.all(resumeUrls.map(u =>
+            deleteFromS3(u).catch(e => console.error('[application] S3 delete failed:', u, e.message))
+        ));
+
         return NextResponse.json({
             success: true,
             message: `${result.deletedCount} application(s) deleted successfully`,

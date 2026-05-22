@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { col, findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
+import { deleteFromS3 } from '@/lib/s3-upload';
 
 export async function GET(request, { params }) {
     try {
@@ -57,8 +58,13 @@ export async function DELETE(request, { params }) {
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
     try {
         const { id } = await params;
-        const changes = await deleteByAnyId('categories', id);
-        if (!changes) return NextResponse.json({ success: false, error: 'Builder not found' }, { status: 404 });
+        const row = await findOneByAnyId('categories', id);
+        if (!row) return NextResponse.json({ success: false, error: 'Builder not found' }, { status: 404 });
+        const images = [row.heroImage, row.mobileBanner, row.logo].filter(Boolean);
+        await Promise.all(images.map(u =>
+            deleteFromS3(u).catch(e => console.error('[builder] S3 delete failed:', u, e.message))
+        ));
+        await deleteByAnyId('categories', id);
         return NextResponse.json({ success: true, message: 'Builder deleted successfully' });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

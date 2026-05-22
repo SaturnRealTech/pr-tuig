@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
 import { pingSearchEngines } from '@/lib/seoPing';
+import { deleteFromS3 } from '@/lib/s3-upload';
 
 function buildUpdate(body) {
     const out = { ...body, updatedAt: nowIso() };
@@ -60,19 +61,11 @@ export async function DELETE(request, { params }) {
             return NextResponse.json({ success: false, error: 'Blog post not found' }, { status: 404 });
         }
 
-        const imagesToDelete = [row.heroImage, row.image].filter(u => typeof u === 'string' && u.startsWith('/images/'));
+        const imagesToDelete = [row.heroImage, row.image].filter(u => typeof u === 'string' && u);
         if (imagesToDelete.length > 0) {
-            try {
-                await Promise.all(imagesToDelete.map(imageUrl =>
-                    fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/s3-delete`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ key: imageUrl }),
-                    }).then(r => r.json())
-                ));
-            } catch (e) {
-                console.error('Error deleting blog images:', e);
-            }
+            await Promise.all(imagesToDelete.map(u =>
+                deleteFromS3(u).catch(e => console.error('[blog] S3 delete failed:', u, e.message))
+            ));
         }
 
         const slug = row.slug || (row._id ? String(row._id) : '');

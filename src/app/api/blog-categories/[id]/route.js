@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { col, findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
+import { deleteFromS3 } from '@/lib/s3-upload';
 
 export async function GET(_request, { params }) {
     try {
@@ -64,6 +65,12 @@ export async function DELETE(request, { params }) {
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
     try {
         const { id } = await params;
+        const row = await findOneByAnyId('blogCategories', id);
+        if (!row) return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+        const images = [row.heroImage, row.mobileBanner].filter(Boolean);
+        await Promise.all(images.map(u =>
+            deleteFromS3(u).catch(e => console.error('[blogCategory] S3 delete failed:', u, e.message))
+        ));
         await deleteByAnyId('blogCategories', id);
         return NextResponse.json({ success: true });
     } catch (error) {

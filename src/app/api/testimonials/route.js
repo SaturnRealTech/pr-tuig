@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { col, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
+import { col, findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
+import { deleteFromS3 } from '@/lib/s3-upload';
 
 // GET - Fetch all testimonials
 export async function GET() {
@@ -64,10 +65,14 @@ export async function DELETE(request) {
         if (!id) {
             return NextResponse.json({ success: false, error: 'Testimonial ID is required' }, { status: 400 });
         }
-        const changes = await deleteByAnyId('testimonials', id);
-        if (!changes) {
+        const row = await findOneByAnyId('testimonials', id, { withSlug: false });
+        if (!row) {
             return NextResponse.json({ success: false, error: 'Testimonial not found' }, { status: 404 });
         }
+        if (row.image) {
+            await deleteFromS3(row.image).catch(e => console.error('[testimonial] S3 delete failed:', row.image, e.message));
+        }
+        await deleteByAnyId('testimonials', id);
         return NextResponse.json({ success: true, message: 'Testimonial deleted successfully' });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

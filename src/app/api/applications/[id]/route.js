@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
+import { deleteFromS3 } from '@/lib/s3-upload';
 
 export async function GET(request, { params }) {
     try {
@@ -38,10 +39,14 @@ export async function DELETE(request, { params }) {
     if (authError) return NextResponse.json({ success: false, error: authError.error }, { status: authError.status });
     try {
         const { id } = await params;
-        const changes = await deleteByAnyId('applications', id);
-        if (!changes) {
+        const row = await findOneByAnyId('applications', id, { withSlug: false });
+        if (!row) {
             return NextResponse.json({ success: false, error: 'Application not found' }, { status: 404 });
         }
+        if (row.resumeUrl) {
+            await deleteFromS3(row.resumeUrl).catch(e => console.error('[application] S3 delete failed:', row.resumeUrl, e.message));
+        }
+        await deleteByAnyId('applications', id);
         return NextResponse.json({ success: true, message: 'Application deleted successfully' });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

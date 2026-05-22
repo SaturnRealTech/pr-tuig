@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { col, nowIso } from '@/lib/db';
+import { col, findOneByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
+import { deleteFromS3 } from '@/lib/s3-upload';
 
 // GET - Fetch all categories or by slug
 export async function GET(request) {
@@ -104,11 +105,15 @@ export async function DELETE(request) {
         }
 
         const categories = await col('categories');
-        const { findOneByAnyId } = await import('@/lib/db');
         const target = await findOneByAnyId('categories', id, { withSlug: false });
         if (!target) {
             return NextResponse.json({ success: false, error: 'Category not found' }, { status: 404 });
         }
+
+        const images = [target.heroImage, target.mobileBanner, target.logo].filter(Boolean);
+        await Promise.all(images.map(u =>
+            deleteFromS3(u).catch(e => console.error('[category] S3 delete failed:', u, e.message))
+        ));
 
         const targetKey = String(target._id);
         await categories.updateMany(

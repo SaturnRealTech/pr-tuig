@@ -2,6 +2,29 @@ import { NextResponse } from 'next/server';
 import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requireAdmin } from '@/lib/authHelper';
 import { pingSearchEngines } from '@/lib/seoPing';
+import { deleteFromS3 } from '@/lib/s3-upload';
+
+// Walk a project doc and return every image URL stored on it (top-level
+// banners + nested gallery / master plan / floor plan / detailed-overview).
+function collectProjectImages(row) {
+    if (!row) return [];
+    const urls = new Set();
+    const push = (v) => { if (typeof v === 'string' && v) urls.add(v); };
+    push(row.desktopBanner); push(row.mobileBanner); push(row.contentImage);
+
+    const gallery = Array.isArray(row?.gallery?.images) ? row.gallery.images : [];
+    for (const g of gallery) push(g?.image || g?.url);
+
+    const masters = Array.isArray(row?.masterFloorPlan?.masterPlans) ? row.masterFloorPlan.masterPlans : [];
+    for (const m of masters) push(m?.image);
+    const floors = Array.isArray(row?.masterFloorPlan?.floorPlans) ? row.masterFloorPlan.floorPlans : [];
+    for (const f of floors) push(f?.image);
+
+    const detailed = Array.isArray(row?.detailedOverview) ? row.detailedOverview : [];
+    for (const d of detailed) push(d?.image);
+
+    return [...urls];
+}
 
 function buildUpdate(body) {
     const out = { ...body, updatedAt: nowIso() };
@@ -87,14 +110,14 @@ export async function DELETE(request, { params }) {
             return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 });
         }
 
-        if (row.desktopBanner && row.desktopBanner.startsWith('/images/')) {
-            try {
-                await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/s3-delete`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ key: row.desktopBanner }),
-                });
-            } catch { /* ignore */ }
+        // Best-effort cleanup of every image the project owns. Pulls top-level
+        // banners + content image, plus every nested gallery / floor-plan /
+        // detailed-overview image so the bucket doesn't accumulate orphans.
+        const imageUrls = collectProjectImages(row);
+        if (imageUrls.length > 0) {
+            await Promise.all(imageUrls.map(u =>
+                deleteFromS3(u).catch(e => console.error('[project] S3 delete failed:', u, e.message))
+            ));
         }
 
         const wasPublishedUrl = row.publishStatus === 'published' ? projectUrlFor(row) : null;
