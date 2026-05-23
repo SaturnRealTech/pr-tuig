@@ -9,17 +9,7 @@ import { readWebmasterTools, buildVerificationMetas } from '@/lib/webmasterTools
 import { Inter, Playfair_Display } from "next/font/google";
 export const dynamic = 'force-dynamic';
 
-// next/font already self-hosts these and generates a size-adjusted fallback,
-// but `display: "swap"` still causes a visible reflow when the real font
-// loads — which Lighthouse blames for our 0.295 CLS on the hero title.
-//
-// Inter (body): `swap` is fine — body copy is dense, the swap is barely
-//   perceptible, and `optional` would mean too many returning visitors never
-//   see Inter at all.
-//
-// Playfair (display): `optional` — Playfair is only used for the giant H1
-//   and section titles. If it's not in cache within ~100ms, we keep the
-//   adjusted fallback and skip the swap entirely. No CLS.
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -72,7 +62,10 @@ export async function generateMetadata() {
 
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: title, template: siteName ? `%s | ${siteName}` : '%s' },
+    // Plain default title — no template. Child pages that set their own
+    // title render it verbatim (no "| <siteName>" appended). Pages that
+    // don't set a title fall back to this default.
+    title,
     description: description || undefined,
     alternates: { canonical: `${SITE_URL}/` },
     openGraph: {

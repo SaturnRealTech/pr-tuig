@@ -1,6 +1,7 @@
 import ProjectDetailPage from '@/features/projects/ProjectDetailPage';
 import { col } from '@/lib/db';
 import { processProject } from '@/lib/imageSeo';
+import { buildSeoFor, robotsMetaString } from '@/lib/titlesMeta';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -51,40 +52,50 @@ async function loadBrandSettings() {
 }
 
 export async function generateMetadata() {
-  let metaTitle = '';
-  let metaDescription = '';
   let metaKeywords = [];
   let siteLogo = '';
   let siteName = '';
+  let title = '';
+  let description = '';
+  let robotsMeta = null;
+  let perPostRobots = null;
 
   try {
     const doc = await loadHomepageProject();
     const settings = await loadBrandSettings();
+    if (settings?.siteLogo) siteLogo = settings.siteLogo;
+    if (settings?.siteName) siteName = settings.siteName;
 
-    metaTitle = doc?.metaTitle || '';
-    metaDescription = doc?.metaDescription || '';
+    // Run through the Titles & Meta template engine for the 'page' post type
+    // (matches what project detail pages do). Per-post overrides on the
+    // homepage project still win — the engine just supplies the template
+    // fallback so the /admin/seo/titles-meta "Pages" settings actually
+    // affect the homepage.
+    const seo = await buildSeoFor('page', {
+      title: doc?.title,
+      excerpt: doc?.shortOverview,
+      content: doc?.content,
+      metaTitle: doc?.metaTitle,
+      metaDescription: doc?.metaDescription,
+      author: doc?.company,
+      keywords: doc?.keywords,
+    }, { siteName, footerTagline: settings?.footerTagline, footerDescription: settings?.footerDescription });
+
+    title = doc?.metaTitle || seo.title || doc?.title || siteName;
+    description = doc?.metaDescription || seo.description || doc?.shortOverview || '';
+    robotsMeta = seo.robotsMeta;
+    perPostRobots = doc?.robotsMeta || null;
+
     metaKeywords = doc?.keywords
       ? doc.keywords.split(',').map(k => k.trim()).filter(Boolean)
       : [];
-
-    if (settings?.siteLogo) siteLogo = settings.siteLogo;
-    if (settings?.siteName) siteName = settings.siteName;
   } catch (err) {
     console.error('[SEO] error:', err.message);
   }
 
-  const title = metaTitle;
-  const description = metaDescription;
-  const keywords = metaKeywords.length > 0 ? metaKeywords : [
-    'real estate India',
-    'buy property India',
-    'sell property',
-    'rent property',
-    'Saturn RealCon',
-    'verified properties',
-  ];
+  const keywords = metaKeywords;
 
-  return {
+  const meta = {
     title,
     description,
     keywords,
@@ -105,6 +116,12 @@ export async function generateMetadata() {
     },
     robots: { index: true, follow: true },
   };
+
+  // Apply Robots Meta override: per-post override wins, else the type-level
+  // default from Titles & Meta. Matches the priority used on project pages.
+  const robotsStr = robotsMetaString(perPostRobots || robotsMeta);
+  if (robotsStr) meta.robots = robotsStr;
+  return meta;
 }
 
 export default async function Page() {

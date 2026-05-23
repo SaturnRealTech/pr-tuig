@@ -45,13 +45,16 @@ function formatBytes(b) {
 
 const LIMIT = 60;
 
-export default function MediaPicker({ onSelect, onClose, multiple = false, filterType = '', returnMeta = false }) {
+export default function MediaPicker({ onSelect, onClose, multiple = false, filterType = '', returnMeta = false, currentUrl = '' }) {
     const [tab, setTab] = useState('library');
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
     const [typeFilter, setTypeFilter] = useState(filterType);
     const [selected, setSelected] = useState([]);
+    // Tracks whether we've already auto-selected the currentUrl on the first
+    // library load. Without this we'd re-select it on every search/refetch.
+    const [autoSelected, setAutoSelected] = useState(false);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(0);
     const [viewMode, setViewMode] = useState('grid');
@@ -73,13 +76,34 @@ export default function MediaPicker({ onSelect, onClose, multiple = false, filte
             const res = await fetch(`/api/media?${params}`);
             const result = await res.json();
             if (result.success) {
-                setImages(result.data);
+                let data = result.data || [];
+                // First-load injection of the "currently in use" image. If
+                // it's already in `data` we just move it to the top; if not,
+                // we fetched it separately via /api/media?url=… and prepend.
+                if (!autoSelected && currentUrl) {
+                    const inPage = data.find(img => img.url === currentUrl);
+                    let currentDoc = inPage || null;
+                    if (!currentDoc) {
+                        try {
+                            const r = await fetch(`/api/media?url=${encodeURIComponent(currentUrl)}`);
+                            const j = await r.json();
+                            if (j.success && Array.isArray(j.data) && j.data[0]) currentDoc = j.data[0];
+                        } catch { /* fall through — picker still works without pre-select */ }
+                    }
+                    if (currentDoc) {
+                        // Pin to the very top of the grid.
+                        data = [currentDoc, ...data.filter(img => img.url !== currentDoc.url)];
+                        setSelected([currentDoc]);
+                        setAutoSelected(true);
+                    }
+                }
+                setImages(data);
                 setTotal(result.total);
                 setPage(p);
             }
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
-    }, []);
+    }, [autoSelected, currentUrl]);
 
     useEffect(() => {
         if (tab === 'library') fetchMedia(1, search, typeFilter);

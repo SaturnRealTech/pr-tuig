@@ -42,6 +42,7 @@ function BannerPicker({ label, hint, icon, value, onChange, filterType = '' }) {
             {showPicker && (
                 <MediaPicker
                     filterType={filterType}
+                    currentUrl={value}
                     onSelect={(url) => { onChange(url); setShowPicker(false); }}
                     onClose={() => setShowPicker(false)}
                 />

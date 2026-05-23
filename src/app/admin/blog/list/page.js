@@ -46,7 +46,7 @@ function ImagePicker({ label, hint, value, onChange, onAltChange, filterType = '
                 </button>
             )}
             {showPicker && (
-                <MediaPicker filterType={filterType} returnMeta={true} onSelect={handleSelect} onClose={() => setShowPicker(false)} />
+                <MediaPicker filterType={filterType} returnMeta={true} currentUrl={value} onSelect={handleSelect} onClose={() => setShowPicker(false)} />
             )}
         </div>
     );

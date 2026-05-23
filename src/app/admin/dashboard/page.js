@@ -522,12 +522,14 @@ export default function AdminDashboard() {
                         </div>
                         {showLogoPicker && (
                             <MediaPicker
+                                currentUrl={siteSettings.siteLogo}
                                 onSelect={url => { setSiteSettings(p => ({ ...p, siteLogo: url })); setShowLogoPicker(false); }}
                                 onClose={() => setShowLogoPicker(false)}
                             />
                         )}
                         {showFaviconPicker && (
                             <MediaPicker
+                                currentUrl={siteSettings.favicon}
                                 onSelect={url => { setSiteSettings(p => ({ ...p, favicon: url })); setShowFaviconPicker(false); }}
                                 onClose={() => setShowFaviconPicker(false)}
                             />

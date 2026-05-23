@@ -48,6 +48,7 @@ function BannerPicker({ label, hint, icon, filterType, value, onChange }) {
             {showPicker && (
                 <MediaPicker
                     filterType={filterType}
+                    currentUrl={value}
                     onSelect={(url) => { onChange(url); setShowPicker(false); }}
                     onClose={() => setShowPicker(false)}
                 />
@@ -81,6 +82,7 @@ function AmenityItem({ amenity, onUpdate, onRemove }) {
             {showPicker && (
                 <MediaPicker
                     returnMeta
+                    currentUrl={amenity.icon}
                     onSelect={({ url, alt }) => { onUpdate('icon', url); if (alt && !amenity.alt) onUpdate('alt', alt); setShowPicker(false); }}
                     onClose={() => setShowPicker(false)}
                 />
@@ -115,6 +117,7 @@ function PlanItem({ plan, onUpdate, onRemove, label }) {
             {showPicker && (
                 <MediaPicker
                     returnMeta
+                    currentUrl={plan.image}
                     onSelect={({ url, alt }) => { onUpdate('image', url); if (alt && !plan.alt) onUpdate('alt', alt); setShowPicker(false); }}
                     onClose={() => setShowPicker(false)}
                 />
@@ -143,6 +146,7 @@ function GalleryImageItem({ item, onUpdate, onRemove }) {
             {showPicker && (
                 <MediaPicker
                     returnMeta
+                    currentUrl={item.image}
                     onSelect={({ url, alt }) => { onUpdate('image', url); if (alt && !item.alt) onUpdate('alt', alt); setShowPicker(false); }}
                     onClose={() => setShowPicker(false)}
                 />
@@ -202,6 +206,7 @@ function DetailedOverviewItem({ item, index, onUpdate, onRemove }) {
             {showPicker && (
                 <MediaPicker
                     returnMeta
+                    currentUrl={item.image}
                     onSelect={({ url, alt }) => { onUpdate('image', url); if (alt && !item.imageAlt) onUpdate('imageAlt', alt); setShowPicker(false); }}
                     onClose={() => setShowPicker(false)}
                 />

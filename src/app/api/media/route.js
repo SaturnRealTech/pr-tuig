@@ -10,8 +10,18 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url);
         const search = searchParams.get('search') || '';
         const folder = searchParams.get('folder') || '';
+        const urlParam = searchParams.get('url') || '';
         const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
         const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '60', 10), 1), 500);
+
+        // Exact URL lookup: lets MediaPicker fetch the "current" image so it
+        // can be pre-selected even when it's not on the first page of the
+        // library.
+        if (urlParam) {
+            const media = await col('media');
+            const doc = await media.findOne({ url: urlParam });
+            return NextResponse.json({ success: true, data: doc ? [doc] : [], total: doc ? 1 : 0 });
+        }
 
         const filter = {};
         if (search) {

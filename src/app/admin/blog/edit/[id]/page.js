@@ -405,6 +405,7 @@ export default function EditBlog() {
                                 {showMediaPicker && (
                                     <MediaPicker
                                         returnMeta={true}
+                                        currentUrl={formData.heroImage}
                                         onSelect={(meta) => {
                                             setFormData({ ...formData, heroImage: meta.url, heroImageAlt: meta.alt || formData.heroImageAlt });
                                             setShowMediaPicker(false);
