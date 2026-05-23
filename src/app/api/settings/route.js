@@ -64,43 +64,34 @@ export async function PUT(request) {
     if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const body = await request.json();
-        const blob = {
-            primaryColor: body.primaryColor,
-            primaryDark: body.primaryDark,
-            primaryLight: body.primaryLight,
-            headerScrollBg: body.headerScrollBg || '#ffffff',
-            themeBackground: body.themeBackground || '#f7f5ef',
-            themeForeground: body.themeForeground || '#14241b',
-            themeLeaf: body.themeLeaf || '#1f5d3a',
-            themeMoss: body.themeMoss || '#244a36',
-            themeForest: body.themeForest || '#0f2a1e',
-            themeBark: body.themeBark || '#3a2a1c',
-            themeGold: body.themeGold || '#c8a96a',
-            themeCream: body.themeCream || '#f1ead7',
-            indexNowKey: body.indexNowKey || '',
-            siteName: body.siteName || '',
-            siteLogo: body.siteLogo || '',
-            favicon: body.favicon || '',
-            contactPhone: body.contactPhone || '',
-            whatsappNumber: body.whatsappNumber || '',
-            cinNumber: body.cinNumber || '',
-            copyrightText: body.copyrightText || '',
-            footerTagline: body.footerTagline || '',
-            footerDescription: body.footerDescription || '',
-            footerTrustText: body.footerTrustText || '',
-            smtpHost: body.smtpHost || '',
-            smtpPort: body.smtpPort || '465',
-            smtpSecure: body.smtpSecure !== false,
-            smtpUser: body.smtpUser || '',
-            smtpPass: body.smtpPass || '',
-            mailFromName: body.mailFromName || '',
-            mailFrom: body.mailFrom || '',
-            mailTo: body.mailTo || '',
-            mailSubject: body.mailSubject || '',
-        };
+
+        // Whitelist of brand fields the dashboard owns. Anything outside this
+        // list (imageSeo, localSeo, permissions, etc.) is left alone.
+        const KNOWN_FIELDS = [
+            'primaryColor', 'primaryDark', 'primaryLight',
+            'headerScrollBg',
+            'themeBackground', 'themeForeground', 'themeLeaf', 'themeMoss',
+            'themeForest', 'themeBark', 'themeGold', 'themeCream',
+            'indexNowKey',
+            'siteName', 'siteLogo', 'favicon',
+            'contactPhone', 'whatsappNumber', 'cinNumber',
+            'copyrightText', 'footerTagline', 'footerDescription', 'footerTrustText',
+            'smtpHost', 'smtpPort', 'smtpSecure',
+            'smtpUser', 'smtpPass',
+            'mailFromName', 'mailFrom', 'mailTo', 'mailSubject',
+        ];
+
+        // PARTIAL merge: only fields the client actually sent get applied.
+        // Previously, missing fields were defaulted to '' (e.g. siteLogo: body.siteLogo || ''),
+        // which silently wiped logo/favicon/etc. when "Save Colors" only sent colors.
+        const blob = {};
+        for (const k of KNOWN_FIELDS) {
+            if (Object.prototype.hasOwnProperty.call(body, k)) blob[k] = body[k];
+        }
 
         // Merge into the existing blob so sub-features (imageSeo, localSeo,
-        // videoSitemap, sitemap, google, permissions, ...) survive a brand save.
+        // videoSitemap, sitemap, google, permissions, ...) and any fields
+        // not in this request's body survive the save.
         const existingBlob = await readBrand();
         const merged = { ...existingBlob, ...blob };
 

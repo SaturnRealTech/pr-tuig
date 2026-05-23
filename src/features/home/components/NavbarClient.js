@@ -1,12 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useSettings } from '@/lib/SettingsContext';
 
-export default function NavbarClient() {
+export default function NavbarClient({ initialProjects }) {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
-    const [projects, setProjects] = useState([]);
+    // If the parent server-rendered the project list (preferred — zero CLS
+    // because the menu width is final on first paint), use it. Otherwise
+    // fall back to the legacy client fetch so older callers don't break.
+    const [projects, setProjects] = useState(() => Array.isArray(initialProjects) ? initialProjects : []);
     const { siteName, siteLogo, contactPhone, headerScrollBg } = useSettings();
 
     useEffect(() => {
@@ -16,6 +20,7 @@ export default function NavbarClient() {
     }, []);
 
     useEffect(() => {
+        if (Array.isArray(initialProjects)) return; // server already provided the list
         fetch('/api/projects?status=published')
             .then(r => r.json())
             .then(d => {
@@ -33,7 +38,7 @@ export default function NavbarClient() {
                 }
             })
             .catch(() => {});
-    }, []);
+    }, [initialProjects]);
 
     const linkClass = `relative px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 group ${
         scrolled
@@ -63,14 +68,13 @@ export default function NavbarClient() {
                         {/* Logo */}
                         <a href="/" className="flex items-center gap-2 group flex-shrink-0">
                             {siteLogo ? (
-                                <img
+                                <Image
                                     src={siteLogo}
                                     alt={siteName || 'Logo'}
                                     width={200}
                                     height={40}
-                                    loading="eager"
-                                    decoding="async"
-                                    fetchPriority="low"
+                                    sizes="(max-width: 768px) 140px, 200px"
+                                    quality={80}
                                     className="h-8 md:h-10 w-auto max-w-[140px] md:max-w-[200px] object-contain"
                                 />
                             ) : (

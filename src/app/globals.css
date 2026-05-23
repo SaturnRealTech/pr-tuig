@@ -535,6 +535,18 @@ b {
   min-height: 24px;
 }
 
+/* Leaflet z-index isolation — by default Leaflet sets z-index up to 1000 on
+   its panes/controls, which can overlap our sticky nav, modals, and the
+   floating WhatsApp button. The `.isolate` utility on the map container
+   already creates a new stacking context; this clamps the internals down so
+   nothing escapes that context. */
+.leaflet-container,
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1 !important;
+}
+
 /* Leaflet project tooltip */
 .leaflet-project-tooltip {
   background: #1a1a1a;

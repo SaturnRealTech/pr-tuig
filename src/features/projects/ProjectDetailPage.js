@@ -61,7 +61,7 @@ function LeafletMap({ lat, lng, title }) {
         };
     }, [lat, lng, title]);
 
-    return <div ref={containerRef} className="w-full h-[420px] rounded-2xl overflow-hidden border border-moss/10" />;
+    return <div ref={containerRef} className="w-full h-[420px] overflow-hidden isolate" />;
 }
 
 // Convert a section title into a URL-safe id (matches the commented legacy logic).
@@ -101,11 +101,11 @@ function splitTitle(title) {
 }
 
 
-export default function V7({ project, isHome }) {
+export default function V7({ project, isHome, navbarProjects }) {
     const hasBanner = !!(project?.desktopBanner || project?.mobileBanner || project?.image);
     return (
         <div className="flex flex-col w-full bg-background text-foreground selection:bg-moss selection:text-background">
-            <NavbarClient />
+            <NavbarClient initialProjects={navbarProjects} />
             {!hasBanner && <div className="h-28 md:h-36" aria-hidden />}
             <Hero project={project} />
             <About project={project} />
@@ -115,6 +115,7 @@ export default function V7({ project, isHome }) {
             <Amenities project={project} />
             {isHome && <FloorPlans project={project} />}
             <Gallery project={project} />
+            <Walkthrough project={project} />
             <Location project={project} />
             <Specifications project={project} />
             <DetailedOverview project={project} />
@@ -408,12 +409,13 @@ function ProjectDescription({ project }) {
                     </>
                 )}
                 {project.contentImage && (
-                    <div className="mb-8 flex items-center justify-center h-72 md:h-[480px]">
-                        <img
+                    <div className="relative mb-8 flex items-center justify-center h-72 md:h-[480px]">
+                        <Image
                             src={project.contentImage}
                             alt={project.contentTitle || project.title || "Overview image"}
-                            loading="lazy"
-                            className="max-w-full max-h-full object-contain"
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1300px) 80vw, 1040px"
+                            className="object-contain"
                         />
                     </div>
                 )}
@@ -532,12 +534,13 @@ function DetailedOverview({ project }) {
                                 </div>
                             )}
                             {block.image && (
-                                <div className="mb-8 flex items-center justify-center h-72 md:h-[480px]">
-                                    <img
+                                <div className="relative mb-8 flex items-center justify-center h-72 md:h-[480px]">
+                                    <Image
                                         src={block.image}
                                         alt={block.imageAlt || block.title || "Overview image"}
-                                        loading="lazy"
-                                        className="max-w-full max-h-full object-contain"
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1300px) 80vw, 1040px"
+                                        className="object-contain"
                                     />
                                 </div>
                             )}
@@ -728,10 +731,12 @@ function Amenities({ project }) {
                             <div className="flex justify-center">
                                 <div className="w-16 h-16 rounded-full bg-moss/8 border border-moss/15 flex items-center justify-center overflow-hidden group-hover:bg-moss group-hover:border-moss transition">
                                     {a.icon ? (
-                                        <img
+                                        <Image
                                             src={a.icon}
                                             alt={a.alt || a.label || "amenity"}
-                                            loading="lazy"
+                                            width={36}
+                                            height={36}
+                                            sizes="36px"
                                             className="w-9 h-9 object-contain"
                                         />
                                     ) : (
@@ -780,6 +785,11 @@ function FloorPlans({ project }) {
     if (masterPlans.length === 0 && floorPlans.length === 0 && !hasContent) return null;
 
     const title = project?.masterFloorPlan?.title || `${projectName} Floor Plans`;
+    // Per-section subheadings — admin can override in /admin/projects/edit/[id].
+    // Defaults preserve the original copy ("Master Plan" / "Plot Sizes") so
+    // existing projects keep rendering without any data changes.
+    const masterHeading = (project?.masterFloorPlan?.masterPlansLabel || '').trim() || 'Master Plan';
+    const floorHeading = (project?.masterFloorPlan?.floorPlansLabel || '').trim() || 'Plot Sizes';
 
     const handleCardClick = (plan, kind) => {
         if (typeof openEnquire === "function") {
@@ -848,7 +858,7 @@ function FloorPlans({ project }) {
 
                 {masterPlans.length > 0 && (
                     <div className="mt-12">
-                        <h3 className="font-display text-xl md:text-2xl text-moss mb-5">Master Plan</h3>
+                        <h3 className="font-display text-xl md:text-2xl text-moss mb-5">{masterHeading}</h3>
                         <div className="grid md:grid-cols-2 gap-6">
                             {masterPlans.map((fp, i) => renderCard(fp, i, "Master Plan"))}
                         </div>
@@ -857,7 +867,7 @@ function FloorPlans({ project }) {
 
                 {floorPlans.length > 0 && (
                     <div className={masterPlans.length > 0 ? "mt-10" : "mt-12"}>
-                        <h3 className="font-display text-xl md:text-2xl text-moss mb-5">Plot Sizes</h3>
+                        <h3 className="font-display text-xl md:text-2xl text-moss mb-5">{floorHeading}</h3>
                         <div className="grid md:grid-cols-2 gap-6">
                             {floorPlans.map((fp, i) => renderCard(fp, i, "Floor Plan"))}
                         </div>
@@ -876,6 +886,54 @@ function FloorPlans({ project }) {
                     >
                         Request Detailed Floor Plan
                     </button>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+// Accept any of YouTube's public URL shapes and return the canonical embed URL.
+// Returns null when the input isn't a recognisable YouTube link, so the
+// Walkthrough section can early-return cleanly.
+function getYouTubeEmbedUrl(url) {
+    if (!url || typeof url !== "string") return null;
+    const trimmed = url.trim();
+    if (!trimmed) return null;
+    if (/^https:\/\/www\.youtube(-nocookie)?\.com\/embed\//i.test(trimmed)) return trimmed;
+    const shortMatch = trimmed.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/i);
+    if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+    const watchMatch = trimmed.match(/youtube\.com\/watch\?[^"'\s]*v=([A-Za-z0-9_-]{6,})/i);
+    if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+    const shortsMatch = trimmed.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]{6,})/i);
+    if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+    return null;
+}
+
+function Walkthrough({ project }) {
+    if (project?.hideWalkthrough) return null;
+    const embed = getYouTubeEmbedUrl(project?.walkthroughUrl);
+    if (!embed) return null;
+    const title = project?.walkthroughTitle || "Project Walkthrough";
+    const duration = project?.walkthroughDuration;
+
+    return (
+        <section id="walkthrough" className="bg-background py-16 md:py-24">
+            <div className="max-w-[1300px] mx-auto px-6">
+                <SectionLabel>WALKTHROUGH</SectionLabel>
+                <SectionTitle>{title}</SectionTitle>
+                {duration ? (
+                    <p className="mt-3 text-sm text-foreground/60">Duration: {duration}</p>
+                ) : null}
+                <div className="mt-10 relative w-full rounded-2xl overflow-hidden shadow-xl shadow-moss/20 border border-moss/10" style={{ paddingBottom: "56.25%" }}>
+                    <iframe
+                        src={embed}
+                        title={title}
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        className="absolute inset-0 w-full h-full"
+                    />
                 </div>
             </div>
         </section>
@@ -1029,7 +1087,7 @@ function Gallery({ project }) {
 
 function StyledMap() {
     return (
-        <div className="relative aspect-[4/3] rounded-2xl bg-cream border border-moss/10 overflow-hidden">
+        <div className="relative aspect-[4/3] bg-cream overflow-hidden">
             <svg viewBox="0 0 400 300" className="w-full h-full">
                 <rect width="400" height="300" fill="#f5efe2" />
                 <path d="M0 220 Q 80 200 160 215 T 320 200 T 400 210" stroke="#c5b88f" strokeWidth="22" fill="none" opacity="0.6" />

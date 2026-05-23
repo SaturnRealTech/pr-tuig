@@ -244,8 +244,9 @@ export default function AdminDashboard() {
                         <p className="text-gray-600">Welcome back, {user.name}!</p>
                     </div>
 
+                    <div className="space-y-8">
                     {/* Stats Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -851,6 +852,7 @@ export default function AdminDashboard() {
                         </div>
                     </div> */}
 
+                    </div>
                 </div>
             </main >
         </div >

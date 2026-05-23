@@ -429,7 +429,7 @@ export default function EditProject() {
         walkthroughTitle: '',
         walkthroughUrl: '',
         walkthroughDuration: '',
-        masterFloorPlan: { title: '', content: '', masterPlans: [], floorPlans: [] },
+        masterFloorPlan: { title: '', content: '', masterPlansLabel: '', floorPlansLabel: '', masterPlans: [], floorPlans: [] },
         gallery: { title: '', content: '', images: [] },
         projectSpecifications: { title: '', content: '', specs: [], ctaLabel: '' },
         location: { title: '', content: '' },
@@ -536,7 +536,10 @@ export default function EditProject() {
                 walkthroughTitle: p.walkthroughTitle || '',
                 walkthroughUrl: p.walkthroughUrl || '',
                 walkthroughDuration: p.walkthroughDuration || '',
-                masterFloorPlan: p.masterFloorPlan || { title: '', content: '', masterPlans: [], floorPlans: [] },
+                masterFloorPlan: {
+                    title: '', content: '', masterPlansLabel: '', floorPlansLabel: '', masterPlans: [], floorPlans: [],
+                    ...(p.masterFloorPlan || {}),
+                },
                 gallery: p.gallery || { title: '', content: '', images: [] },
                 projectSpecifications: p.projectSpecifications || { title: '', content: '', specs: [], ctaLabel: '' },
                 location: p.location || { title: '', content: '' },
@@ -1628,10 +1631,17 @@ export default function EditProject() {
 
                                     {/* Master Plans */}
                                     <div className="mb-5">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Master Plans</h4>
+                                        <div className="flex items-center justify-between mb-3 gap-3">
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-1.5">Master Plans</h4>
+                                                <input type="text"
+                                                    value={formData.masterFloorPlan.masterPlansLabel}
+                                                    onChange={e => updateMFP('masterPlansLabel', e.target.value)}
+                                                    placeholder="Frontend heading (default: Master Plan)"
+                                                    className="w-full max-w-sm px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-gold text-gray-900" />
+                                            </div>
                                             <button type="button" onClick={addMasterPlan}
-                                                className="px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition">
+                                                className="self-end px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition flex-shrink-0">
                                                 + Add Master Plan
                                             </button>
                                         </div>
@@ -1650,10 +1660,17 @@ export default function EditProject() {
 
                                     {/* Floor Plans */}
                                     <div className="border-t border-gray-200 pt-5">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Floor Plans</h4>
+                                        <div className="flex items-center justify-between mb-3 gap-3">
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-1.5">Floor Plans</h4>
+                                                <input type="text"
+                                                    value={formData.masterFloorPlan.floorPlansLabel}
+                                                    onChange={e => updateMFP('floorPlansLabel', e.target.value)}
+                                                    placeholder="Frontend heading (default: Plot Sizes)"
+                                                    className="w-full max-w-sm px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-gold text-gray-900" />
+                                            </div>
                                             <button type="button" onClick={addFloorPlan}
-                                                className="px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition">
+                                                className="self-end px-3 py-1.5 bg-gold text-white rounded-lg text-sm font-semibold hover:bg-gold transition flex-shrink-0">
                                                 + Add Floor Plan
                                             </button>
                                         </div>

@@ -9,6 +9,17 @@ import { readWebmasterTools, buildVerificationMetas } from '@/lib/webmasterTools
 import { Inter, Playfair_Display } from "next/font/google";
 export const dynamic = 'force-dynamic';
 
+// next/font already self-hosts these and generates a size-adjusted fallback,
+// but `display: "swap"` still causes a visible reflow when the real font
+// loads — which Lighthouse blames for our 0.295 CLS on the hero title.
+//
+// Inter (body): `swap` is fine — body copy is dense, the swap is barely
+//   perceptible, and `optional` would mean too many returning visitors never
+//   see Inter at all.
+//
+// Playfair (display): `optional` — Playfair is only used for the giant H1
+//   and section titles. If it's not in cache within ~100ms, we keep the
+//   adjusted fallback and skip the swap entirely. No CLS.
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -18,8 +29,9 @@ const inter = Inter({
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional",
   weight: ["400", "500", "600", "700"],
+  adjustFontFallback: "Times New Roman",
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://tangledupingreen.in';
@@ -30,82 +42,70 @@ export const viewport = {
   maximumScale: 5,
 };
 
-export const metadata = {
-  metadataBase: new URL(SITE_URL),
+// Default metadata for any page that doesn't ship its own `generateMetadata`.
+// The homepage, project pages, and blog pages all override this — this only
+// fires as the fallback (admin sub-pages, legal pages, 404, etc.) so it
+// should track the brand settings, not project-specific copy.
+export async function generateMetadata() {
+  let siteName = '';
+  let siteLogo = '';
+  let favicon = '';
+  let tagline = '';
+  let description = '';
+  try {
+    const settings = await col('settings');
+    const row = await settings.findOne({ type: 'brand' });
+    const data = row?.data || {};
+    siteName = data.siteName || '';
+    siteLogo = data.siteLogo || '';
+    favicon = data.favicon || '';
+    tagline = data.footerTagline || '';
+    description = data.footerDescription || tagline || '';
+  } catch (e) {
+    console.error('[layout.generateMetadata]', e.message);
+  }
 
-  title: "SaturnRealcon — Launch Your SaaS in 45 Days | Fixed Scope, Fixed Timeline",
+  const title = siteName
+    ? (tagline ? `${siteName} — ${tagline}` : siteName)
+    : 'Site';
+  const ogImage = siteLogo || undefined;
 
-  description:
-    "SaturnRealcon is a 45-day SaaS launch system for serious founders. We design, build, and deploy production-ready SaaS products with a fixed scope and fixed timeline — no delays, no chaos.",
-
-  keywords: [
-    "SaturnRealcon",
-    "Launch Your SaaS in 45 Days",
-    "45 Day SaaS Launch",
-    "SaaS MVP Development",
-    "B2B SaaS Development",
-    "AI SaaS Development",
-    "Startup MVP Launch",
-    "Productized SaaS Development",
-    "Fast SaaS Launch",
-    "Fixed Scope Development",
-    "Startup Product Development",
-    "SaaS Builders",
-    "SaaS for Founders",
-  ],
-
-  alternates: {
-    canonical: `${SITE_URL}/`,
-  },
-
-  openGraph: {
-    title: "SaturnRealcon — Launch Your SaaS in 45 Days",
-    description:
-      "A fixed-scope, fixed-timeline SaaS launch system for founders who want speed without chaos. Launch Your SaaS in 45 Days.",
-    url: `${SITE_URL}/`,
-    siteName: "SaturnRealcon",
-    type: "website",
-    images: [
-      {
-        url: `${SITE_URL}/logos/SaturnRealcon.png`,
-        width: 1200,
-        height: 630,
-        alt: "SaturnRealcon — 45-Day SaaS Launch System",
-      },
-    ],
-  },
-
-  twitter: {
-    card: "summary_large_image",
-    title: "SaturnRealcon",
-    description:
-      "A 45-day SaaS launch system built for founders who value speed, clarity, and execution.",
-    images: [`${SITE_URL}/logos/SaturnRealcon.png`],
-  },
-
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: { default: title, template: siteName ? `%s | ${siteName}` : '%s' },
+    description: description || undefined,
+    alternates: { canonical: `${SITE_URL}/` },
+    openGraph: {
+      title,
+      description: description || undefined,
+      url: `${SITE_URL}/`,
+      siteName: siteName || undefined,
+      type: 'website',
+      ...(ogImage ? { images: [{ url: ogImage, width: 1200, height: 630, alt: title }] } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: description || undefined,
+      ...(ogImage ? { images: [ogImage] } : {}),
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
     },
-  },
-
-  icons: {
-    icon: [
-      { url: "/favicon.ico" },
-      { url: "/qwikly.png", sizes: "32x32", type: "image/png" },
-      { url: "/qwikly.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: [{ url: "/qwikly.png", sizes: "180x180" }],
-  },
-
-  manifest: "/site.webmanifest",
-};
+    // Favicon is also injected via <link> tags inside RootLayout (below) so
+    // admins can swap it without a redeploy. Mirror it here so Next.js's
+    // metadata API stays in sync.
+    ...(favicon ? { icons: { icon: [{ url: favicon }], apple: [{ url: favicon }] } } : {}),
+  };
+}
 
 
 const THEME_DEFAULTS = {

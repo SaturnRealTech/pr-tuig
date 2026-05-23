@@ -14,6 +14,28 @@ async function loadHomepageProject() {
   );
 }
 
+// Server-rendered navbar links. Fetching here (instead of inside NavbarClient)
+// removes the post-mount setState that was causing 0.032 CLS on the desktop
+// menu when projects arrived async.
+async function loadNavbarProjects() {
+  try {
+    const projects = await col('projects');
+    const rows = await projects
+      .find({ publishStatus: 'published', isHomePage: { $ne: true } })
+      .project({ title: 1, slug: 1, createdAt: 1, createdDate: 1 })
+      .toArray();
+    return rows
+      .sort((a, b) => {
+        const ta = new Date(a.createdDate || a.createdAt || 0).getTime();
+        const tb = new Date(b.createdDate || b.createdAt || 0).getTime();
+        return tb - ta;
+      })
+      .map(p => ({ label: p.title, href: `/${p.slug}` }));
+  } catch {
+    return [];
+  }
+}
+
 async function loadHomepageSettings() {
   const homepage = await col('homepage');
   const row = await homepage.findOne({});
@@ -88,11 +110,16 @@ export async function generateMetadata() {
 export default async function Page() {
   let project = null;
   let localBusinessSchema = null;
+  let navbarProjects = [];
 
   try {
-    const doc = await loadHomepageProject();
-    const homepageSettings = await loadHomepageSettings();
-    const brandSettings = await loadBrandSettings();
+    const [doc, homepageSettings, brandSettings, navProjects] = await Promise.all([
+      loadHomepageProject(),
+      loadHomepageSettings(),
+      loadBrandSettings(),
+      loadNavbarProjects(),
+    ]);
+    navbarProjects = navProjects;
 
     if (doc) {
       project = await processProject({
@@ -199,7 +226,7 @@ export default async function Page() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
         />
       )}
-      <ProjectDetailPage project={project} isHome={true} />
+      <ProjectDetailPage project={project} isHome={true} navbarProjects={navbarProjects} />
     </>
   );
 }
