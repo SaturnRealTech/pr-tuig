@@ -100,6 +100,27 @@ function splitTitle(title) {
     return { lead: parts.slice(0, -2).join(" "), tail: parts.slice(-2).join(" ") };
 }
 
+// Admin-controlled per-line title. Returns null when no custom lines are set
+// (so the caller falls back to auto-wrap). When set, the ENTIRE last line is
+// rendered in gold italic so the admin can decide exactly which words pop —
+// e.g. typing "Total Environment\nTangled Up\nin Green" puts "in Green" on
+// its own line in gold italic, while "Total Environment Tangled Up\nin Green"
+// puts the whole "in Green" line in gold.
+function splitTitleLines(rawLines, fallbackTitle) {
+    const text = String(rawLines || '').trim();
+    if (!text) return null;
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) return null;
+    const lastIdx = lines.length - 1;
+    return {
+        prefixLines: lines.slice(0, lastIdx),
+        // Empty lead — the whole last line becomes the gold italic tail.
+        lastLineLead: '',
+        lastLineTail: lines[lastIdx],
+        fallbackTitle,
+    };
+}
+
 
 export default function V7({ project, isHome, navbarProjects }) {
     const hasBanner = !!(project?.desktopBanner || project?.mobileBanner || project?.image);
@@ -138,8 +159,13 @@ function Hero({ project }) {
         null;
 
     const titleParts = splitTitle(project?.title || "");
-    const tagline = project?.contentTitle || project?.metaDescription;
-    const subhead = project?.projectAddress || "";
+    // When the admin types explicit line breaks in /admin/projects/edit, use
+    // them verbatim. Otherwise fall back to auto-wrap (titleParts).
+    const customLines = splitTitleLines(project?.heroTitleLines, project?.title || "");
+    // Admin overrides win, then existing fields fall back into place. Empty
+    // string in the override means "blank" — explicit choice, not fallback.
+    const subhead = (project?.heroSubtitle ?? "").trim() || project?.projectAddress || "";
+    const tagline = (project?.heroTagline ?? "").trim() || project?.contentTitle || project?.metaDescription || "";
     const launchYear = project?.createdDate ? new Date(project.createdDate).getFullYear() : null;
 
     const handleEnquire = (source) => {
@@ -207,8 +233,19 @@ function Hero({ project }) {
                         <span className="block w-10 h-px bg-gold/70" />
                     </div>
                     <h1 className="mt-4 font-display font-medium text-background text-5xl md:text-7xl lg:text-[88px] leading-[1] tracking-tight">
-                        {titleParts.lead && <>{titleParts.lead} </>}
-                        <em className="text-gold">{titleParts.tail}</em>
+                        {customLines ? (
+                            <>
+                                {customLines.prefixLines.map((line, i) => (
+                                    <span key={i} className="block">{line}</span>
+                                ))}
+                                <span className="block text-gold not-italic">{customLines.lastLineTail}</span>
+                            </>
+                        ) : (
+                            <>
+                                {titleParts.lead && <>{titleParts.lead} </>}
+                                <em className="text-gold">{titleParts.tail}</em>
+                            </>
+                        )}
                     </h1>
                     <div className="flex items-center gap-4 text-gold mt-4">
                         <span className="block w-10 h-px bg-gold/70" />

@@ -277,6 +277,9 @@ export default function EditProject() {
                 ...(p('heroBadge1') !== undefined && { heroBadge1: str('heroBadge1') }),
                 ...(p('heroBadge2') !== undefined && { heroBadge2: str('heroBadge2') }),
                 ...(p('heroBadge3') !== undefined && { heroBadge3: str('heroBadge3') }),
+                ...(p('heroTitleLines') !== undefined && { heroTitleLines: str('heroTitleLines') }),
+                ...(p('heroSubtitle') !== undefined && { heroSubtitle: str('heroSubtitle') }),
+                ...(p('heroTagline') !== undefined && { heroTagline: str('heroTagline') }),
                 ...(p('carpetArea', 'carpet', 'carpetRange') !== undefined && { carpetArea: str('carpetArea', 'carpet', 'carpetRange') }),
                 ...(p('landParcel', 'density', 'landSize') !== undefined && { landParcel: str('landParcel', 'density', 'landSize') }),
                 ...(p('lat', 'latitude') !== undefined && { lat: str('lat', 'latitude') }),
@@ -385,6 +388,9 @@ export default function EditProject() {
         heroBadge1: '',
         heroBadge2: '',
         heroBadge3: '',
+        heroTitleLines: '',
+        heroSubtitle: '',
+        heroTagline: '',
         lat: '',
         lng: '',
         company: '',
@@ -492,6 +498,9 @@ export default function EditProject() {
                 heroBadge1: p.heroBadge1 || '',
                 heroBadge2: p.heroBadge2 || '',
                 heroBadge3: p.heroBadge3 || '',
+                heroTitleLines: p.heroTitleLines || '',
+                heroSubtitle: p.heroSubtitle || '',
+                heroTagline: p.heroTagline || '',
                 lat: p.lat || '',
                 lng: p.lng || '',
                 company: p.company || '',
@@ -1093,6 +1102,58 @@ export default function EditProject() {
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="Only 1 Tower on 7.5 Acres" />
                                             </div>
+                                        </div>
+
+                                        {/* Hero title line breaks — admin types the title as they want it to wrap. */}
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-700 mb-1">Hero Title (custom line breaks)</p>
+                                            <p className="text-xs text-gray-400 mb-3">
+                                                Type the title with one line per line of text. Leave blank to use the project title with default auto-wrap. The last 2 words still render in gold italic.
+                                            </p>
+                                            <textarea
+                                                name="heroTitleLines"
+                                                value={formData.heroTitleLines ?? ''}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, heroTitleLines: e.target.value }))}
+                                                rows={3}
+                                                placeholder={"Total Environment\nTangled Up\nin Green"}
+                                                spellCheck={false}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 font-mono text-sm resize-y"
+                                            />
+                                            <p className="text-[11px] text-gray-400 mt-1">
+                                                Each new line = a new line in the H1 on the hero. Preserves the gold-italic styling on the trailing words.
+                                            </p>
+                                        </div>
+
+                                        {/* Hero subtitle (address line) — admin override */}
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-700 mb-1">Hero Address / Subtitle</p>
+                                            <p className="text-xs text-gray-400 mb-3">
+                                                Sits directly under the title on the hero (desktop only). Leave blank to use the project&apos;s Project Address field as the default.
+                                            </p>
+                                            <textarea
+                                                name="heroSubtitle"
+                                                value={formData.heroSubtitle ?? ''}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, heroSubtitle: e.target.value }))}
+                                                rows={2}
+                                                placeholder={formData.projectAddress || 'e.g. Sy No. 36/1, Doddaballapura Main Road, North Bangalore'}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 text-sm"
+                                            />
+                                        </div>
+
+                                        {/* Hero tagline (quoted description) — admin override */}
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-700 mb-1">Hero Tagline / Description</p>
+                                            <p className="text-xs text-gray-400 mb-3">
+                                                The italic quoted line below the address on the hero (desktop only). Leave blank to fall back to Content Title, then Meta Description.
+                                            </p>
+                                            <textarea
+                                                name="heroTagline"
+                                                value={formData.heroTagline ?? ''}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, heroTagline: e.target.value }))}
+                                                rows={3}
+                                                placeholder={formData.contentTitle || formData.metaDescription || 'e.g. RERA-approved luxury plots in Devanahalli, from INR 1.86 Cr.'}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900 text-sm"
+                                            />
                                         </div>
 
                                         {/* Hero badges — three small chips overlaid on the hero image */}
