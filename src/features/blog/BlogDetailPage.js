@@ -23,26 +23,26 @@ export default function BlogDetailPage({ post }) {
             <NavbarClient />
 
             {/* Article Header */}
-            <section className="pt-24 pb-8 px-6 bg-gradient-to-b from-gray-100 to-white">
+            <section className="pt-20 md:pt-24 pb-3 md:pb-8 px-6 bg-gradient-to-b from-gray-100 to-white">
                 <div className="max-w-6xl mx-auto">
                     {/* Back Link - Improved UI */}
-                    <a href="/blog" className="flex items-center gap-2 text-gray-500 hover:text-[#b27e02] mb-8 font-medium text-base transition-colors">
+                    <a href="/blog" className="flex items-center gap-2 text-gray-500 hover:text-[#b27e02] mb-4 md:mb-8 font-medium text-base transition-colors">
                         <MdArrowBack className="w-5 h-5" />
                         <span>Back to Blog</span>
                     </a>
 
                     {/* Category & Title */}
-                    <div className="mb-8">
-                        <span className="text-xs font-bold px-3 py-1 bg-[#faf0d0] text-[#b27e02] rounded-full inline-block mb-4">
+                    <div className="mb-3 md:mb-8">
+                        <span className="text-xs font-bold px-3 py-1 bg-[#faf0d0] text-[#b27e02] rounded-full inline-block mb-3 md:mb-4">
                             {post.category}
                         </span>
-                        <h1 className="text-5xl md:text-6xl font-bold text-black mb-6">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-3 md:mb-6 leading-tight break-words">
                             {post.title}
                         </h1>
                     </div>
 
                     {/* Meta Information - Clean Row, Centered, React Icons */}
-                    <div className="flex flex-wrap items-center gap-4 text-gray-500 text-base mb-8 justify-center">
+                    <div className="flex flex-wrap items-center gap-4 text-gray-500 text-base mb-3 md:mb-8 justify-center">
                         {/* <div className="flex items-center gap-2">
                             <MdPerson className="w-7 h-7 text-blue-400" />
                             <span className="font-semibold text-gray-700 text-lg">Content Team</span>
@@ -62,7 +62,7 @@ export default function BlogDetailPage({ post }) {
             </section>
 
             {/* Featured Image */}
-            <section className="px-6 pb-8">
+            <section className="px-6 pt-2 md:pt-0 pb-4 md:pb-8">
                 <div className="max-w-6xl mx-auto">
                     {post.heroImage ? (
                         <div className="w-full rounded-xl overflow-hidden">

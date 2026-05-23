@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
-import { requirePermission } from '@/lib/authHelper';
+import { requireAdminOnly } from '@/lib/authHelper';
 
 export async function PATCH(request, { params }) {
-    const guard = await requirePermission(request, 'leads', 'edit');
+    const guard = requireAdminOnly(request);
     if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;
@@ -19,7 +19,7 @@ export async function PATCH(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-    const guard = await requirePermission(request, 'leads', 'delete');
+    const guard = requireAdminOnly(request);
     if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
     try {
         const { id } = await params;

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requirePermission } from '@/lib/authHelper';
 import { col, upsertByKey, nowIso } from '@/lib/db';
+import { setLeadsPassword } from '@/lib/leadsLock';
 
 const TYPE = 'brand';
 
@@ -48,6 +49,9 @@ export async function GET() {
                 mailFrom: doc.mailFrom || '',
                 mailTo: doc.mailTo || '',
                 mailSubject: doc.mailSubject || '',
+                // Leads vault status. The actual hash/salt are never sent
+                // back — only whether a password is configured.
+                leadsPasswordConfigured: !!(doc.leadsPasswordHash && doc.leadsSalt),
             },
         });
     } catch (error) {
@@ -99,6 +103,19 @@ export async function PUT(request) {
         // videoSitemap, sitemap, google, permissions, ...) survive a brand save.
         const existingBlob = await readBrand();
         const merged = { ...existingBlob, ...blob };
+
+        // Leads vault password — only updated when the admin actually typed
+        // something. Empty / undefined leaves the existing hash alone so a
+        // routine brand save doesn't clobber it.
+        if (typeof body.leadsPassword === 'string' && body.leadsPassword.length > 0) {
+            const { leadsPasswordHash, leadsSalt } = await setLeadsPassword(body.leadsPassword);
+            merged.leadsPasswordHash = leadsPasswordHash;
+            merged.leadsSalt = leadsSalt;
+        } else if (body.leadsPassword === null) {
+            // Explicit null = remove the gate.
+            delete merged.leadsPasswordHash;
+            delete merged.leadsSalt;
+        }
         const settings = await col('settings');
         const existing = await settings.findOne({ type: TYPE }, { projection: { _id: 1 } });
         const payload = { data: merged, updatedAt: nowIso() };

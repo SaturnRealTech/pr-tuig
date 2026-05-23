@@ -213,9 +213,9 @@ function Hero({ project }) {
                         <span className="block w-10 h-px bg-gold/70" />
                     </div>
 
-                    <p className="mt-6 text-background text-lg md:text-xl font-medium">{subhead}</p>
+                    <p className="hidden md:block mt-6 text-background text-lg md:text-xl font-medium">{subhead}</p>
                     {tagline && (
-                        <div className="mt-5 inline-flex items-center gap-3 max-w-3xl">
+                        <div className="hidden md:inline-flex mt-5 items-center gap-3 max-w-3xl">
                             <span aria-hidden className="block w-8 h-px bg-gold" />
                             <p className="italic font-display text-cream text-lg md:text-xl lg:text-2xl leading-snug [text-shadow:0_2px_14px_rgba(0,0,0,0.85),0_0_2px_rgba(0,0,0,0.6)]">
                                 &ldquo;{tagline}&rdquo;
@@ -341,10 +341,10 @@ function About({ project }) {
         <section id="overview" className="bg-background py-16 md:py-24">
             <div className={`max-w-[1300px] mx-auto px-6 grid md:grid-cols-12 gap-10 md:gap-16 items-start`}>
                 {hasShortOverview && (
-                    <div className={hasSnapshot ? "md:col-span-7" : "md:col-span-12"}>
+                    <div className={`min-w-0 ${hasSnapshot ? "md:col-span-7" : "md:col-span-12"}`}>
                         <SectionLabel>OVERVIEW</SectionLabel>
                         <SectionTitle>About {projectName}</SectionTitle>
-                        <div className="mt-7 space-y-5 text-[15px] text-foreground/80 leading-[1.85] whitespace-pre-line">
+                        <div className="mt-7 space-y-5 text-[15px] text-foreground/80 leading-[1.85] whitespace-pre-line break-words">
                             {project.shortOverview}
                         </div>
                         <button
@@ -358,7 +358,7 @@ function About({ project }) {
                 )}
 
                 {hasSnapshot && (
-                    <aside className={hasShortOverview ? "md:col-span-5" : "md:col-span-12"}>
+                    <aside className={`min-w-0 ${hasShortOverview ? "md:col-span-5" : "md:col-span-12"}`}>
                         {!hasShortOverview && (
                             <>
                                 <SectionLabel>OVERVIEW</SectionLabel>
@@ -366,13 +366,13 @@ function About({ project }) {
                                 <div className="mt-3 mb-6 w-16 h-1 rounded-full bg-gold" />
                             </>
                         )}
-                        <div className="bg-white rounded-2xl shadow-lg shadow-moss/8 border border-moss/8 p-7">
+                        <div className="bg-white rounded-2xl shadow-lg shadow-moss/8 border border-moss/8 p-5 md:p-7">
                             <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-leaf mb-5">PROJECT SNAPSHOT</div>
                             <dl className="space-y-3.5 text-[14px]">
                                 {snapshotRows.map(([k, v]) => (
-                                    <div key={k} className="flex items-baseline justify-between gap-3 border-b border-moss/10 pb-3 last:border-0 last:pb-0">
-                                        <dt className="text-foreground/60 shrink-0">{k}</dt>
-                                        <dd className="font-semibold text-moss text-right">{v}</dd>
+                                    <div key={k} className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1 md:gap-3 border-b border-moss/10 pb-3 last:border-0 last:pb-0">
+                                        <dt className="text-foreground/60 md:shrink-0">{k}</dt>
+                                        <dd className="font-semibold text-moss md:text-right break-words">{v}</dd>
                                     </div>
                                 ))}
                             </dl>
@@ -540,10 +540,12 @@ function DetailedOverview({ project }) {
                                 </div>
                             )}
                             {hasContent && (
-                                <div
-                                    className="rich-content text-[15px] md:text-base text-foreground/85 leading-[1.85]"
-                                    dangerouslySetInnerHTML={{ __html: block.content }}
-                                />
+                                <div className="min-w-0 overflow-x-auto">
+                                    <div
+                                        className="rich-content text-[15px] md:text-base text-foreground/85 leading-[1.85] break-words"
+                                        dangerouslySetInnerHTML={{ __html: block.content }}
+                                    />
+                                </div>
                             )}
                         </div>
                     );
@@ -629,40 +631,44 @@ function Pricing({ project }) {
                 <SectionTitle>{title}</SectionTitle>
 
                 {rows.length > 0 && (
-                    <div className="mt-10 rounded-2xl overflow-hidden border border-moss/12 bg-white">
-                        <div className="grid grid-cols-12 bg-moss text-background text-[11px] uppercase tracking-[0.25em] font-semibold">
-                            <div className="col-span-5 md:col-span-4 px-6 py-4">Configuration</div>
-                            <div className="col-span-3 md:col-span-3 px-6 py-4">Size</div>
-                            <div className="col-span-4 md:col-span-3 px-6 py-4">Price</div>
-                            <div className="hidden md:block col-span-2 px-6 py-4 text-right" />
-                        </div>
-                        {rows.map((row, i) => (
-                            <div key={`${row.configuration || "row"}-${i}`}
-                                className={`grid grid-cols-12 items-center text-[14px] ${i % 2 === 0 ? "bg-white" : "bg-background/40"} hover:bg-cream/50 transition`}>
-                                <div className="col-span-5 md:col-span-4 px-6 py-5 font-semibold text-moss">{row.configuration}</div>
-                                <div className="col-span-3 md:col-span-3 px-6 py-5 text-foreground/80">{row.size}</div>
-                                <div className="col-span-4 md:col-span-3 px-6 py-5 font-display text-lg font-medium text-gold whitespace-nowrap">{row.price}</div>
-                                <div className="hidden md:flex col-span-2 px-6 py-5 justify-end">
-                                    {(row.buttonLabel || "").trim() && (
-                                        <button
-                                            type="button"
-                                            onClick={() => triggerEnquire(`${row.configuration || projectName} — ${row.buttonLabel}`)}
-                                            className="inline-flex items-center rounded-full bg-moss text-background px-5 py-2 text-xs font-semibold hover:bg-gold hover:text-moss transition"
-                                        >
-                                            {row.buttonLabel}
-                                        </button>
-                                    )}
-                                </div>
+                    <div className="mt-10 overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
+                        <div className="min-w-[640px] rounded-2xl overflow-hidden border border-moss/12 bg-white">
+                            <div className="grid grid-cols-12 bg-moss text-background text-[11px] uppercase tracking-[0.25em] font-semibold">
+                                <div className="col-span-5 md:col-span-4 px-6 py-4">Configuration</div>
+                                <div className="col-span-3 md:col-span-3 px-6 py-4">Size</div>
+                                <div className="col-span-4 md:col-span-3 px-6 py-4">Price</div>
+                                <div className="hidden md:block col-span-2 px-6 py-4 text-right" />
                             </div>
-                        ))}
+                            {rows.map((row, i) => (
+                                <div key={`${row.configuration || "row"}-${i}`}
+                                    className={`grid grid-cols-12 items-center text-[14px] ${i % 2 === 0 ? "bg-white" : "bg-background/40"} hover:bg-cream/50 transition`}>
+                                    <div className="col-span-5 md:col-span-4 px-6 py-5 font-semibold text-moss">{row.configuration}</div>
+                                    <div className="col-span-3 md:col-span-3 px-6 py-5 text-foreground/80">{row.size}</div>
+                                    <div className="col-span-4 md:col-span-3 px-6 py-5 font-display text-lg font-medium text-gold whitespace-nowrap">{row.price}</div>
+                                    <div className="hidden md:flex col-span-2 px-6 py-5 justify-end">
+                                        {(row.buttonLabel || "").trim() && (
+                                            <button
+                                                type="button"
+                                                onClick={() => triggerEnquire(`${row.configuration || projectName} — ${row.buttonLabel}`)}
+                                                className="inline-flex items-center rounded-full bg-moss text-background px-5 py-2 text-xs font-semibold hover:bg-gold hover:text-moss transition"
+                                            >
+                                                {row.buttonLabel}
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 
                 {htmlHasContent && (
-                    <div
-                        className={`${rows.length > 0 ? "mt-8" : "mt-10"} rich-content pricing-table-wrap text-foreground/85`}
-                        dangerouslySetInnerHTML={{ __html: html }}
-                    />
+                    <div className={`${rows.length > 0 ? "mt-8" : "mt-10"} overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0`}>
+                        <div
+                            className="rich-content pricing-table-wrap text-foreground/85 min-w-[560px] md:min-w-0"
+                            dangerouslySetInnerHTML={{ __html: html }}
+                        />
+                    </div>
                 )}
 
                 {ctaLabel && (

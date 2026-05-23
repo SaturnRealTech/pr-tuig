@@ -22,6 +22,16 @@ export function requireAdmin(request) {
     return null;
 }
 
+// Strict admin-only gate. Used by surfaces that must NEVER be opened by a
+// non-admin even if Role Manager has granted them the permission — e.g. the
+// leads vault. Bypasses the role-permission map entirely.
+export function requireAdminOnly(request) {
+    const user = getUserFromRequest(request);
+    if (!user) return { error: 'Unauthorized', status: 401 };
+    if (user.role !== 'admin') return { error: 'Only admin can access this resource.', status: 403 };
+    return null;
+}
+
 // ---------------------------------------------------------------------------
 //  Role Manager — granular per-module permissions
 // ---------------------------------------------------------------------------

@@ -6,7 +6,9 @@ import dynamic from 'next/dynamic';
 import {
     MdArticle, MdWork, MdPeople,
     MdImage, MdAdd, MdPalette, MdSave, MdCheck,
+    MdLock, MdVisibility, MdVisibilityOff,
 } from 'react-icons/md';
+import Swal from 'sweetalert2';
 import AdminSidebar from '@/components/AdminSidebar';
 
 const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: false });
@@ -54,6 +56,11 @@ export default function AdminDashboard() {
     const [mailSaving, setMailSaving] = useState(false);
     const [mailSaved, setMailSaved] = useState(false);
     const [showSmtpPass, setShowSmtpPass] = useState(false);
+    const [leadsPasswordConfigured, setLeadsPasswordConfigured] = useState(false);
+    const [leadsPassword, setLeadsPassword] = useState('');
+    const [leadsPasswordConfirm, setLeadsPasswordConfirm] = useState('');
+    const [showLeadsPassword, setShowLeadsPassword] = useState(false);
+    const [leadsSaving, setLeadsSaving] = useState(false);
     const [settingsSaving, setSettingsSaving] = useState(false);
     const [settingsSaved, setSettingsSaved] = useState(false);
     const [showLogoPicker, setShowLogoPicker] = useState(false);
@@ -99,6 +106,7 @@ export default function AdminDashboard() {
                     footerTrustText: result.data.footerTrustText || '',
                     indexNowKey: result.data.indexNowKey || '',
                 });
+                setLeadsPasswordConfigured(!!result.data.leadsPasswordConfigured);
                 setMailSettings({
                     smtpHost: result.data.smtpHost || '',
                     smtpPort: result.data.smtpPort || '465',
@@ -129,6 +137,41 @@ export default function AdminDashboard() {
             }
         } catch (e) { console.error(e); }
         finally { setSettingsSaving(false); }
+    };
+
+    const saveLeadsPassword = async (clear = false) => {
+        if (!clear) {
+            if (!leadsPassword || leadsPassword.length < 6) {
+                Swal.fire({ icon: 'warning', title: 'Password too short', text: 'Use at least 6 characters.' });
+                return;
+            }
+            if (leadsPassword !== leadsPasswordConfirm) {
+                Swal.fire({ icon: 'warning', title: 'Passwords don’t match', text: 'Re-enter the same password in both fields.' });
+                return;
+            }
+        }
+        setLeadsSaving(true);
+        try {
+            const res = await fetch('/api/settings', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ leadsPassword: clear ? null : leadsPassword }),
+            });
+            const result = await res.json();
+            if (result.success) {
+                setLeadsPassword('');
+                setLeadsPasswordConfirm('');
+                setLeadsPasswordConfigured(!clear);
+                Swal.fire({
+                    icon: 'success',
+                    title: clear ? 'Leads password removed' : 'Leads password saved',
+                    timer: 1500, showConfirmButton: false,
+                });
+            } else {
+                Swal.fire('Error', result.error || 'Failed to save', 'error');
+            }
+        } catch (e) { Swal.fire('Error', e.message, 'error'); }
+        finally { setLeadsSaving(false); }
     };
 
     const saveColors = async () => {
@@ -618,6 +661,82 @@ export default function AdminDashboard() {
                             </div>
                         </div>
                     </div>
+                    {/* Leads Vault Password */}
+                    <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-amber-500">
+                        <div className="flex items-start justify-between mb-4 gap-4">
+                            <div className="flex items-start gap-3">
+                                <MdLock size={22} className="text-amber-600 mt-0.5" />
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800">Leads Vault Password</h2>
+                                    <p className="text-xs text-gray-500 mt-0.5">
+                                        Extra password gate on <code className="px-1 py-0.5 rounded bg-gray-100 text-[11px]">/admin/leads</code>.
+                                        The leads list stays sealed until this password is typed.
+                                        Once unlocked, responses are AES-256-GCM encrypted end-to-end so the Network tab only ever shows ciphertext.
+                                    </p>
+                                    {leadsPasswordConfigured ? (
+                                        <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">
+                                            <MdCheck size={12} /> Password configured
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-bold">
+                                            Not configured — leads are unprotected
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    {leadsPasswordConfigured ? 'New password' : 'Password'}
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showLeadsPassword ? 'text' : 'password'}
+                                        value={leadsPassword}
+                                        onChange={e => setLeadsPassword(e.target.value)}
+                                        placeholder="At least 6 characters"
+                                        autoComplete="new-password"
+                                        className="w-full pr-10 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-amber-500"
+                                    />
+                                    <button type="button" onClick={() => setShowLeadsPassword(s => !s)}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-700"
+                                        aria-label="Toggle password visibility">
+                                        {showLeadsPassword ? <MdVisibilityOff size={18} /> : <MdVisibility size={18} />}
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Confirm</label>
+                                <input
+                                    type={showLeadsPassword ? 'text' : 'password'}
+                                    value={leadsPasswordConfirm}
+                                    onChange={e => setLeadsPasswordConfirm(e.target.value)}
+                                    placeholder="Re-type the same password"
+                                    autoComplete="new-password"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:border-amber-500"
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between gap-3">
+                            <p className="text-[11px] text-gray-500">
+                                Store this somewhere safe — there&apos;s no recovery path; resetting requires editing the database.
+                            </p>
+                            <div className="flex items-center gap-2">
+                                {leadsPasswordConfigured ? (
+                                    <button type="button" onClick={() => saveLeadsPassword(true)} disabled={leadsSaving}
+                                        className="px-3 py-2 border border-red-300 text-red-700 rounded-lg text-xs font-bold hover:bg-red-50 disabled:opacity-50">
+                                        Remove password
+                                    </button>
+                                ) : null}
+                                <button type="button" onClick={() => saveLeadsPassword(false)} disabled={leadsSaving}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-bold hover:bg-amber-700 disabled:opacity-50">
+                                    <MdSave size={16} /> {leadsSaving ? 'Saving…' : (leadsPasswordConfigured ? 'Update password' : 'Set password')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Mail Settings */}
                     {/* <div className="bg-white rounded-xl shadow-lg p-6">
                         <div className="flex items-center justify-between mb-6">
