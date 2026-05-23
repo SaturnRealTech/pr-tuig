@@ -66,6 +66,11 @@ export default function NavbarClient() {
                                 <img
                                     src={siteLogo}
                                     alt={siteName || 'Logo'}
+                                    width={200}
+                                    height={40}
+                                    loading="eager"
+                                    decoding="async"
+                                    fetchPriority="low"
                                     className="h-8 md:h-10 w-auto max-w-[140px] md:max-w-[200px] object-contain"
                                 />
                             ) : (

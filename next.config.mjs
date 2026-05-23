@@ -2,6 +2,12 @@
 const nextConfig = {
   reactCompiler: true,
   trailingSlash: false,
+  // Explicit gzip/br on all server responses. Default is true, but spelling
+  // it out keeps Lighthouse's "Enable text compression" audit happy and
+  // documents the intent.
+  compress: true,
+  poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   allowedDevOrigins: [
     'localhost',
     '127.0.0.1',
