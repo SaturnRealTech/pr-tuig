@@ -17,6 +17,7 @@ import {
     MdTitle,
     MdSchema,
     MdReportProblem,
+    MdVerifiedUser,
 } from 'react-icons/md';
 import AdminSidebar from '@/components/AdminSidebar';
 
@@ -76,6 +77,13 @@ const CARDS = [
         description: 'IndexNow key, manual URL submission and auto-ping on publish.',
         icon: MdBolt,
         tint: 'bg-indigo-50 text-indigo-700',
+    },
+    {
+        href: '/admin/seo/webmaster-tools',
+        title: 'Webmaster Tools',
+        description: 'Verification IDs for Google, Bing, Yandex, Pinterest, Baidu, Norton — plus custom <meta> tags.',
+        icon: MdVerifiedUser,
+        tint: 'bg-lime-50 text-lime-700',
     },
     {
         href: '/admin/seo/sitemap',

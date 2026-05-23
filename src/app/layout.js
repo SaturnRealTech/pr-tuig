@@ -5,6 +5,7 @@ import SettingsProvider from '@/components/SettingsProvider';
 import EnquireNowProvider from '@/components/EnquireNowProvider';
 import AnalyticsTracker from '@/components/AnalyticsTracker';
 import { buildLocalBusinessSchema } from '@/lib/localSeo';
+import { readWebmasterTools, buildVerificationMetas } from '@/lib/webmasterTools';
 import { Inter, Playfair_Display } from "next/font/google";
 export const dynamic = 'force-dynamic';
 
@@ -165,6 +166,8 @@ function faviconMime(url) {
 export default async function RootLayout({ children }) {
   const settings = await getSettings();
   const localBusinessSchema = await buildLocalBusinessSchema(SITE_URL);
+  const webmasterTools = await readWebmasterTools();
+  const verificationMetas = buildVerificationMetas(webmasterTools);
   return (
     <html lang="en"
 
@@ -172,6 +175,7 @@ export default async function RootLayout({ children }) {
     >
       <head>
         <style dangerouslySetInnerHTML={{ __html: `:root{--primary:${settings.primary};--primary-dark:${settings.primaryDark};--primary-light:${settings.primaryLight};--background:${settings.themeBackground};--foreground:${settings.themeForeground};--leaf:${settings.themeLeaf};--moss:${settings.themeMoss};--forest:${settings.themeForest};--bark:${settings.themeBark};--gold:${settings.themeGold};--cream:${settings.themeCream};}` }} />
+        {verificationMetas.map((attrs, i) => <meta key={`wt-${i}`} {...attrs} />)}
         {settings.favicon && (
           <>
             <link rel="icon" href={settings.favicon} type={faviconMime(settings.favicon)} />
