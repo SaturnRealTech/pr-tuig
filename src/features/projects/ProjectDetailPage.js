@@ -168,14 +168,16 @@ function Hero({ project }) {
 
     return (
         <section id="top" className="relative">
-            <div className="relative h-[680px] md:h-[760px] overflow-hidden bg-moss">
+            <div className="relative h-[480px] md:h-[760px] overflow-hidden bg-moss">
                 {bannerImage && (
                     <Image
                         src={bannerImage}
                         alt={project?.title ? `Aerial view of ${project.title}` : "Hero banner"}
                         fill
                         priority
-                        sizes="100vw"
+                        fetchPriority="high"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1300px) 100vw, 1300px"
+                        quality={70}
                         className="object-cover"
                     />
                 )}

@@ -9,6 +9,16 @@
     "seed": "node scripts/seed.js",
     "user:create": "node scripts/create-user.mjs"
   },
+  "browserslist": [
+    "chrome >= 109",
+    "edge >= 109",
+    "firefox >= 115",
+    "safari >= 16",
+    "ios_saf >= 16",
+    "samsung >= 22",
+    "not dead",
+    "not op_mini all"
+  ],
   "dependencies": {
     "@aws-sdk/client-s3": "^3.972.0",
     "@aws-sdk/lib-storage": "^3.972.0",
