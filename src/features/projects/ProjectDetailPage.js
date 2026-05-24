@@ -903,8 +903,8 @@ function FloorPlans({ project }) {
                         </div>
                     )}
                 </div>
-                <div className="bg-background text-moss px-6 py-4 flex items-center justify-between border-t border-moss/10">
-                    <div>
+                <div className="bg-background text-moss px-6 py-4 flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between md:gap-0 border-t border-moss/10">
+                    <div className="w-full md:w-auto">
                         <div className="font-semibold">{fp.label || `${kind} ${i + 1}`}</div>
                         {fp.alt && fp.alt !== fp.label && (
                             <div className="text-sm text-foreground/65">{fp.alt}</div>
