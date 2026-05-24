@@ -43,7 +43,7 @@ export default function AdminSidebar({ user, sidebarOpen, setSidebarOpen }) {
     const isActive = (href) => pathname === href || pathname.startsWith(href + '/');
 
     return (
-        <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-gold to-gold text-white transition-all duration-300 fixed h-full z-20 overflow-y-auto`}>
+        <aside data-admin-shell className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-gold to-gold text-white transition-all duration-300 fixed h-full z-20 overflow-y-auto`}>
             <div className="p-6">
                 <div className="flex items-center justify-between mb-8">
                     {sidebarOpen && (

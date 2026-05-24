@@ -56,6 +56,12 @@ function EnquireNowModal({ onClose, opts }) {
             const data = await res.json();
             if (data.success) {
                 setSuccess(true);
+                // Fire optional success callback so callers (e.g. floor-plan
+                // cards) can unlock locked content for this user.
+                if (typeof opts.onSuccess === 'function') {
+                    try { opts.onSuccess({ name: form.name, mobile: form.mobile, email: form.email }); }
+                    catch (err) { console.error('[enquire onSuccess]', err); }
+                }
             } else {
                 setError('Something went wrong. Please try again.');
             }

@@ -1,10 +1,12 @@
 "use client";
 
+import { wrapTablesForScroll } from "@/lib/richHtml";
+
 export default function ProjectContent({ html }) {
     return (
         <div className="mb-16">
             <div
-                dangerouslySetInnerHTML={{ __html: html }}
+                dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(html) }}
                 className="ProseMirror"
             />
             <style jsx global>{`

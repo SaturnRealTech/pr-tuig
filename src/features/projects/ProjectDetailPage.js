@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useEnquireNow } from "@/lib/EnquireNowContext";
 import SiteFooter from "@/components/Footer";
 import NavbarClient from "@/features/home/components/NavbarClient";
+import { wrapTablesForScroll } from "@/lib/richHtml";
 
 function LeafletMap({ lat, lng, title }) {
     const containerRef = useRef(null);
@@ -378,13 +379,13 @@ function About({ project }) {
     if (!hasShortOverview && !hasSnapshot) return null;
 
     return (
-        <section id="overview" className="bg-background py-16 md:py-24">
+        <section id="overview" className="bg-background pt-4 md:pt-6 pb-16 md:pb-24">
             <div className={`max-w-[1300px] mx-auto px-6 grid md:grid-cols-12 gap-10 md:gap-16 items-start`}>
                 {hasShortOverview && (
                     <div className={`min-w-0 ${hasSnapshot ? "md:col-span-7" : "md:col-span-12"}`}>
                         <SectionLabel>OVERVIEW</SectionLabel>
                         <SectionTitle>About {projectName}</SectionTitle>
-                        <div className="mt-7 space-y-5 text-[15px] text-foreground/80 leading-[1.85] whitespace-pre-line break-words">
+                        <div className="mt-7 space-y-5 text-[15px] text-foreground/80 leading-[1.85] whitespace-pre-line break-words text-justify">
                             {project.shortOverview}
                         </div>
                         <button
@@ -461,7 +462,7 @@ function ProjectDescription({ project }) {
                         <div className="relative">
                             <div
                                 className={`rich-content text-[15px] md:text-base text-foreground/85 leading-[1.85] overflow-hidden transition-[max-height] duration-500 ${expanded ? "max-h-[9999px]" : "max-h-[420px]"}`}
-                                dangerouslySetInnerHTML={{ __html: project.content }}
+                                dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(project.content) }}
                             />
                             {!expanded && (
                                 <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
@@ -533,7 +534,10 @@ function DetailedOverview({ project }) {
     };
 
     return (
-        <section id="detailed-overview" className="bg-background">
+        <section id="detailed-overview" className="bg-background pb-16 md:pb-24">
+            {/* NB: the inner content container's pb has been removed below — keeping
+    bottom padding on the <section> only so DetailedOverview matches the
+    standard `pb-16 md:pb-24` gap to FAQ without doubling up. */}
             <div id="detailed-overview-nav" className="sticky top-[64px] z-30">
                 <div className="max-w-[1300px] mx-auto px-6">
                     <div className="flex items-center gap-7 overflow-x-auto py-4 text-[13px] no-scrollbar bg-background/95 backdrop-blur-md border-y border-moss/10">
@@ -557,7 +561,7 @@ function DetailedOverview({ project }) {
                 </div>
             </div>
 
-            <div className="max-w-[1300px] mx-auto px-6 pt-8 md:pt-10 pb-16 md:pb-24 space-y-12 md:space-y-16">
+            <div className="max-w-[1300px] mx-auto px-6 pt-8 md:pt-10 space-y-12 md:space-y-16">
                 {blocks.map((block, i) => {
                     const hasContent = block.content && String(block.content).replace(/<[^>]*>/g, "").trim().length > 0;
                     return (
@@ -585,7 +589,7 @@ function DetailedOverview({ project }) {
                                 <div className="min-w-0 overflow-x-auto">
                                     <div
                                         className="rich-content text-[15px] md:text-base text-foreground/85 leading-[1.85] break-words"
-                                        dangerouslySetInnerHTML={{ __html: block.content }}
+                                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(block.content) }}
                                     />
                                 </div>
                             )}
@@ -616,7 +620,7 @@ function Highlights({ project }) {
     const title = project?.keyHighlightsTitle || `Why ${projectName} Stands Apart`;
 
     return (
-        <section id="highlights" className="bg-cream py-16 md:py-24">
+        <section id="highlights" className="bg-cream pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>HIGHLIGHTS</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
@@ -634,8 +638,8 @@ function Highlights({ project }) {
 
                 {htmlHasContent ? (
                     <div
-                        className={`${items.length > 0 ? 'mt-10' : 'mt-12'} rich-content text-foreground/80`}
-                        dangerouslySetInnerHTML={{ __html: html }}
+                        className={`${items.length > 0 ? 'mt-10' : 'mt-12'} rich-content text-foreground/80 break-words`}
+                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(html) }}
                     />
                 ) : null}
             </div>
@@ -667,50 +671,46 @@ function Pricing({ project }) {
     };
 
     return (
-        <section id="pricing" className="bg-background py-16 md:py-24">
+        <section id="pricing" className="bg-background pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>PRICING</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
 
                 {rows.length > 0 && (
-                    <div className="mt-10 overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
-                        <div className="min-w-[640px] rounded-2xl overflow-hidden border border-moss/12 bg-white">
-                            <div className="grid grid-cols-12 bg-moss text-background text-[11px] uppercase tracking-[0.25em] font-semibold">
-                                <div className="col-span-5 md:col-span-4 px-6 py-4">Configuration</div>
-                                <div className="col-span-3 md:col-span-3 px-6 py-4">Size</div>
-                                <div className="col-span-4 md:col-span-3 px-6 py-4">Price</div>
-                                <div className="hidden md:block col-span-2 px-6 py-4 text-right" />
-                            </div>
-                            {rows.map((row, i) => (
-                                <div key={`${row.configuration || "row"}-${i}`}
-                                    className={`grid grid-cols-12 items-center text-[14px] ${i % 2 === 0 ? "bg-white" : "bg-background/40"} hover:bg-cream/50 transition`}>
-                                    <div className="col-span-5 md:col-span-4 px-6 py-5 font-semibold text-moss">{row.configuration}</div>
-                                    <div className="col-span-3 md:col-span-3 px-6 py-5 text-foreground/80">{row.size}</div>
-                                    <div className="col-span-4 md:col-span-3 px-6 py-5 font-display text-lg font-medium text-gold whitespace-nowrap">{row.price}</div>
-                                    <div className="hidden md:flex col-span-2 px-6 py-5 justify-end">
-                                        {(row.buttonLabel || "").trim() && (
-                                            <button
-                                                type="button"
-                                                onClick={() => triggerEnquire(`${row.configuration || projectName} — ${row.buttonLabel}`)}
-                                                className="inline-flex items-center rounded-full bg-moss text-background px-5 py-2 text-xs font-semibold hover:bg-gold hover:text-moss transition"
-                                            >
-                                                {row.buttonLabel}
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                    <div className="mt-10 rounded-2xl overflow-hidden border border-moss/12 bg-white">
+                        <div className="grid grid-cols-12 bg-moss text-background text-[11px] uppercase tracking-[0.25em] font-semibold">
+                            <div className="col-span-5 md:col-span-4 px-3 md:px-6 py-3 md:py-4">Configuration</div>
+                            <div className="col-span-3 md:col-span-3 px-3 md:px-6 py-3 md:py-4">Size</div>
+                            <div className="col-span-4 md:col-span-3 px-3 md:px-6 py-3 md:py-4">Price</div>
+                            <div className="hidden md:block col-span-2 px-6 py-4 text-right" />
                         </div>
+                        {rows.map((row, i) => (
+                            <div key={`${row.configuration || "row"}-${i}`}
+                                className={`grid grid-cols-12 items-center text-[14px] ${i % 2 === 0 ? "bg-white" : "bg-background/40"} hover:bg-cream/50 transition`}>
+                                <div className="col-span-5 md:col-span-4 px-3 md:px-6 py-3 md:py-5 font-semibold text-moss text-sm md:text-base break-words">{row.configuration}</div>
+                                <div className="col-span-3 md:col-span-3 px-3 md:px-6 py-3 md:py-5 text-foreground/80 text-sm md:text-base break-words">{row.size}</div>
+                                <div className="col-span-4 md:col-span-3 px-3 md:px-6 py-3 md:py-5 font-display text-base md:text-lg font-medium text-gold break-words">{row.price}</div>
+                                <div className="hidden md:flex col-span-2 px-6 py-5 justify-end">
+                                    {(row.buttonLabel || "").trim() && (
+                                        <button
+                                            type="button"
+                                            onClick={() => triggerEnquire(`${row.configuration || projectName} — ${row.buttonLabel}`)}
+                                            className="inline-flex items-center rounded-full bg-moss text-background px-5 py-2 text-xs font-semibold hover:bg-gold hover:text-moss transition"
+                                        >
+                                            {row.buttonLabel}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
 
                 {htmlHasContent && (
-                    <div className={`${rows.length > 0 ? "mt-8" : "mt-10"} overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0`}>
-                        <div
-                            className="rich-content pricing-table-wrap text-foreground/85 min-w-[560px] md:min-w-0"
-                            dangerouslySetInnerHTML={{ __html: html }}
-                        />
-                    </div>
+                    <div
+                        className={`${rows.length > 0 ? "mt-8" : "mt-10"} rich-content text-foreground/85`}
+                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(html) }}
+                    />
                 )}
 
                 {ctaLabel && (
@@ -748,14 +748,14 @@ function Amenities({ project }) {
     const hasDescription = description && String(description).replace(/<[^>]*>/g, "").trim().length > 0;
 
     return (
-        <section id="amenities" className="bg-cream py-16 md:py-24">
+        <section id="amenities" className="bg-cream pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>AMENITIES</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
                 {hasDescription && (
                     <div
                         className="mt-4 rich-content text-[15px] text-foreground/70 leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: description }}
+                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(description) }}
                     />
                 )}
 
@@ -819,6 +819,29 @@ function FloorPlans({ project }) {
     const content = project?.masterFloorPlan?.content || '';
     const hasContent = !!content.replace(/<[^>]*>/g, '').trim();
 
+    // Tracks which plan cards have been unlocked by an enquiry form submission.
+    // Keyed by `${kind}:${index}` so master + floor plans are tracked separately.
+    // Persisted in localStorage so refreshing the page doesn't re-lock content
+    // the visitor already provided their contact details for.
+    const STORAGE_KEY = `floorPlansUnlocked:${project?._id || project?.slug || projectName}`;
+    const [unlocked, setUnlocked] = useState(() => new Set());
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            if (raw) setUnlocked(new Set(JSON.parse(raw)));
+        } catch { /* ignore */ }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    const unlock = (key) => {
+        setUnlocked(prev => {
+            const next = new Set(prev);
+            next.add(key);
+            try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...next])); } catch { /* ignore */ }
+            return next;
+        });
+    };
+
     if (masterPlans.length === 0 && floorPlans.length === 0 && !hasContent) return null;
 
     const title = project?.masterFloorPlan?.title || `${projectName} Floor Plans`;
@@ -828,60 +851,75 @@ function FloorPlans({ project }) {
     const masterHeading = (project?.masterFloorPlan?.masterPlansLabel || '').trim() || 'Master Plan';
     const floorHeading = (project?.masterFloorPlan?.floorPlansLabel || '').trim() || 'Plot Sizes';
 
-    const handleCardClick = (plan, kind) => {
+    const handleCardClick = (plan, kind, i) => {
+        const key = `${kind}:${i}`;
+        if (unlocked.has(key)) return; // already unlocked → no popup needed
         if (typeof openEnquire === "function") {
             openEnquire({
                 title: projectName,
                 source: `${kind}${plan?.label ? ` — ${plan.label}` : ""}`,
                 image: bannerImage,
+                // Unlock ALL cards of this kind on success (admin's intent: visitor
+                // gave their details, they can see everything in this set).
+                onSuccess: () => {
+                    const list = kind === 'Master Plan' ? masterPlans : floorPlans;
+                    list.forEach((_, idx) => unlock(`${kind}:${idx}`));
+                },
             });
         }
     };
 
-    const renderCard = (fp, i, kind) => (
-        <article
-            key={`${kind}-${fp.label || "plan"}-${i}`}
-            onClick={() => handleCardClick(fp, kind)}
-            className="rounded-2xl bg-moss text-background overflow-hidden border border-moss/10 cursor-pointer hover:shadow-xl hover:shadow-moss/20 transition"
-        >
-            <div className="relative h-72 flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(245,239,226,0.08)_0%,transparent_70%)] overflow-hidden">
-                {fp.image ? (
-                    <img
-                        src={fp.image}
-                        alt={fp.alt || fp.label || `${kind} image`}
-                        loading="lazy"
-                        className="absolute inset-0 w-full h-full object-cover blur-md scale-110 opacity-40"
-                    />
-                ) : (
-                    <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><g stroke='%23f5efe2' stroke-width='1' fill='none'><rect x='20' y='30' width='80' height='100'/><rect x='100' y='30' width='80' height='60'/><rect x='100' y='90' width='80' height='80'/><rect x='20' y='130' width='80' height='40'/><line x1='60' y1='30' x2='60' y2='130'/><line x1='140' y1='90' x2='140' y2='170'/></g></svg>\")", backgroundRepeat: "no-repeat", backgroundPosition: "center", backgroundSize: "260px 260px" }} />
-                )}
-                <span className="absolute top-3 left-3 z-10 inline-flex items-center rounded-full bg-gold text-moss px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-bold">
-                    {kind}
-                </span>
-                <div className="relative flex flex-col items-center gap-3 z-10">
-                    <div className="w-14 h-14 rounded-full bg-gold flex items-center justify-center text-2xl">🔒</div>
-                    <div className="text-center">
-                        <div className="font-display font-medium text-2xl">Click to Unlock</div>
-                        <div className="text-sm text-background/70 mt-1">Fill the form to view</div>
-                    </div>
-                </div>
-            </div>
-            <div className="bg-background text-moss px-6 py-4 flex items-center justify-between border-t border-moss/10">
-                <div>
-                    <div className="font-semibold">{fp.label || `${kind} ${i + 1}`}</div>
-                    {fp.alt && fp.alt !== fp.label && (
-                        <div className="text-sm text-foreground/65">{fp.alt}</div>
+    const renderCard = (fp, i, kind, isSolo = false) => {
+        const isUnlocked = unlocked.has(`${kind}:${i}`);
+        return (
+            <article
+                key={`${kind}-${fp.label || "plan"}-${i}`}
+                onClick={() => handleCardClick(fp, kind, i)}
+                className={`rounded-2xl bg-moss text-background overflow-hidden border border-moss/10 transition ${isUnlocked ? "" : "cursor-pointer hover:shadow-xl hover:shadow-moss/20"}`}
+            >
+                <div className={`relative flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(245,239,226,0.08)_0%,transparent_70%)] overflow-hidden ${isSolo ? "h-72 md:h-[60vh]" : "h-72"}`}>
+                    {fp.image ? (
+                        <img
+                            src={fp.image}
+                            alt={fp.alt || fp.label || `${kind} image`}
+                            loading="lazy"
+                            /* Once unlocked: sharp, full-quality image. Locked: keep the blurred preview. */
+                            className={`absolute inset-0 w-full h-full ${isUnlocked ? "object-contain bg-cream" : "object-cover blur-md scale-110 opacity-40"}`}
+                        />
+                    ) : (
+                        <div className="absolute inset-0 opacity-15" style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'><g stroke='%23f5efe2' stroke-width='1' fill='none'><rect x='20' y='30' width='80' height='100'/><rect x='100' y='30' width='80' height='60'/><rect x='100' y='90' width='80' height='80'/><rect x='20' y='130' width='80' height='40'/><line x1='60' y1='30' x2='60' y2='130'/><line x1='140' y1='90' x2='140' y2='170'/></g></svg>\")", backgroundRepeat: "no-repeat", backgroundPosition: "center", backgroundSize: "260px 260px" }} />
+                    )}
+                    <span className="absolute top-3 left-3 z-10 inline-flex items-center rounded-full bg-gold text-moss px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-bold">
+                        {kind}
+                    </span>
+                    {/* The lock + CTA overlay is only shown until the visitor submits the form. */}
+                    {!isUnlocked && (
+                        <div className="relative flex flex-col items-center gap-3 z-10">
+                            <div className="w-14 h-14 rounded-full bg-gold flex items-center justify-center text-2xl">🔒</div>
+                            <div className="text-center">
+                                <div className="font-display font-medium text-2xl">Click to Unlock</div>
+                                <div className="text-sm text-background/70 mt-1">Fill the form to view</div>
+                            </div>
+                        </div>
                     )}
                 </div>
-                <span className="text-xs uppercase tracking-[0.2em] font-bold text-moss hover:text-gold transition">
-                    {fp.ctaText || "View →"}
-                </span>
-            </div>
-        </article>
-    );
+                <div className="bg-background text-moss px-6 py-4 flex items-center justify-between border-t border-moss/10">
+                    <div>
+                        <div className="font-semibold">{fp.label || `${kind} ${i + 1}`}</div>
+                        {fp.alt && fp.alt !== fp.label && (
+                            <div className="text-sm text-foreground/65">{fp.alt}</div>
+                        )}
+                    </div>
+                    <span className="text-xs uppercase tracking-[0.2em] font-bold text-moss hover:text-gold transition">
+                        {fp.ctaText || "View →"}
+                    </span>
+                </div>
+            </article>
+        );
+    };
 
     return (
-        <section id="floor-plans" className="bg-background py-16 md:py-24">
+        <section id="floor-plans" className="bg-background pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>FLOOR PLANS</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
@@ -889,15 +927,17 @@ function FloorPlans({ project }) {
                 {hasContent && (
                     <div
                         className="rich-content mt-10 text-[15px] md:text-base text-foreground/85 leading-[1.85]"
-                        dangerouslySetInnerHTML={{ __html: content }}
+                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(content) }}
                     />
                 )}
 
                 {masterPlans.length > 0 && (
                     <div className="mt-12">
                         <h3 className="font-display text-xl md:text-2xl text-moss mb-5">{masterHeading}</h3>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {masterPlans.map((fp, i) => renderCard(fp, i, "Master Plan"))}
+                        {/* Single image → full-width single column + viewport-relative height.
+                            Multiple → 2-column grid with the default card height. */}
+                        <div className={masterPlans.length === 1 ? "grid grid-cols-1 gap-6" : "grid md:grid-cols-2 gap-6"}>
+                            {masterPlans.map((fp, i) => renderCard(fp, i, "Master Plan", masterPlans.length === 1))}
                         </div>
                     </div>
                 )}
@@ -905,8 +945,8 @@ function FloorPlans({ project }) {
                 {floorPlans.length > 0 && (
                     <div className={masterPlans.length > 0 ? "mt-10" : "mt-12"}>
                         <h3 className="font-display text-xl md:text-2xl text-moss mb-5">{floorHeading}</h3>
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {floorPlans.map((fp, i) => renderCard(fp, i, "Floor Plan"))}
+                        <div className={floorPlans.length === 1 ? "grid grid-cols-1 gap-6" : "grid md:grid-cols-2 gap-6"}>
+                            {floorPlans.map((fp, i) => renderCard(fp, i, "Floor Plan", floorPlans.length === 1))}
                         </div>
                     </div>
                 )}
@@ -954,7 +994,7 @@ function Walkthrough({ project }) {
     const duration = project?.walkthroughDuration;
 
     return (
-        <section id="walkthrough" className="bg-background py-16 md:py-24">
+        <section id="walkthrough" className="bg-background pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>WALKTHROUGH</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
@@ -1013,14 +1053,14 @@ function Gallery({ project }) {
     const goNext = (e) => { e?.stopPropagation?.(); setLightboxIndex(i => (i + 1) % adminImages.length); };
 
     return (
-        <section id="gallery" className="bg-cream py-16 md:py-24">
+        <section id="gallery" className="bg-cream pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>GALLERY</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
                 {hasDescription && (
                     <div
                         className="mt-4 rich-content text-[15px] text-foreground/70 leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: description }}
+                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(description) }}
                     />
                 )}
                 <div className="mt-12 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -1166,7 +1206,7 @@ function Location({ project }) {
     const title = project?.location?.title || `${projectName} Location & Connectivity`;
 
     return (
-        <section id="location" className="bg-background py-16 md:py-24">
+        <section id="location" className="bg-background pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>LOCATION</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
@@ -1182,7 +1222,7 @@ function Location({ project }) {
                 {hasContent && (
                     <div
                         className="mt-6 rich-content text-foreground/85 leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: content }}
+                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(content) }}
                     />
                 )}
             </div>
@@ -1210,7 +1250,7 @@ function Specifications({ project }) {
     const ctaLabel = ps?.ctaLabel;
 
     return (
-        <section id="specifications" className="bg-cream py-16 md:py-24">
+        <section id="specifications" className="bg-cream pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>SPECIFICATIONS</SectionLabel>
                 <SectionTitle>{title}</SectionTitle>
@@ -1218,12 +1258,12 @@ function Specifications({ project }) {
                 {hasContent && (
                     <div
                         className="mt-4 rich-content text-[15px] text-foreground/70 leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: content }}
+                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(content) }}
                     />
                 )}
 
                 {specs.length > 0 && (
-                    <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div className="mt-10 grid md:grid-cols-2 gap-5">
                         {specs.map((s, i) => (
                             <article
                                 key={`${s.title || "spec"}-${i}`}
@@ -1235,7 +1275,7 @@ function Specifications({ project }) {
                                 {s.content && (
                                     <div
                                         className="mt-3 rich-content text-sm text-foreground/75 leading-[1.7]"
-                                        dangerouslySetInnerHTML={{ __html: s.content }}
+                                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(s.content) }}
                                     />
                                 )}
                             </article>
@@ -1274,7 +1314,7 @@ function FAQ({ project }) {
     if (project?.hideFAQs || faqs.length === 0) return null;
 
     return (
-        <section id="faqs" className="bg-background py-16 md:py-24">
+        <section id="faqs" className="bg-background pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>FAQ</SectionLabel>
                 <SectionTitle>Frequently Asked Questions</SectionTitle>
@@ -1291,7 +1331,7 @@ function FAQ({ project }) {
                                 >
                                     <div
                                         className="rich-content font-display text-base md:text-lg text-moss [&_p]:m-0 [&_*]:m-0"
-                                        dangerouslySetInnerHTML={{ __html: faq.question || "" }}
+                                        dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(faq.question || "") }}
                                     />
                                     <svg
                                         width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -1305,7 +1345,7 @@ function FAQ({ project }) {
                                     <div className="px-5 md:px-6 pb-5 pt-1 border-t border-moss/8">
                                         <div
                                             className="rich-content text-[15px] text-foreground/80 leading-[1.85]"
-                                            dangerouslySetInnerHTML={{ __html: faq.answer || "" }}
+                                            dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(faq.answer || "") }}
                                         />
                                     </div>
                                 )}
@@ -1359,7 +1399,7 @@ function Enquiry({ project }) {
     };
 
     return (
-        <section id="enquiry" className="bg-moss text-background py-16 md:py-24">
+        <section id="enquiry" className="bg-moss text-background pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6 grid md:grid-cols-12 gap-10">
                 <div className="md:col-span-5">
                     <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-gold">ENQUIRE</div>
@@ -1446,7 +1486,7 @@ function LatestBlog({ project, isHome }) {
     if (project?.hideBlogs || blogs.length === 0) return null;
 
     return (
-        <section id="blogs" className="bg-background py-16 md:py-24">
+        <section id="blogs" className="bg-background pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 <SectionLabel>JOURNAL</SectionLabel>
                 <SectionTitle>Latest Blog</SectionTitle>
@@ -1906,7 +1946,7 @@ function LatestBlog({ project, isHome }) {
 //                                 <>
 //                                     <div
 //                                         className={`rich-content text-black text-lg md:text-xl overflow-hidden transition-all duration-500 ${isExpanded ? 'max-h-[9999px]' : 'max-h-[800px]'}`}
-//                                         dangerouslySetInnerHTML={{ __html: processContent(project.content) }}
+//                                         dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(project.content)) }}
 //                                     />
 //                                     {!isExpanded && (
 //                                         <div className="relative -mt-10 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none" />
@@ -1940,7 +1980,7 @@ function LatestBlog({ project, isHome }) {
 //                             </div>
 //                             <div
 //                                 className="rich-content text-gray-800 text-base md:text-lg"
-//                                 dangerouslySetInnerHTML={{ __html: processContent(project.keyHighlights) }}
+//                                 dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(project.keyHighlights)) }}
 //                             />
 //                         </div>
 //                     )}
@@ -1993,7 +2033,7 @@ function LatestBlog({ project, isHome }) {
 //                             </div>
 //                             <div
 //                                 className="rich-content text-gray-800 text-base md:text-lg"
-//                                 dangerouslySetInnerHTML={{ __html: processContent(project.configurations) }}
+//                                 dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(project.configurations)) }}
 //                             />
 //                             {project.configurationsCtaLabel && (
 //                                 <div className="flex justify-center mt-8">
@@ -2043,7 +2083,7 @@ function LatestBlog({ project, isHome }) {
 //                                 <div className="bg-[#fef9e7] rounded-2xl p-6 md:p-8 border border-[#b27e02]/20">
 //                                     <div
 //                                         className="rich-content text-gray-800 text-base md:text-lg"
-//                                         dangerouslySetInnerHTML={{ __html: processContent(project.amenitiesContent) }}
+//                                         dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(project.amenitiesContent)) }}
 //                                     />
 //                                 </div>
 //                             )}
@@ -2099,7 +2139,7 @@ function LatestBlog({ project, isHome }) {
 //                                 {hasContent(mfp.content) && (
 //                                     <div className="mb-10">
 //                                         <div className="rich-content text-gray-800 text-base md:text-lg"
-//                                             dangerouslySetInnerHTML={{ __html: processContent(mfp.content) }} />
+//                                             dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(mfp.content)) }} />
 //                                     </div>
 //                                 )}
 
@@ -2210,7 +2250,7 @@ function LatestBlog({ project, isHome }) {
 //                                     <div className="mb-8">
 //                                         <div
 //                                             className={`rich-content text-gray-800 text-base md:text-lg overflow-hidden transition-all duration-500 ${isGalleryExpanded ? 'max-h-[9999px]' : 'max-h-[4.5rem]'}`}
-//                                             dangerouslySetInnerHTML={{ __html: processContent(gallery.content) }}
+//                                             dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(gallery.content)) }}
 //                                         />
 //                                         {!isGalleryExpanded && (
 //                                             <div className="relative -mt-6 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
@@ -2290,7 +2330,7 @@ function LatestBlog({ project, isHome }) {
 //                                 </div>
 //                                 {hasContent(ps.content) && (
 //                                     <div className="rich-content text-gray-700 text-base md:text-lg mb-8"
-//                                         dangerouslySetInnerHTML={{ __html: processContent(ps.content) }} />
+//                                         dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(ps.content)) }} />
 //                                 )}
 //                                 {validSpecs.length > 0 && (
 //                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -2306,7 +2346,7 @@ function LatestBlog({ project, isHome }) {
 //                                                 )}
 //                                                 {hasContent(spec.content) && (
 //                                                     <div className="rich-content text-gray-700 text-sm leading-relaxed"
-//                                                         dangerouslySetInnerHTML={{ __html: processContent(spec.content) }} />
+//                                                         dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(spec.content)) }} />
 //                                                 )}
 //                                             </div>
 //                                         ))}
@@ -2361,7 +2401,7 @@ function LatestBlog({ project, isHome }) {
 //                                     <div>
 //                                         <div
 //                                             className="rich-content text-gray-800 text-base md:text-lg"
-//                                             dangerouslySetInnerHTML={{ __html: processContent(loc.content) }}
+//                                             dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(loc.content)) }}
 //                                         />
 //                                     </div>
 //                                 )}
@@ -2452,7 +2492,7 @@ function LatestBlog({ project, isHome }) {
 //                                 {hasContent(block.content) && (
 //                                     <div
 //                                         className="rich-content text-gray-800 text-base md:text-lg leading-relaxed"
-//                                         dangerouslySetInnerHTML={{ __html: processContent(block.content) }}
+//                                         dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(block.content)) }}
 //                                     />
 //                                 )}
 //                             </div>
@@ -2474,7 +2514,7 @@ function LatestBlog({ project, isHome }) {
 //                                         >
 //                                             <div
 //                                                 className="font-semibold text-gray-800 pr-4 flex-1 rich-content [&_a]:text-[#b27e02] [&_a]:underline [&_strong]:font-bold [&_em]:italic"
-//                                                 dangerouslySetInnerHTML={{ __html: processContent(faq.question) }}
+//                                                 dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(faq.question)) }}
 //                                             />
 //                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
 //                                                 className={`text-[#b27e02] flex-shrink-0 transition-transform duration-300 ${expandedFAQs[index] ? 'rotate-180' : ''}`}>
@@ -2485,7 +2525,7 @@ function LatestBlog({ project, isHome }) {
 //                                             <div className="p-4 bg-white border-t border-gray-200">
 //                                                 <div
 //                                                     className="rich-content text-gray-700 text-base leading-relaxed [&_a]:text-[#b27e02] [&_a]:underline [&_strong]:font-bold [&_em]:italic"
-//                                                     dangerouslySetInnerHTML={{ __html: processContent(faq.answer) }}
+//                                                     dangerouslySetInnerHTML={{ __html: wrapTablesForScroll(processContent(faq.answer)) }}
 //                                                 />
 //                                             </div>
 //                                         )}

@@ -53,6 +53,39 @@ body::-webkit-scrollbar,
   height: 0 !important;
 }
 
+/* Admin shell exception — long edit/create forms need a visible scrollbar
+   so admins can drag the thumb to scrub through the form quickly. Scoped
+   via :has() against the AdminSidebar's `data-admin-shell` attribute, so
+   the public frontend keeps its clean no-scrollbar look. The `* !important`
+   override at line 44 needs to be undone with equal specificity on every
+   descendant — hence the descendant-universal selectors below. */
+html:has([data-admin-shell]),
+html:has([data-admin-shell]) body,
+html:has([data-admin-shell]) * {
+  scrollbar-width: thin !important;
+  -ms-overflow-style: auto !important;
+}
+html:has([data-admin-shell])::-webkit-scrollbar,
+html:has([data-admin-shell]) *::-webkit-scrollbar {
+  display: block !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+html:has([data-admin-shell])::-webkit-scrollbar-track,
+html:has([data-admin-shell]) *::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+html:has([data-admin-shell])::-webkit-scrollbar-thumb,
+html:has([data-admin-shell]) *::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 6px !important;
+  border: 2px solid #f1f5f9 !important;
+}
+html:has([data-admin-shell])::-webkit-scrollbar-thumb:hover,
+html:has([data-admin-shell]) *::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+}
+
 /* * {
   outline: 1px solid red;
 } */
@@ -89,6 +122,33 @@ b {
   text-align: justify;
   line-height: 1.8;
   margin-bottom: 0.5rem;
+  /* Preserve multiple consecutive spaces and explicit newlines from the
+     rich-text editor. `pre-wrap` keeps whitespace AND still lets long
+     paragraphs wrap to fit the container width. */
+  white-space: pre-wrap;
+}
+.rich-content li,
+.rich-content blockquote {
+  white-space: pre-wrap;
+}
+/* Empty paragraphs (e.g. admin pressed Enter to insert blank lines) collapse
+   to 0 height by default. We try three independent mechanisms so at least
+   one works regardless of pre-wrap / overflow rules higher up:
+     1. min-height: a full line-height of vertical space.
+     2. ::before content with a non-breaking space — gives the line layout
+        a real character to render at the configured line-height.
+     3. padding-block — direct vertical padding as last-resort floor.
+   The body of an empty <p> also gets a transparent fallback height in case
+   the parent uses a flex/grid layout that ignores min-height on children. */
+.rich-content p:empty,
+.rich-content p:has(> br:only-child) {
+  min-height: 1.8em !important;
+  padding-block: 0.4em !important;
+}
+.rich-content p:empty::before {
+  content: "\00a0";
+  display: inline-block;
+  line-height: inherit;
 }
 .rich-content h1,
 .rich-content h2,
@@ -134,7 +194,6 @@ b {
 .rich-content table {
   border-collapse: collapse !important;
   width: 100%;
-  min-width: 500px;
   margin: 0.5rem 0;
   table-layout: auto;
 }
@@ -144,10 +203,110 @@ b {
   padding: 0.5rem 0.5rem !important;
   vertical-align: top;
   text-align: left;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .rich-content th {
   background-color: #f3f4f6;
   font-weight: 600;
+}
+
+/* Every <table> rendered inside rich-content is wrapped at render time in
+   <div class="rich-table-wrap">…</div> by src/lib/richHtml.js#wrapTablesForScroll.
+   The div is the horizontal scroll container; the table inside keeps its
+   normal table layout. */
+.rich-table-wrap {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0.5rem 0;
+}
+
+/* Critical: the wrap and every ancestor up to the section padding must NOT
+   grow to fit the wider table inside. `min-width: 0` on .rich-content (and
+   any other grid/flex ancestor) defeats the default `min-width: auto` that
+   would otherwise let children push them wider than the viewport. */
+.rich-content {
+  min-width: 0;
+}
+
+/* On phones/tablets the wrap is hard-capped to the viewport (minus the
+   section's px-6 = 3rem of horizontal padding). The table INSIDE the wrap
+   stays at its natural / inline-declared width (no forced shrink-to-fit),
+   so cells render at their intended width and each row stays a normal
+   height. If the table is wider than the wrap, scrolling kicks in inside
+   the wrap — neither the page nor the row heights blow up. */
+@media (max-width: 1023px) {
+  .rich-table-wrap {
+    max-width: calc(100vw - 3rem);
+  }
+  /* Override the base `.rich-content table { width: 100% }` for tables
+     inside the scroll wrap — we WANT them at natural width so cell
+     content doesn't get vertically-stretched by aggressive wrapping. The
+     `min-width: 0 !important` here neutralises the inline `min-width:
+     1011px` that pasted Word/Sheets tables ship with, so the table
+     shrinks to its actual text width instead of being forced wider. */
+  .rich-table-wrap table {
+    width: max-content !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    table-layout: auto !important;
+    font-size: 0.82rem;
+  }
+  /* Strip <col> widths and per-cell `colwidth` attribute widths so each
+     column sizes to the natural width of its text, not a hard-coded value
+     from the paste source. */
+  .rich-table-wrap colgroup col {
+    width: auto !important;
+    min-width: 0 !important;
+  }
+  .rich-table-wrap td[colwidth],
+  .rich-table-wrap th[colwidth] {
+    width: auto !important;
+    min-width: 0 !important;
+  }
+  .rich-table-wrap th,
+  .rich-table-wrap td {
+    padding: 0.4rem 0.55rem !important;
+    line-height: 1.4;
+    vertical-align: top;
+    /* Allow text to wrap only if a single word is too long for its cell;
+       normal short words stay on one line so rows don't get tall. */
+    word-break: normal;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}
+
+/* Pasted tables from Word / Google Docs / Notion typically wrap every cell's
+   text in a <p>. Those <p>'s ship with the global `.rich-content p` margin
+   (0.75rem bottom), and with 12 rows × 3 columns of them, the compounded
+   vertical space makes every row ~3x taller than it should be. Zero out
+   margins and tighten line-height inside table cells so rows stay compact
+   regardless of the inner markup. */
+.rich-content td > p,
+.rich-content th > p,
+.rich-content td > p:last-child,
+.rich-content th > p:last-child,
+.rich-table-wrap td p,
+.rich-table-wrap th p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.rich-table-wrap td > p + p,
+.rich-table-wrap th > p + p {
+  /* If a cell really has multiple paragraphs, restore a tiny gap so they
+     don't visually merge. */
+  margin-top: 0.25rem !important;
+}
+/* Empty paragraphs (e.g. <p></p> in the phantom 3rd column) take up a full
+   line-height of vertical space. Collapse them. */
+.rich-table-wrap td > p:empty,
+.rich-table-wrap th > p:empty {
+  display: none !important;
 }
 
 /* ── PRIMARY (#b27e02) ── */
