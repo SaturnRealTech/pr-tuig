@@ -49,6 +49,9 @@ export async function GET() {
                 mailFrom: doc.mailFrom || '',
                 mailTo: doc.mailTo || '',
                 mailSubject: doc.mailSubject || '',
+                // Tawk.to live-chat embed URL. When set, the layout injects
+                // the Tawk.to script on every public page.
+                tawktoEmbedSrc: doc.tawktoEmbedSrc || '',
                 // Leads vault status. The actual hash/salt are never sent
                 // back — only whether a password is configured.
                 leadsPasswordConfigured: !!(doc.leadsPasswordHash && doc.leadsSalt),
@@ -79,6 +82,7 @@ export async function PUT(request) {
             'smtpHost', 'smtpPort', 'smtpSecure',
             'smtpUser', 'smtpPass',
             'mailFromName', 'mailFrom', 'mailTo', 'mailSubject',
+            'tawktoEmbedSrc',
         ];
 
         // PARTIAL merge: only fields the client actually sent get applied.

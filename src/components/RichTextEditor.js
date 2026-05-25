@@ -33,6 +33,12 @@ import {
 // `linkSuggestions` enables the inline link search popover (default: true).
 // `excludeId` is the current post / project _id so we don't suggest it.
 export default function RichTextEditor({ content, onChange, linkSuggestions = true, excludeId = '' }) {
+    // Visual / HTML tab toggle — WordPress-style. When the admin is in
+    // 'code' mode we hide the TipTap canvas and show a raw HTML textarea
+    // they can edit directly. On switch-back we push the edited HTML into
+    // the editor.
+    const [view, setView] = useState('visual'); // 'visual' | 'code'
+    const [codeBuffer, setCodeBuffer] = useState('');
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -97,10 +103,81 @@ export default function RichTextEditor({ content, onChange, linkSuggestions = tr
         </button>
     );
 
+    // Compute the current block kind (Paragraph / H1 / H2 / H3 / etc.) so we
+    // can show it in the dropdown — gives admins instant visibility into
+    // what level of heading their cursor is sitting in.
+    const currentBlock = editor.isActive('heading', { level: 1 }) ? 'h1'
+        : editor.isActive('heading', { level: 2 }) ? 'h2'
+            : editor.isActive('heading', { level: 3 }) ? 'h3'
+                : editor.isActive('heading', { level: 4 }) ? 'h4'
+                    : editor.isActive('heading', { level: 5 }) ? 'h5'
+                        : editor.isActive('heading', { level: 6 }) ? 'h6'
+                            : 'p';
+
+    const setBlock = (kind) => {
+        const chain = editor.chain().focus();
+        if (kind === 'p') chain.setParagraph().run();
+        else if (kind.startsWith('h')) chain.toggleHeading({ level: parseInt(kind.slice(1), 10) }).run();
+    };
+
+    const enterCodeView = () => {
+        setCodeBuffer(editor.getHTML());
+        setView('code');
+    };
+    const exitCodeView = () => {
+        // Push the edited HTML back into the editor — this also triggers
+        // onUpdate → parent's onChange callback.
+        editor.commands.setContent(codeBuffer, true);
+        onChange(codeBuffer);
+        setView('visual');
+    };
+
     return (
         <div className="border border-gray-300 rounded-lg overflow-hidden">
+            {/* Tabs: Visual / HTML — exposes the raw markup like WordPress's "Text" tab. */}
+            <div className="flex border-b border-gray-300 bg-white">
+                <button
+                    type="button"
+                    onClick={() => { if (view === 'code') exitCodeView(); }}
+                    className={`px-4 py-2 text-xs font-bold uppercase tracking-wide transition border-b-2 ${view === 'visual' ? 'border-[#b27e02] text-[#b27e02]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                >
+                    Visual
+                </button>
+                <button
+                    type="button"
+                    onClick={() => { if (view === 'visual') enterCodeView(); }}
+                    className={`px-4 py-2 text-xs font-bold uppercase tracking-wide transition border-b-2 ${view === 'code' ? 'border-[#b27e02] text-[#b27e02]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+                >
+                    HTML
+                </button>
+                {view === 'visual' ? (
+                    <span className="ml-auto self-center pr-3 text-[11px] text-gray-400">
+                        Block: <strong className="text-gray-700 uppercase">{currentBlock === 'p' ? 'Paragraph' : currentBlock}</strong>
+                    </span>
+                ) : (
+                    <span className="ml-auto self-center pr-3 text-[11px] text-gray-400">Editing raw HTML</span>
+                )}
+            </div>
+
             {/* Toolbar */}
-            <div className="bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1">
+            <div className={`bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-1 ${view === 'code' ? 'opacity-50 pointer-events-none' : ''}`}>
+                {/* Block-type dropdown — explicit indicator of the current paragraph / heading. */}
+                <select
+                    title="Block type"
+                    value={currentBlock}
+                    onChange={e => setBlock(e.target.value)}
+                    className="h-8 px-2 text-sm border border-gray-300 rounded bg-white text-gray-700 focus:outline-none focus:border-[#b27e02] cursor-pointer"
+                >
+                    <option value="p">Paragraph</option>
+                    <option value="h1">Heading 1</option>
+                    <option value="h2">Heading 2</option>
+                    <option value="h3">Heading 3</option>
+                    <option value="h4">Heading 4</option>
+                    <option value="h5">Heading 5</option>
+                    <option value="h6">Heading 6</option>
+                </select>
+
+                <div className="w-px bg-gray-300 mx-1" />
                 <MenuButton
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     active={editor.isActive('bold')}
@@ -296,7 +373,16 @@ export default function RichTextEditor({ content, onChange, linkSuggestions = tr
 
             {/* Editor Content */}
             <div className="bg-white">
-                <EditorContent editor={editor} />
+                {view === 'visual' ? (
+                    <EditorContent editor={editor} />
+                ) : (
+                    <textarea
+                        value={codeBuffer}
+                        onChange={e => setCodeBuffer(e.target.value)}
+                        spellCheck={false}
+                        className="w-full min-h-[400px] p-4 font-mono text-[13px] leading-[1.6] text-gray-800 bg-white focus:outline-none resize-y"
+                    />
+                )}
             </div>
 
             {/* Character Counter */}
@@ -321,6 +407,46 @@ export default function RichTextEditor({ content, onChange, linkSuggestions = tr
         .ProseMirror:focus {
           outline: none;
         }
+        /* Heading tags — admin-only inline label so you can SEE which
+           heading level each line is without selecting it. Rendered via
+           ::before so it doesn't end up in the saved HTML. */
+        .ProseMirror h1,
+        .ProseMirror h2,
+        .ProseMirror h3,
+        .ProseMirror h4,
+        .ProseMirror h5,
+        .ProseMirror h6 {
+          position: relative;
+          padding-left: 3rem;
+        }
+        .ProseMirror h1::before,
+        .ProseMirror h2::before,
+        .ProseMirror h3::before,
+        .ProseMirror h4::before,
+        .ProseMirror h5::before,
+        .ProseMirror h6::before {
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: ui-monospace, SFMono-Regular, monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          padding: 2px 6px;
+          border-radius: 4px;
+          background: #faf0d0;
+          color: #b27e02;
+          line-height: 1;
+          pointer-events: none;
+          user-select: none;
+        }
+        .ProseMirror h1::before { content: 'H1'; }
+        .ProseMirror h2::before { content: 'H2'; }
+        .ProseMirror h3::before { content: 'H3'; }
+        .ProseMirror h4::before { content: 'H4'; }
+        .ProseMirror h5::before { content: 'H5'; }
+        .ProseMirror h6::before { content: 'H6'; }
         .ProseMirror h1 {
           font-size: 2rem;
           font-weight: bold;

@@ -18,6 +18,8 @@ import {
     MdSchema,
     MdReportProblem,
     MdVerifiedUser,
+    MdSmartToy,
+    MdAnalytics,
 } from 'react-icons/md';
 import AdminSidebar from '@/components/AdminSidebar';
 
@@ -84,6 +86,20 @@ const CARDS = [
         description: 'Verification IDs for Google, Bing, Yandex, Pinterest, Baidu, Norton — plus custom <meta> tags.',
         icon: MdVerifiedUser,
         tint: 'bg-lime-50 text-lime-700',
+    },
+    {
+        href: '/admin/seo/edit-robots-txt',
+        title: 'Edit robots.txt',
+        description: 'Control which paths search engines can crawl. Built-in URL tester to validate rules before saving.',
+        icon: MdSmartToy,
+        tint: 'bg-stone-50 text-stone-700',
+    },
+    {
+        href: '/admin/seo/analytics',
+        title: 'Analytics & Tracking',
+        description: 'Add GA4, GTM, Microsoft Clarity, Meta Pixel, Ahrefs — or any custom script. Pick <head> or <body> per row.',
+        icon: MdAnalytics,
+        tint: 'bg-sky-50 text-sky-700',
     },
     {
         href: '/admin/seo/sitemap',

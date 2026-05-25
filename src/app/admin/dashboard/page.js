@@ -45,7 +45,7 @@ export default function AdminDashboard() {
     const [siteSettings, setSiteSettings] = useState({
         siteName: '', siteLogo: '', favicon: '', contactPhone: '', whatsappNumber: '',
         cinNumber: '', copyrightText: '', footerTagline: '', footerDescription: '', footerTrustText: '',
-        indexNowKey: '',
+        indexNowKey: '', tawktoEmbedSrc: '',
     });
 
     const [mailSettings, setMailSettings] = useState({
@@ -99,6 +99,7 @@ export default function AdminDashboard() {
                     favicon: result.data.favicon || '',
                     contactPhone: result.data.contactPhone || '',
                     whatsappNumber: result.data.whatsappNumber || '',
+                    tawktoEmbedSrc: result.data.tawktoEmbedSrc || '',
                     cinNumber: result.data.cinNumber || '',
                     copyrightText: result.data.copyrightText || '',
                     footerTagline: result.data.footerTagline || '',
@@ -660,7 +661,22 @@ export default function AdminDashboard() {
                                     placeholder="919876543210 (with country code, no +)"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                 />
-                                <p className="text-xs text-gray-400 mt-1">Used for the floating WhatsApp button — include country code, no spaces or +</p>
+                                <p className="text-xs text-gray-400 mt-1">Floating WhatsApp button (left bottom) — include country code, no spaces or +</p>
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">💬 Tawk.to Live Chat Embed URL</label>
+                                <input
+                                    type="url"
+                                    value={siteSettings.tawktoEmbedSrc}
+                                    onChange={e => setSiteSettings(p => ({ ...p, tawktoEmbedSrc: e.target.value.trim() }))}
+                                    placeholder="https://embed.tawk.to/<property-id>/<widget-id>"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm font-mono"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">
+                                    Paste the script <code className="px-1 rounded bg-gray-100 text-[11px]">src</code> from Tawk.to&apos;s admin panel
+                                    (e.g. <code className="px-1 rounded bg-gray-100 text-[11px]">https://embed.tawk.to/abc123/1h8...</code>).
+                                    The widget appears on the right side of every page. Leave blank to disable.
+                                </p>
                             </div>
                         </div>
                     </div>

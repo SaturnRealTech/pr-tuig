@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useEnquireNow } from "@/lib/EnquireNowContext";
 import SiteFooter from "@/components/Footer";
 import NavbarClient from "@/features/home/components/NavbarClient";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { wrapTablesForScroll } from "@/lib/richHtml";
 
 function LeafletMap({ lat, lng, title }) {
@@ -145,6 +146,7 @@ export default function V7({ project, isHome, navbarProjects }) {
             <LatestBlog project={project} isHome={isHome} />
             <Enquiry project={project} />
             <SiteFooter />
+            <WhatsAppIcon projectName={project?.title} />
         </div>
     );
 }

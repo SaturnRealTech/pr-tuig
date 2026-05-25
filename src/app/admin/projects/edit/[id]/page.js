@@ -486,7 +486,7 @@ export default function EditProject() {
                 price: p.price || '',
                 totalUnits: p.totalUnits || '',
                 reraNo: p.reraNo || '',
-                possession: p.possession ? p.possession.split('T')[0] : '',
+                possession: p.possession || '',
                 createdDate: p.createdDate
                                     ? p.createdDate.split('T')[0]
                                     : p.createdAt
@@ -1072,7 +1072,8 @@ export default function EditProject() {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Possession Date</label>
-                                                <input type="date" name="possession" value={formData.possession} onChange={handleChange}
+                                                <input type="text" name="possession" value={formData.possession} onChange={handleChange}
+                                                    placeholder="e.g. Dec 2026, Q2 2027, Ready to Move"
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900" />
                                             </div>
                                             <div>

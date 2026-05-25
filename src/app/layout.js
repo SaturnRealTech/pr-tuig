@@ -6,6 +6,7 @@ import EnquireNowProvider from '@/components/EnquireNowProvider';
 import AnalyticsTracker from '@/components/AnalyticsTracker';
 import { buildLocalBusinessSchema } from '@/lib/localSeo';
 import { readWebmasterTools, buildVerificationMetas } from '@/lib/webmasterTools';
+import { readAnalyticsScripts, buildAnalyticsSnippets } from '@/lib/analyticsScripts';
 import { Inter, Playfair_Display } from "next/font/google";
 export const dynamic = 'force-dynamic';
 
@@ -140,9 +141,10 @@ async function getSettings() {
       footerTagline: doc.footerTagline || '',
       footerDescription: doc.footerDescription || '',
       footerTrustText: doc.footerTrustText || '',
+      tawktoEmbedSrc: doc.tawktoEmbedSrc || '',
     };
   } catch {
-    return { primary: '#b27e02', primaryDark: '#8a6002', primaryLight: '#d4a030', headerScrollBg: '#ffffff', ...THEME_DEFAULTS, siteName: '', siteLogo: '', favicon: '', contactPhone: '', whatsappNumber: '', cinNumber: '', copyrightText: '', footerTagline: '', footerDescription: '', footerTrustText: '' };
+    return { primary: '#b27e02', primaryDark: '#8a6002', primaryLight: '#d4a030', headerScrollBg: '#ffffff', ...THEME_DEFAULTS, siteName: '', siteLogo: '', favicon: '', contactPhone: '', whatsappNumber: '', cinNumber: '', copyrightText: '', footerTagline: '', footerDescription: '', footerTrustText: '', tawktoEmbedSrc: '' };
   }
 }
 
@@ -161,6 +163,8 @@ export default async function RootLayout({ children }) {
   const localBusinessSchema = await buildLocalBusinessSchema(SITE_URL);
   const webmasterTools = await readWebmasterTools();
   const verificationMetas = buildVerificationMetas(webmasterTools);
+  const analyticsCfg = await readAnalyticsScripts();
+  const analytics = buildAnalyticsSnippets(analyticsCfg);
   return (
     <html lang="en"
 
@@ -182,6 +186,21 @@ export default async function RootLayout({ children }) {
             dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
           />
         )}
+        {/* Admin-configured tracking scripts that target <head> — GA4,
+            GTM, Clarity, Meta Pixel, verification metas, etc. A wrapper
+            element inside <head> would get hoisted out by the browser,
+            and naively using innerHTML wouldn't EXECUTE any <script>
+            children. So this bootstrapper parses the pasted HTML into a
+            DocumentFragment, recreates each <script> as a real script
+            element (which DOES execute), and appends everything to
+            document.head in original order. */}
+        {analytics.head ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(html){var tpl=document.createElement('template');tpl.innerHTML=html;var nodes=Array.from(tpl.content.childNodes);nodes.forEach(function(n){if(n.tagName==='SCRIPT'){var s=document.createElement('script');for(var i=0;i<n.attributes.length;i++){var a=n.attributes[i];s.setAttribute(a.name,a.value);}s.text=n.textContent;document.head.appendChild(s);}else{document.head.appendChild(n);}});})(${JSON.stringify(analytics.head)});`,
+            }}
+          />
+        ) : null}
       </head>
       <body className="antialiased">
         <Suspense fallback={null}>
@@ -192,6 +211,38 @@ export default async function RootLayout({ children }) {
             {children}
           </EnquireNowProvider>
         </SettingsProvider>
+        {/* Admin-configured tracking scripts that target end-of-<body>.
+            Same script-recreation trick as the head injector above so any
+            <script> children actually execute. */}
+        {analytics.body ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(html){var tpl=document.createElement('template');tpl.innerHTML=html;var nodes=Array.from(tpl.content.childNodes);nodes.forEach(function(n){if(n.tagName==='SCRIPT'){var s=document.createElement('script');for(var i=0;i<n.attributes.length;i++){var a=n.attributes[i];s.setAttribute(a.name,a.value);}s.text=n.textContent;document.body.appendChild(s);}else{document.body.appendChild(n);}});})(${JSON.stringify(analytics.body)});`,
+            }}
+          />
+        ) : null}
+
+        {/* Tawk.to live chat — injected at the end of <body> as the vendor
+            recommends, so it loads after our content. The widget appears on
+            the right side of the screen by default; our WhatsApp button
+            sits on the left so they don't overlap. */}
+        {settings.tawktoEmbedSrc ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+                (function(){
+                  var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+                  s1.async = true;
+                  s1.src = ${JSON.stringify(settings.tawktoEmbedSrc)};
+                  s1.charset = "UTF-8";
+                  s1.setAttribute("crossorigin", "*");
+                  s0.parentNode.insertBefore(s1, s0);
+                })();
+              `,
+            }}
+          />
+        ) : null}
       </body>
     </html>
   );
