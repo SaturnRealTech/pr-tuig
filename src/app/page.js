@@ -4,7 +4,7 @@ import { processProject } from '@/lib/imageSeo';
 import { buildSeoFor, robotsMetaString } from '@/lib/titlesMeta';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-
+// console 
 export const dynamic = 'force-dynamic';
 
 async function loadHomepageProject() {
