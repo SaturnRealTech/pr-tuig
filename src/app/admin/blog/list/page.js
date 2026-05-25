@@ -63,6 +63,7 @@ export default function BlogList() {
     const [showImport, setShowImport] = useState(false);
     const [jsonText, setJsonText] = useState('');
     const [importing, setImporting] = useState(false);
+    const [bulkImporting, setBulkImporting] = useState(false);
     const [pageData, setPageData] = useState({
         desktopBanner: '', desktopBannerAlt: '',
         mobileBanner: '', mobileBannerAlt: '',
@@ -81,7 +82,7 @@ export default function BlogList() {
     const fetchBlogs = async () => {
         try {
             setLoading(true);
-            const res = await fetch('/api/blog');
+            const res = await fetch('/api/blog', { cache: 'no-store' });
             const result = await res.json();
             if (result.success) setBlogs(result.data);
         } catch (error) {
@@ -194,6 +195,89 @@ export default function BlogList() {
     const handleJsonPaste = () => {
         if (!jsonText.trim()) { Swal.fire('Empty', 'Please paste JSON content first.', 'warning'); return; }
         applyJsonAndSave(jsonText);
+    };
+
+    const readFileAsText = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(file);
+    });
+
+    // Bulk-upload: user picks a folder (or multiple .json files). Each file is
+    // parsed in the browser, then the whole batch is posted to
+    // /api/blog/bulk-import which dedups by title and inserts the rest.
+    const handleBulkUpload = async (e) => {
+        const files = Array.from(e.target.files || []).filter(f => f.name.toLowerCase().endsWith('.json'));
+        e.target.value = '';
+        if (files.length === 0) {
+            Swal.fire('No JSON files', 'The selection did not contain any .json files.', 'warning');
+            return;
+        }
+
+        const confirm = await Swal.fire({
+            title: `Import ${files.length} blog file(s)?`,
+            text: 'Files whose title already exists will be skipped.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, import',
+            confirmButtonColor: '#b8860b',
+            cancelButtonColor: '#6b7280',
+        });
+        if (!confirm.isConfirmed) return;
+
+        setBulkImporting(true);
+        Swal.fire({ title: 'Importing...', html: `Reading ${files.length} file(s)...`, allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        const blogs = [];
+        const parseErrors = [];
+        for (const file of files) {
+            try {
+                const text = await readFileAsText(file);
+                const parsed = JSON.parse(text);
+                blogs.push({ ...parsed, __source: file.name });
+            } catch (err) {
+                parseErrors.push({ source: file.name, status: 'failed', error: `Parse error: ${err.message}` });
+            }
+        }
+
+        try {
+            const res = await fetch('/api/blog/bulk-import', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ blogs }),
+            });
+            const result = await res.json();
+            if (!result.success) {
+                await Swal.fire('Error', result.error || 'Bulk import failed.', 'error');
+                return;
+            }
+
+            const inserted = result.inserted || 0;
+            const skipped = result.skipped || 0;
+            const failed = (result.failed || 0) + parseErrors.length;
+            const allDetails = [...parseErrors, ...(result.details || [])];
+            const failedRows = allDetails.filter(d => d.status === 'failed');
+            const skippedRows = allDetails.filter(d => d.status === 'skipped');
+
+            const failedHtml = failedRows.length
+                ? `<details class="mt-3 text-left"><summary class="cursor-pointer font-semibold text-red-600">Failed (${failedRows.length})</summary><ul class="text-xs text-gray-600 mt-2 max-h-40 overflow-y-auto">${failedRows.map(d => `<li>• ${d.source}: ${d.error || ''}</li>`).join('')}</ul></details>`
+                : '';
+            const skippedHtml = skippedRows.length
+                ? `<details class="mt-2 text-left"><summary class="cursor-pointer font-semibold text-gray-600">Skipped (${skippedRows.length})</summary><ul class="text-xs text-gray-600 mt-2 max-h-40 overflow-y-auto">${skippedRows.map(d => `<li>• ${d.source} — title already exists</li>`).join('')}</ul></details>`
+                : '';
+
+            await Swal.fire({
+                icon: failed > 0 ? 'warning' : 'success',
+                title: 'Bulk Import Complete',
+                html: `<div class="text-left text-sm"><p><strong>Inserted:</strong> ${inserted}</p><p><strong>Skipped:</strong> ${skipped}</p><p><strong>Failed:</strong> ${failed}</p>${skippedHtml}${failedHtml}</div>`,
+            });
+            fetchBlogs();
+        } catch (err) {
+            await Swal.fire('Error', err.message || 'Bulk import failed.', 'error');
+        } finally {
+            setBulkImporting(false);
+        }
     };
 
     const setPage = (field) => (e) => setPageData(prev => ({ ...prev, [field]: e.target.value }));
@@ -382,6 +466,26 @@ export default function BlogList() {
                                     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                                     Import JSON
                                 </button>
+                                <label className={`font-bold py-3 px-6 rounded-lg transition-all flex items-center gap-2 border-2 cursor-pointer ${bulkImporting ? 'opacity-60 cursor-not-allowed' : ''} border-emerald-600 text-emerald-700 hover:bg-emerald-600 hover:text-white`}>
+                                    {bulkImporting ? (
+                                        <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> Importing...</>
+                                    ) : (
+                                        <>
+                                            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                            Bulk Upload Folder
+                                        </>
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept=".json,application/json"
+                                        multiple
+                                        webkitdirectory=""
+                                        directory=""
+                                        onChange={handleBulkUpload}
+                                        disabled={bulkImporting}
+                                        className="hidden"
+                                    />
+                                </label>
                                 <a href="/admin/blog/create"
                                     className="bg-gradient-to-r from-gold to-gold text-white font-bold py-3 px-6 rounded-lg hover:shadow-lg transition-all flex items-center gap-2">
                                     <MdArticle /> New Blog Post

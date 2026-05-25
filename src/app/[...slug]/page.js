@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { col, findOneByAnyId } from '@/lib/db';
+import { col } from '@/lib/db';
 import { processProject } from '@/lib/imageSeo';
 import ProjectDetailPage from '@/features/projects/ProjectDetailPage';
 import {
@@ -31,19 +31,18 @@ function toIsoDate(value) {
     return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
-async function findProjectByAny(slug) {
+async function findProjectBySlug(slug) {
     const projects = await col('projects');
-    let row = await projects.findOne({ slug });
-    if (!row) row = await findOneByAnyId('projects', slug);
+    const row = await projects.findOne({ slug });
     return normalizeProject(row);
 }
 
 export async function generateStaticParams() {
     try {
         const projects = await col('projects');
-        const rows = await projects.find({}).project({ slug: 1, _id: 1 }).toArray();
+        const rows = await projects.find({ slug: { $exists: true, $ne: '' } }).project({ slug: 1 }).toArray();
         return rows
-            .map(r => r.slug || (r._id ? String(r._id) : null))
+            .map(r => r.slug)
             .filter(s => s && !String(s).includes('/'))
             .map(s => ({ slug: [String(s)] }));
     } catch {
@@ -57,7 +56,7 @@ export async function generateMetadata({ params }) {
 
     try {
         if (slugArr.length === 1) {
-            const project = await findProjectByAny(slug);
+            const project = await findProjectBySlug(slug);
             if (project) {
                 const brand = await loadBrand();
                 // Pages-type SEO template. Per-project overrides (metaTitle /
@@ -109,7 +108,7 @@ export default async function SlugPage({ params }) {
     const slug = slugArr.join('/');
 
     if (slugArr.length === 1) {
-        const project = await findProjectByAny(slug);
+        const project = await findProjectBySlug(slug);
 
         if (project) {
             // Fire-and-forget view counter; ignore failures.

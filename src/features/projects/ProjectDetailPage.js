@@ -311,17 +311,26 @@ function Hero({ project }) {
 
             {statsToShow.length > 0 && (
                 <div className="bg-moss text-background">
-                    <div className="max-w-[1300px] mx-auto px-6 grid grid-cols-2 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-background/15">
-                        {statsToShow.map((s) => {
+                    {/* Mobile: stack one-per-row. Desktop: flex-wrap with auto-width
+                        cells so each cell grows to fit its content (e.g. "1, 2,
+                        2.5, 3, 3.5, 4 BHK & Penthouses") instead of being squeezed
+                        into a fixed 1/5 column. break-words handles values that are
+                        wider than any reasonable row. */}
+                    <div className="max-w-[1300px] mx-auto px-6 flex flex-col md:flex-row md:flex-wrap md:items-stretch md:justify-center">
+                        {statsToShow.map((s, i) => {
                             const isRera = /rera/i.test(s.l);
+                            const isLast = i === statsToShow.length - 1;
                             return (
-                                <div key={s.l} className="px-5 py-5 text-center min-w-0">
+                                <div
+                                    key={s.l}
+                                    className={`px-5 py-5 text-center md:flex-auto md:min-w-[160px] ${isLast ? '' : 'border-b md:border-b-0 md:border-r border-background/15'}`}
+                                >
                                     <div className="text-[10px] uppercase tracking-[0.25em] text-gold">{s.l}</div>
                                     <div
                                         className={
                                             isRera
-                                                ? "mt-1.5 font-mono font-medium text-xs md:text-sm whitespace-nowrap"
-                                                : "mt-1.5 font-display font-medium text-lg md:text-xl whitespace-nowrap"
+                                                ? "mt-1.5 font-mono font-medium text-xs md:text-sm md:whitespace-nowrap break-words"
+                                                : "mt-1.5 font-display font-medium text-lg md:text-xl md:whitespace-nowrap break-words"
                                         }
                                     >
                                         {s.v}

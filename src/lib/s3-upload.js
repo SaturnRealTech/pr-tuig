@@ -1,7 +1,3 @@
-// S3 upload helper. Every key is prefixed with `tuig/` (override via
-// S3_KEY_PREFIX in .env). Uploads return absolute S3 URLs so the browser
-// can fetch images directly from the bucket — no Next.js round-trip needed.
-
 import { S3Client, DeleteObjectCommand, HeadBucketCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 

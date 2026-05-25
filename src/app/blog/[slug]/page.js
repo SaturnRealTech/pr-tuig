@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import BlogDetailPage from '@/features/blog/BlogDetailPage';
-import { col, findOneByAnyId } from '@/lib/db';
+import { col } from '@/lib/db';
 import { processBlogPost } from '@/lib/imageSeo';
 import { buildSeoFor, detectFirstVideo, robotsMetaString } from '@/lib/titlesMeta';
 import { buildAttachedSchemas } from '@/lib/schemaTemplates';
@@ -35,17 +35,16 @@ function toIsoDate(value) {
 
 async function getPostBySlug(slug) {
     const blogPosts = await col('blog_posts');
-    let row = await blogPosts.findOne({ slug });
-    if (!row) row = await findOneByAnyId('blog_posts', slug);
+    const row = await blogPosts.findOne({ slug });
     return normalizePost(row);
 }
 
 export async function generateStaticParams() {
     try {
         const blogPosts = await col('blog_posts');
-        const posts = await blogPosts.find({}).project({ slug: 1, _id: 1 }).toArray();
+        const posts = await blogPosts.find({ slug: { $exists: true, $ne: '' } }).project({ slug: 1 }).toArray();
         return posts
-            .map(p => p.slug || (p._id ? String(p._id) : null))
+            .map(p => p.slug)
             .filter(Boolean)
             .map(slug => ({ slug: String(slug) }));
     } catch (error) {

@@ -58,6 +58,7 @@ export default function RichTextEditor({ content, onChange, linkSuggestions = tr
                 openOnClick: false,
                 HTMLAttributes: {
                     class: 'text-blue-600 underline',
+                    rel: 'noopener noreferrer',
                 },
             }),
             Underline,

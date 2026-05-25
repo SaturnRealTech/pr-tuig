@@ -8,6 +8,7 @@ import {
 } from 'react-icons/md';
 import Swal from 'sweetalert2';
 import AdminSidebar from '@/components/AdminSidebar';
+import BulkUploadButton from '@/components/BulkUploadButton';
 
 const TABS = [
     { key: 'all', label: 'All' },
@@ -35,7 +36,7 @@ export default function ProjectsList() {
     const fetchProjects = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/projects?admin=1');
+            const res = await fetch('/api/projects?admin=1', { cache: 'no-store' });
             const result = await res.json();
             if (result.success) setProjects(result.data);
         } catch (e) { console.error(e); }
@@ -123,10 +124,17 @@ export default function ProjectsList() {
                             <h1 className="text-3xl font-bold text-gray-800">Projects</h1>
                             <p className="text-gray-500 text-sm mt-1">{counts.published} published · {counts.draft} draft</p>
                         </div>
-                        <button onClick={() => router.push('/admin/projects/create')}
-                            className="flex items-center gap-2 px-5 py-3 bg-gold text-white rounded-xl font-semibold hover:bg-gold transition">
-                            <MdAdd size={20} /> Add New Project
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <BulkUploadButton
+                                endpoint="/api/projects/bulk-import"
+                                entityLabel="project"
+                                onSuccess={fetchProjects}
+                            />
+                            <button onClick={() => router.push('/admin/projects/create')}
+                                className="flex items-center gap-2 px-5 py-3 bg-gold text-white rounded-xl font-semibold hover:bg-gold transition">
+                                <MdAdd size={20} /> Add New Project
+                            </button>
+                        </div>
                     </div>
 
                     {/* Filter tabs + search */}

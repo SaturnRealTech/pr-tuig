@@ -3,6 +3,8 @@ import { requirePermission } from '@/lib/authHelper';
 import { col, nowIso } from '@/lib/db';
 import { pingSearchEngines } from '@/lib/seoPing';
 
+export const dynamic = 'force-dynamic';
+
 // Build a case-insensitive substring regex for Mongo $regex queries.
 function reEscape(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
