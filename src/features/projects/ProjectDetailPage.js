@@ -7,6 +7,7 @@ import { useEnquireNow } from "@/lib/EnquireNowContext";
 import SiteFooter from "@/components/Footer";
 import NavbarClient from "@/features/home/components/NavbarClient";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
+import PageHeader from "@/components/PageHeader";
 import { wrapTablesForScroll } from "@/lib/richHtml";
 
 function LeafletMap({ lat, lng, title }) {
@@ -129,8 +130,14 @@ export default function V7({ project, isHome, navbarProjects }) {
     return (
         <div className="flex flex-col w-full bg-background text-foreground selection:bg-moss selection:text-background">
             <NavbarClient initialProjects={navbarProjects} />
-            {!hasBanner && <div className="h-28 md:h-36" aria-hidden />}
-            <Hero project={project} />
+            {hasBanner ? (
+                <Hero project={project} />
+            ) : (
+                <PageHeader
+                    title={project?.title || 'Project'}
+                    breadcrumbs={isHome ? [] : [{ label: project?.title || 'Project' }]}
+                />
+            )}
             <About project={project} />
             <ProjectDescription project={project} />
             <Highlights project={project} />
@@ -349,7 +356,7 @@ function SectionLabel({ children }) {
 
 function SectionTitle({ children }) {
     return (
-        <h2 className="mt-2 font-display font-medium text-moss text-3xl md:text-4xl lg:text-5xl leading-[1.05] tracking-tight">{children}</h2>
+        <h2 className="mt-2 pb-1 font-display font-medium text-moss text-3xl md:text-4xl lg:text-5xl leading-[1.2] tracking-tight">{children}</h2>
     );
 }
 
@@ -440,7 +447,7 @@ function ProjectDescription({ project }) {
     if (!hasText && !project?.contentImage) return null;
 
     return (
-        <section id="description" className="bg-background pb-16 md:pb-24 -mt-10 md:-mt-16">
+        <section id="description" className="bg-background pt-4 md:pt-6 pb-16 md:pb-24">
             <div className="max-w-[1300px] mx-auto px-6">
                 {project.contentTitle && (
                     <>

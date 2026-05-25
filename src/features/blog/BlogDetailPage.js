@@ -61,10 +61,12 @@ export default function BlogDetailPage({ post }) {
                 </div>
             </section>
 
-            {/* Featured Image */}
-            <section className="px-6 pt-2 md:pt-0 pb-4 md:pb-8">
-                <div className="max-w-6xl mx-auto">
-                    {post.heroImage ? (
+            {/* Featured Image — only render when an image is set. The
+                article header above already shows the title + category +
+                date, so there's no need for an emoji-placeholder fallback. */}
+            {post.heroImage ? (
+                <section className="px-6 pt-2 md:pt-0 pb-4 md:pb-8">
+                    <div className="max-w-6xl mx-auto">
                         <div className="w-full rounded-xl overflow-hidden">
                             <img
                                 src={post.heroImage}
@@ -72,13 +74,9 @@ export default function BlogDetailPage({ post }) {
                                 className="w-full h-auto object-cover"
                             />
                         </div>
-                    ) : (
-                        <div className="h-[400px] bg-gradient-to-br from-[#c99010] to-[#8a6002] rounded-xl flex items-center justify-center">
-                            <span className="text-9xl opacity-50 text-white">{post.image || '📝'}</span>
-                        </div>
-                    )}
-                </div>
-            </section>
+                    </div>
+                </section>
+            ) : null}
 
             {/* Article Content */}
             <section className="py-12 px-6">
