@@ -134,6 +134,8 @@ async function getSettings() {
       siteName: doc.siteName || '',
       siteLogo: doc.siteLogo || '',
       favicon: doc.favicon || '',
+      footerLogo: doc.footerLogo || '',
+      footerLogoMode: doc.footerLogoMode || 'header',
       contactPhone: doc.contactPhone || '',
       whatsappNumber: doc.whatsappNumber || '',
       cinNumber: doc.cinNumber || '',
@@ -206,7 +208,7 @@ export default async function RootLayout({ children }) {
         <Suspense fallback={null}>
           <AnalyticsTracker />
         </Suspense>
-        <SettingsProvider settings={{ siteName: settings.siteName, siteLogo: settings.siteLogo, contactPhone: settings.contactPhone, whatsappNumber: settings.whatsappNumber, cinNumber: settings.cinNumber, copyrightText: settings.copyrightText, footerTagline: settings.footerTagline, footerDescription: settings.footerDescription, footerTrustText: settings.footerTrustText, headerScrollBg: settings.headerScrollBg }}>
+        <SettingsProvider settings={{ siteName: settings.siteName, siteLogo: settings.siteLogo, footerLogo: settings.footerLogo, footerLogoMode: settings.footerLogoMode, contactPhone: settings.contactPhone, whatsappNumber: settings.whatsappNumber, cinNumber: settings.cinNumber, copyrightText: settings.copyrightText, footerTagline: settings.footerTagline, footerDescription: settings.footerDescription, footerTrustText: settings.footerTrustText, headerScrollBg: settings.headerScrollBg }}>
           <EnquireNowProvider>
             {children}
           </EnquireNowProvider>

@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import AdminSidebar from '@/components/AdminSidebar';
 
 const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: false });
+const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), { ssr: false });
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -43,7 +44,8 @@ export default function AdminDashboard() {
     const [colorSaved, setColorSaved] = useState(false);
 
     const [siteSettings, setSiteSettings] = useState({
-        siteName: '', siteLogo: '', favicon: '', contactPhone: '', whatsappNumber: '',
+        siteName: '', siteLogo: '', favicon: '', footerLogo: '', footerLogoMode: 'header',
+        contactPhone: '', whatsappNumber: '',
         cinNumber: '', copyrightText: '', footerTagline: '', footerDescription: '', footerTrustText: '',
         indexNowKey: '', tawktoEmbedSrc: '',
     });
@@ -65,6 +67,7 @@ export default function AdminDashboard() {
     const [settingsSaved, setSettingsSaved] = useState(false);
     const [showLogoPicker, setShowLogoPicker] = useState(false);
     const [showFaviconPicker, setShowFaviconPicker] = useState(false);
+    const [showFooterLogoPicker, setShowFooterLogoPicker] = useState(false);
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -97,6 +100,8 @@ export default function AdminDashboard() {
                     siteName: result.data.siteName || '',
                     siteLogo: result.data.siteLogo || '',
                     favicon: result.data.favicon || '',
+                    footerLogo: result.data.footerLogo || '',
+                    footerLogoMode: result.data.footerLogoMode || 'header',
                     contactPhone: result.data.contactPhone || '',
                     whatsappNumber: result.data.whatsappNumber || '',
                     tawktoEmbedSrc: result.data.tawktoEmbedSrc || '',
@@ -535,6 +540,13 @@ export default function AdminDashboard() {
                                 onClose={() => setShowFaviconPicker(false)}
                             />
                         )}
+                        {showFooterLogoPicker && (
+                            <MediaPicker
+                                currentUrl={siteSettings.footerLogo}
+                                onSelect={url => { setSiteSettings(p => ({ ...p, footerLogo: url })); setShowFooterLogoPicker(false); }}
+                                onClose={() => setShowFooterLogoPicker(false)}
+                            />
+                        )}
                     </div>
 
                     {/* Footer Content */}
@@ -554,6 +566,61 @@ export default function AdminDashboard() {
                             </button>
                         </div>
                         <div className="space-y-4">
+                            {/* Footer Logo — appears above the disclaimer / copyright row on the public site. */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Footer Logo</label>
+                                {/* Source selector — three radio options. */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+                                    {[
+                                        { value: 'header', label: 'Same as header', hint: 'Reuse the navbar logo.' },
+                                        { value: 'custom', label: 'Use a different logo', hint: 'Upload a separate footer logo below.' },
+                                        { value: 'none', label: 'No logo', hint: "Don't show a logo in the footer." },
+                                    ].map(opt => {
+                                        const checked = (siteSettings.footerLogoMode || 'header') === opt.value;
+                                        return (
+                                            <label key={opt.value}
+                                                className={`flex items-start gap-2 p-2.5 rounded-lg border cursor-pointer transition ${checked ? 'bg-cream border-gold/40' : 'bg-white border-gray-200 hover:border-gray-300'}`}>
+                                                <input
+                                                    type="radio"
+                                                    name="footerLogoMode"
+                                                    value={opt.value}
+                                                    checked={checked}
+                                                    onChange={() => setSiteSettings(p => ({ ...p, footerLogoMode: opt.value }))}
+                                                    className="accent-gold mt-0.5"
+                                                />
+                                                <span className="min-w-0">
+                                                    <span className="block text-xs font-semibold text-gray-800">{opt.label}</span>
+                                                    <span className="block text-[11px] text-gray-500">{opt.hint}</span>
+                                                </span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* The uploader is only relevant when "Use a different logo" is selected. */}
+                                {siteSettings.footerLogoMode === 'custom' ? (
+                                    siteSettings.footerLogo ? (
+                                        <div className="flex items-center gap-3">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src={siteSettings.footerLogo} alt="Footer logo" className="h-12 w-auto object-contain rounded border border-gray-200 bg-gray-50 p-1" />
+                                            <div className="flex flex-col gap-1">
+                                                <button type="button" onClick={() => setShowFooterLogoPicker(true)} className="text-xs text-gold underline">Change</button>
+                                                <button type="button" onClick={() => setSiteSettings(p => ({ ...p, footerLogo: '' }))} className="text-xs text-red-500 underline">Remove</button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowFooterLogoPicker(true)}
+                                            className="px-4 py-3 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-gold hover:text-gold transition w-full text-left"
+                                        >
+                                            + Choose Footer Logo from Media Library
+                                        </button>
+                                    )
+                                ) : null}
+                                <p className="text-xs text-gray-400 mt-1">Shown centered, just above the disclaimer block in the footer.</p>
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Footer Tagline</label>
                                 <input
@@ -566,47 +633,38 @@ export default function AdminDashboard() {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Footer Description</label>
-                                <textarea
-                                    rows={2}
-                                    value={siteSettings.footerDescription}
-                                    onChange={e => setSiteSettings(p => ({ ...p, footerDescription: e.target.value }))}
-                                    placeholder="Buy, sell, and rent verified properties across India. Expert agents. Zero hassle."
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm resize-none"
+                                <RichTextEditor
+                                    content={siteSettings.footerDescription}
+                                    onChange={(html) => setSiteSettings(p => ({ ...p, footerDescription: html }))}
+                                    linkSuggestions={false}
                                 />
+                                <p className="text-xs text-gray-400 mt-1">Supports formatting, links, and inline HTML.</p>
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Trust Text</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">CIN Number</label>
                                 <input
                                     type="text"
-                                    value={siteSettings.footerTrustText}
-                                    onChange={e => setSiteSettings(p => ({ ...p, footerTrustText: e.target.value }))}
-                                    placeholder="Trusted by 1000+ families across India"
+                                    value={siteSettings.cinNumber}
+                                    onChange={e => setSiteSettings(p => ({ ...p, cinNumber: e.target.value }))}
+                                    placeholder="e.g. U74999DL2020PTC123456"
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
                                 />
+                                <p className="text-xs text-gray-400 mt-1">Leave blank to hide the CIN line</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Copyright Text</label>
+                                <input
+                                    type="text"
+                                    value={siteSettings.copyrightText}
+                                    onChange={e => setSiteSettings(p => ({ ...p, copyrightText: e.target.value }))}
+                                    placeholder={`© ${new Date().getFullYear()} Saturn RealCon — A product by.`}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">Leave blank to auto-generate from site name</p>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Copyright Text</label>
-                                    <input
-                                        type="text"
-                                        value={siteSettings.copyrightText}
-                                        onChange={e => setSiteSettings(p => ({ ...p, copyrightText: e.target.value }))}
-                                        placeholder={`© ${new Date().getFullYear()} Saturn RealCon — A product by.`}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
-                                    />
-                                    <p className="text-xs text-gray-400 mt-1">Leave blank to auto-generate from site name</p>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">CIN Number</label>
-                                    <input
-                                        type="text"
-                                        value={siteSettings.cinNumber}
-                                        onChange={e => setSiteSettings(p => ({ ...p, cinNumber: e.target.value }))}
-                                        placeholder="e.g. U74999DL2020PTC123456"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold text-gray-900 text-sm"
-                                    />
-                                    <p className="text-xs text-gray-400 mt-1">Leave blank to hide the CIN line</p>
-                                </div>
+                                <div className="hidden">{/* Trust Text removed */}</div>
+                                <div className="hidden"></div>
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">IndexNow Key</label>
                                     <input

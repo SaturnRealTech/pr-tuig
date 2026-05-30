@@ -12,7 +12,15 @@ function twoWords(title) {
 }
 
 export default function Footer() {
-    const { siteName, contactPhone, cinNumber, copyrightText, footerTagline, footerDescription, footerTrustText } = useSettings();
+    const {
+        siteName, cinNumber, copyrightText, footerTagline, footerDescription,
+        siteLogo, footerLogo, footerLogoMode,
+    } = useSettings();
+    // 'header' → reuse the navbar's siteLogo. 'custom' → use the uploaded
+    // footerLogo. 'none' (or any other) → hide the logo entirely. Default
+    // to 'header' for backwards compatibility with existing data.
+    const mode = footerLogoMode || 'header';
+    const resolvedFooterLogo = mode === 'header' ? siteLogo : mode === 'custom' ? footerLogo : '';
     const [blogs, setBlogs] = useState([]);
     const [blogCategories, setBlogCategories] = useState([]);
 
@@ -128,17 +136,35 @@ export default function Footer() {
                 {/* Divider */}
                 <div className="w-full h-px bg-gold/30 mb-8" />
 
-                {/* Bottom Section */}
-                <div className="text-center">
-
-                    <p className="text-gray-400 text-xs mt-4">
+                {/* Bottom Section — Logo (top) → Footer Tagline → Footer
+                    Description → CIN Number → Copyright Text. */}
+                <div className="text-center space-y-2">
+                    {resolvedFooterLogo ? (
+                        <div className="flex justify-center mb-3">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={resolvedFooterLogo}
+                                alt={siteName ? `${siteName} logo` : 'Logo'}
+                                loading="lazy"
+                                className="h-7 md:h-9 w-auto max-w-[120px] md:max-w-[160px] object-contain"
+                            />
+                        </div>
+                    ) : null}
+                    {footerTagline ? (
+                        <p className="text-white text-sm md:text-base font-semibold">{footerTagline}</p>
+                    ) : null}
+                    {footerDescription ? (
+                        <div
+                            className="rich-content text-gray-300 text-xs md:text-sm leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: footerDescription }}
+                        />
+                    ) : null}
+                    {cinNumber ? (
+                        <p className="text-gray-400 text-xs leading-relaxed">{cinNumber}</p>
+                    ) : null}
+                    <p className="text-gray-400 text-xs">
                         {copyrightText || `© ${new Date().getFullYear()} ${siteName || 'Saturn RealCon'}`}
                     </p>
-                    {cinNumber && (
-                        <p className="text-gray-500 text-xs mt-1">
-                            {cinNumber}
-                        </p>
-                    )}
                 </div>
             </div>
         </footer>

@@ -33,6 +33,10 @@ export async function GET() {
                 siteName: doc.siteName || '',
                 siteLogo: doc.siteLogo || '',
                 favicon: doc.favicon || '',
+                footerLogo: doc.footerLogo || '',
+                // 'header' = reuse the navbar logo. 'custom' = use the uploaded
+                // footerLogo. 'none' = no logo in the footer at all.
+                footerLogoMode: doc.footerLogoMode || 'header',
                 contactPhone: doc.contactPhone || '',
                 whatsappNumber: doc.whatsappNumber || '',
                 cinNumber: doc.cinNumber || '',
@@ -76,7 +80,7 @@ export async function PUT(request) {
             'themeBackground', 'themeForeground', 'themeLeaf', 'themeMoss',
             'themeForest', 'themeBark', 'themeGold', 'themeCream',
             'indexNowKey',
-            'siteName', 'siteLogo', 'favicon',
+            'siteName', 'siteLogo', 'favicon', 'footerLogo', 'footerLogoMode',
             'contactPhone', 'whatsappNumber', 'cinNumber',
             'copyrightText', 'footerTagline', 'footerDescription', 'footerTrustText',
             'smtpHost', 'smtpPort', 'smtpSecure',
