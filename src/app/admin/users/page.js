@@ -7,7 +7,9 @@ import {
     MdPerson,
     MdEmail,
     MdAdminPanelSettings,
-    MdClose
+    MdClose,
+    MdBlock,
+    MdCheckCircle,
 } from 'react-icons/md';
 import AdminSidebar from '@/components/AdminSidebar';
 import Swal from 'sweetalert2';
@@ -110,6 +112,45 @@ export default function UsersManagement() {
     };
 
 
+    const handleToggleDisabled = async (userId, userName, makeDisabled) => {
+        const result = await Swal.fire({
+            title: makeDisabled ? `Disable ${userName}?` : `Enable ${userName}?`,
+            text: makeDisabled
+                ? 'This user will no longer be able to log in until re-enabled.'
+                : 'This user will be able to log in again.',
+            icon: makeDisabled ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonColor: makeDisabled ? '#dc2626' : '#16a34a',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: makeDisabled ? 'Yes, disable' : 'Yes, enable',
+        });
+        if (!result.isConfirmed) return;
+
+        try {
+            const response = await fetch('/api/users', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: userId, disabled: makeDisabled }),
+            });
+            const data = await response.json();
+            if (data.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: makeDisabled ? 'Disabled' : 'Enabled',
+                    text: data.message,
+                    timer: 1800,
+                    showConfirmButton: false,
+                });
+                fetchUsers();
+            } else {
+                await Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed to update user', confirmButtonColor: '#dc2626' });
+            }
+        } catch (error) {
+            console.error('Error toggling disabled:', error);
+            await Swal.fire({ icon: 'error', title: 'Error', text: 'An error occurred while updating the user', confirmButtonColor: '#dc2626' });
+        }
+    };
+
     const handleCreateUser = async (e) => {
         e.preventDefault();
         setCreatingUser(true);
@@ -198,6 +239,7 @@ export default function UsersManagement() {
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Name</th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Email</th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Role</th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Joined</th>
                                             <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Actions</th>
                                         </tr>
@@ -226,6 +268,17 @@ export default function UsersManagement() {
                                                         {userData.role || 'admin'}
                                                     </span>
                                                 </td>
+                                                <td className="px-6 py-4">
+                                                    {userData.disabled ? (
+                                                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800">
+                                                            <MdBlock size={14} /> Disabled
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+                                                            <MdCheckCircle size={14} /> Active
+                                                        </span>
+                                                    )}
+                                                </td>
                                                 <td className="px-6 py-4 text-gray-700">
                                                     {userData.createdAt
                                                         ? new Date(userData.createdAt).toLocaleDateString('en-US', {
@@ -237,6 +290,15 @@ export default function UsersManagement() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center justify-end gap-2">
+                                                        {user?.role === 'admin' && String(userData._id) !== String(user.id) && (
+                                                            <button
+                                                                onClick={() => handleToggleDisabled(userData._id, userData.name, !userData.disabled)}
+                                                                className={`p-2 rounded-lg transition ${userData.disabled ? 'text-green-600 hover:bg-green-50' : 'text-red-600 hover:bg-red-50'}`}
+                                                                title={userData.disabled ? 'Enable User' : 'Disable User'}
+                                                            >
+                                                                {userData.disabled ? <MdCheckCircle size={20} /> : <MdBlock size={20} />}
+                                                            </button>
+                                                        )}
                                                         {user?.role === 'admin' && (
                                                         <button
                                                             onClick={() => handleDelete(userData._id, userData.name)}

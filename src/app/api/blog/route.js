@@ -25,7 +25,7 @@ export async function GET(request) {
         const blogPosts = await col('blog_posts');
         const posts = await blogPosts
             .find(filter)
-            .sort({ date: -1, createdAt: -1 })
+            .sort({ publishedAt: -1, createdAt: -1 })
             .toArray();
 
         return NextResponse.json({ success: true, data: posts });

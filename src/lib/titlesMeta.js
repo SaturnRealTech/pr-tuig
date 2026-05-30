@@ -138,7 +138,7 @@ export function applyVariables(template, { ctx = {}, brand = {}, globalCfg = {} 
         '%category%': ctx.category || '',
         '%tag%': ctx.tag || '',
         '%author%': ctx.author || '',
-        '%focuskw%': ctx.focusKeyword || ctx.keywords?.split(',')[0]?.trim() || '',
+        '%focuskw%': ctx.focusKeyword || (Array.isArray(ctx.keywords) ? ctx.keywords[0] : typeof ctx.keywords === 'string' ? ctx.keywords.split(',')[0]?.trim() : '') || '',
         '%url%': ctx.url || '',
     };
 

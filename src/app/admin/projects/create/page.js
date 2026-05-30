@@ -296,6 +296,7 @@ export default function CreateProject() {
         createdDate: new Date().toISOString().split('T')[0],
         bhkConfig: '',
         carpetArea: '',
+        carpetAreaLabel: '',
         landParcel: '',
         heroBadge1: '',
         heroBadge2: '',
@@ -691,8 +692,8 @@ export default function CreateProject() {
   "schemaPossession": "Dec 2026",
   "schemaRatingValue": "4.5",
   "schemaRatingCount": "128",
-  "orgSchemaName": "Saturn RealCon",
-  "orgSchemaEmail": "info@saturnrealcon.com",
+  "orgSchemaName": "Your Company Name",
+  "orgSchemaEmail": "info@example.com",
   "orgSchemaStreetAddress": "12 MG Road",
   "orgSchemaAddressLocality": "Pune",
   "orgSchemaAddressRegion": "Maharashtra",
@@ -829,7 +830,15 @@ export default function CreateProject() {
                                                     placeholder="3 & 4 BHK" />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Plot Size</label>
+                                                <input
+                                                    type="text"
+                                                    name="carpetAreaLabel"
+                                                    value={formData.carpetAreaLabel}
+                                                    onChange={handleChange}
+                                                    placeholder="Plot Size"
+                                                    title="Click to rename this label (e.g. Floor Plan, Carpet Area). Leave blank to use 'Plot Size'."
+                                                    className="block w-full bg-transparent text-sm font-semibold text-gray-700 mb-1 outline-none border-0 border-b border-dashed border-gray-300 hover:border-gold focus:border-gold cursor-text"
+                                                />
                                                 <input type="text" name="carpetArea" value={formData.carpetArea} onChange={handleChange}
                                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
                                                     placeholder="2,850 – 5,600 sq.ft" />

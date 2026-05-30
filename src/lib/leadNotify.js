@@ -12,7 +12,7 @@
 import nodemailer from 'nodemailer';
 import { col } from '@/lib/db';
 
-const FALLBACK_RECIPIENT = 'saturnrealconleads@gmail.com';
+const FALLBACK_RECIPIENT = '';
 
 async function readBrand() {
     try {

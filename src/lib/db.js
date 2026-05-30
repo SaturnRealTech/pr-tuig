@@ -1,7 +1,7 @@
 import { MongoClient, ObjectId } from 'mongodb';
 
 const MONGODB_URI = process.env.MONGODB_URI;
-const DB_NAME = process.env.DB_NAME || 'Saturnrealcon';
+const DB_NAME = process.env.DB_NAME || '';
 
 if (!MONGODB_URI) {
     console.warn('[db] MONGODB_URI is not set — Mongo operations will fail.');

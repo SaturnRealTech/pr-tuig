@@ -24,6 +24,13 @@ export async function POST(request) {
             return NextResponse.json({ success: false, error: 'Invalid email or password' }, { status: 401 });
         }
 
+        if (user.disabled === true) {
+            return NextResponse.json(
+                { success: false, error: 'Your account has been disabled. Please contact your administrator.' },
+                { status: 403 }
+            );
+        }
+
         const userId = user._id ? String(user._id) : '';
         // No `expiresIn` → token has no exp claim, so it stays valid until the
         // user clicks logout (which clears the cookie). WordPress-style.

@@ -54,7 +54,7 @@ export default function BlogCategoryPageClient({ category, posts = [] }) {
                                 <span className="text-gray-400">/</span>
                                 <span className="text-white">{category.name}</span>
                             </nav>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-2 [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">{category.name}</h1>
+                            <h1 className="font-display text-4xl md:text-5xl font-bold mb-2 [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">{category.name}</h1>
                             {category.description && (
                                 <p className="text-gray-200 text-lg mt-1 max-w-2xl [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">{category.description}</p>
                             )}
@@ -72,7 +72,7 @@ export default function BlogCategoryPageClient({ category, posts = [] }) {
                             <span className="text-[#c49a20]">/</span>
                             <span className="text-white">{category.name}</span>
                         </nav>
-                        <h1 className="text-4xl md:text-5xl font-bold mb-2">{category.name}</h1>
+                        <h1 className="font-display text-4xl md:text-5xl font-bold mb-2">{category.name}</h1>
                         {category.description && (
                             <p className="text-[#faf0d0] mt-1 max-w-2xl">{category.description}</p>
                         )}
@@ -186,7 +186,7 @@ function BlogCard({ post }) {
                     )}
                     {post.readTime && <span className="text-xs text-gray-400">{post.readTime}</span>}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#b27e02] transition-colors">
+                <h3 className="font-display text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#b27e02] transition-colors">
                     {post.title}
                 </h3>
                 {post.excerpt && (

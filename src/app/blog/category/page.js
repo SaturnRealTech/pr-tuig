@@ -1,5 +1,5 @@
 import { col } from '@/lib/db';
-import { SITE_URL, createBreadcrumbSchema, createOrganizationSchema, createPageMetadata, createWebPageSchema } from '@/lib/seo';
+import { SITE_URL, createBreadcrumbSchema, createOrganizationSchema, createPageMetadata, createWebPageSchema, loadOrgSchemaConfig } from '@/lib/seo';
 import BlogCategoriesListClient from '@/features/blog/BlogCategoriesListClient';
 
 async function getData() {
@@ -92,7 +92,7 @@ export default async function BlogCategoryListPage() {
                     },
                 })),
             },
-            createOrganizationSchema({ sameAs: ['https://www.linkedin.com/company/Saturnrealcon/'] }),
+            createOrganizationSchema(await loadOrgSchemaConfig()),
             createBreadcrumbSchema([
                 { name: 'Home', path: '/' },
                 { name: 'Blog', path: '/blog' },

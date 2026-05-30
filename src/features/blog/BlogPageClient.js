@@ -33,14 +33,14 @@ export default function BlogPageClient({ posts = [], categories = [], recentPost
                     </div>
                     <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
                     <div className="absolute bottom-10 left-0 right-0 flex flex-col items-center text-center px-4 z-10">
-                        <h1 className="text-4xl md:text-6xl font-bold text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.8)] mb-3">{bannerTitle}</h1>
+                        <h1 className="font-display text-4xl md:text-6xl font-bold text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.8)] mb-3">{bannerTitle}</h1>
                         <p className="text-base md:text-lg text-white/90 max-w-2xl [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]">{bannerDescription}</p>
                     </div>
                 </section>
             ) : (
                 <section className="bg-gradient-to-r from-[#b27e02] to-[#6b4a01] text-white pt-28 pb-16">
                     <div className="w-[90%] mx-auto text-center">
-                        <h1 className="text-4xl md:text-6xl font-bold mb-4">{bannerTitle}</h1>
+                        <h1 className="font-display text-4xl md:text-6xl font-bold mb-4">{bannerTitle}</h1>
                         <p className="text-[#faf0d0] text-lg max-w-2xl mx-auto">{bannerDescription}</p>
                     </div>
                 </section>
@@ -51,7 +51,7 @@ export default function BlogPageClient({ posts = [], categories = [], recentPost
                 <section className="py-14 bg-gray-50">
                     <div className="w-[90%] mx-auto">
                         <div className="mb-8">
-                            <h2 className="text-2xl font-bold text-gray-800">Browse by Category</h2>
+                            <h2 className="font-display text-2xl font-bold text-gray-800">Browse by Category</h2>
                             <div className="h-1 w-12 bg-[#b27e02] rounded-full mt-2" />
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -92,7 +92,7 @@ export default function BlogPageClient({ posts = [], categories = [], recentPost
                 <section className="py-14 bg-white">
                     <div className="w-[90%] mx-auto">
                         <div className="mb-8">
-                            <h2 className="text-2xl font-bold text-gray-800">Recent Posts</h2>
+                            <h2 className="font-display text-2xl font-bold text-gray-800">Recent Posts</h2>
                             <div className="h-1 w-12 bg-[#b27e02] rounded-full mt-2" />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -156,7 +156,7 @@ function BlogCard({ post }) {
                     )}
                     {post.readTime && <span className="text-xs text-gray-400">{post.readTime}</span>}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#b27e02] transition-colors">
+                <h3 className="font-display text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#b27e02] transition-colors">
                     {post.title}
                 </h3>
                 {post.excerpt && (

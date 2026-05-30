@@ -80,17 +80,21 @@ function formatDate(raw) {
     if (!raw) return "";
     const s = String(raw).trim();
     if (!s) return "";
+    // Only auto-format full ISO date strings (YYYY-MM-DD). Anything else —
+    // bare years ("2030"), free-text ("Dec 2026", "Q2 2027", "Ready to Move") —
+    // is shown exactly as the admin entered it.
+    if (!/^\d{4}-\d{2}-\d{2}/.test(s)) return s;
     const d = new Date(s);
     if (Number.isNaN(d.getTime())) return s;
     return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-// Append " Cr*" to a raw price value unless it already specifies a unit (Cr / Lakh).
+// Return the raw price as the admin entered it — no hardcoded "Cr*" suffix.
+// The admin is responsible for entering the unit themselves (e.g. "1.86 Cr",
+// "₹98 Lakh", "1.86 Cr Onwards").
 function formatPrice(raw) {
     if (raw == null) return "";
-    const s = String(raw).trim();
-    if (!s) return "";
-    return /\b(cr|crore|lakh|lac)\b/i.test(s) ? s : `${s} Cr*`;
+    return String(raw).trim();
 }
 
 // Split the title so the last word can be italicised in gold (e.g. "Tangled Up [in Green]").
@@ -191,10 +195,10 @@ function Hero({ project }) {
     const stats = [
         project?.price && { l: "Starting Price", v: formatPrice(project.price) },
         project?.bhkConfig && { l: "Configurations", v: project.bhkConfig },
-        project?.carpetArea && { l: "Plot Size", v: project.carpetArea },
+        project?.carpetArea && { l: (project?.carpetAreaLabel || "").trim() || "Plot Size", v: project.carpetArea },
         project?.landParcel && { l: "Land Parcel", v: project.landParcel },
         project?.totalUnits && { l: "Total Units", v: String(project.totalUnits) },
-        project?.possession && { l: "Possession", v: formatDate(project.possession) },
+        project?.possession && { l: "Possession", v: project.possession },
         project?.reraNo && { l: "RERA No.", v: project.reraNo },
     ].filter(Boolean);
 
@@ -318,7 +322,6 @@ function Hero({ project }) {
                         wider than any reasonable row. */}
                     <div className="max-w-[1300px] mx-auto px-6 flex flex-col md:flex-row md:flex-wrap md:items-stretch md:justify-center">
                         {statsToShow.map((s, i) => {
-                            const isRera = /rera/i.test(s.l);
                             const isLast = i === statsToShow.length - 1;
                             return (
                                 <div
@@ -326,13 +329,7 @@ function Hero({ project }) {
                                     className={`px-5 py-5 text-center md:flex-auto md:min-w-[160px] ${isLast ? '' : 'border-b md:border-b-0 md:border-r border-background/15'}`}
                                 >
                                     <div className="text-[10px] uppercase tracking-[0.25em] text-gold">{s.l}</div>
-                                    <div
-                                        className={
-                                            isRera
-                                                ? "mt-1.5 font-mono font-medium text-xs md:text-sm md:whitespace-nowrap break-words"
-                                                : "mt-1.5 font-display font-medium text-lg md:text-xl md:whitespace-nowrap break-words"
-                                        }
-                                    >
+                                    <div className="mt-1.5 font-display font-medium text-lg md:text-xl md:whitespace-nowrap break-words">
                                         {s.v}
                                     </div>
                                 </div>
@@ -387,7 +384,7 @@ function About({ project }) {
         project?.bhkConfig && ["Configurations", project.bhkConfig],
         project?.landParcel && ["Land Parcel", project.landParcel],
         project?.totalUnits && ["Total Units", String(project.totalUnits)],
-        project?.possession && ["Possession", formatDate(project.possession)],
+        project?.possession && ["Possession", project.possession],
         project?.reraNo && ["RERA No.", project.reraNo],
     ].filter(Boolean);
 

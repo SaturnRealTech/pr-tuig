@@ -29,6 +29,17 @@ const SAMPLE_BLOG_PAYLOAD = {
 };
 const UPDATE_BLOG_PAYLOAD = { title: 'Updated Blog Title' };
 
+// Format a Date for use as the `value` of <input type="datetime-local">.
+// The control expects "YYYY-MM-DDTHH:mm" in the user's local timezone.
+function toLocalInputValue(d) {
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function formatHumanDate(d) {
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
 export default function CreateBlog() {
     const router = useRouter();
     const [user, setUser] = useState(null);
@@ -50,6 +61,7 @@ export default function CreateBlog() {
         heroImage: '',
         heroImageAlt: '',
         content: '',
+        publishedAt: toLocalInputValue(new Date()),
     });
 
     useEffect(() => {
@@ -213,17 +225,15 @@ export default function CreateBlog() {
                 nextId = Date.now();
             }
 
+            const publishedDate = formData.publishedAt ? new Date(formData.publishedAt) : new Date();
             const blogData = {
                 id: nextId,
                 slug: formData.slug,
                 title: formData.title,
                 excerpt: formData.excerpt,
                 category: formData.category,
-                date: new Date().toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                }),
+                publishedAt: publishedDate.toISOString(),
+                date: formatHumanDate(publishedDate),
                 author: formData.author,
                 readTime: formData.readTime,
                 image: formData.heroImage || '📝',
@@ -484,6 +494,22 @@ export default function CreateBlog() {
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream placeholder-gray-500 text-gray-900"
                                         placeholder="Author name"
                                     />
+                                </div>
+
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Published Date & Time
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        name="publishedAt"
+                                        value={formData.publishedAt}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Controls homepage order — newest published date appears first.
+                                    </p>
                                 </div>
                             </div>
                         </div>

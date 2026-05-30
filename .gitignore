@@ -19,33 +19,26 @@
 # production
 /build
 
-# SQLite database — NEVER tracked in git. Each deployment (project) keeps
-# its own data file outside the repo, so pushing code never overwrites
-# another project's content.
-/data
-*.db
-*.db-journal
-*.db-wal
-*.db-shm
-
 # misc
 .DS_Store
 *.pem
+favicon.ico
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-# local env files
+local env files
+local env files
 .env
 .env.local
 .env.production
 .env.development
 .env*.local
-# vercel
+vercel
 .vercel
+
 
 # typescript
 *.tsbuildinfo

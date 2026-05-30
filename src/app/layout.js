@@ -25,7 +25,7 @@ const playfair = Playfair_Display({
   adjustFontFallback: "Times New Roman",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://tangledupingreen.in';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
 
 export const viewport = {
   width: 'device-width',

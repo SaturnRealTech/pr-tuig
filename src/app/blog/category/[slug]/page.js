@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { col } from '@/lib/db';
-import { createBreadcrumbSchema, createOrganizationSchema, createPageMetadata, createWebPageSchema } from '@/lib/seo';
+import { createBreadcrumbSchema, createOrganizationSchema, createPageMetadata, createWebPageSchema, loadOrgSchemaConfig } from '@/lib/seo';
 import BlogCategoryPageClient from '@/features/blog/BlogCategoryPageClient';
 import { buildSeoFor, robotsMetaString } from '@/lib/titlesMeta';
 
@@ -25,7 +25,7 @@ async function getData(slug) {
     if (!category) return null;
     const posts = (await blogPosts
         .find({ category: category.name })
-        .sort({ date: -1, createdAt: -1 })
+        .sort({ publishedAt: -1, createdAt: -1 })
         .toArray()
     ).map(normalizePost).filter(Boolean);
     return {
@@ -92,7 +92,7 @@ export default async function BlogCategoryPage({ params }) {
                 type: 'CollectionPage',
                 aboutOrg: true,
             }),
-            createOrganizationSchema({ sameAs: ['https://www.linkedin.com/company/Saturnrealcon/'] }),
+            createOrganizationSchema(await loadOrgSchemaConfig()),
             createBreadcrumbSchema([
                 { name: 'Home', path: '/' },
                 { name: 'Blog', path: '/blog' },

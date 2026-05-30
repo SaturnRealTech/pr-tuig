@@ -7,7 +7,7 @@ import { col } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://saturnrealcon.com').replace(/\/$/, '');
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '');
 const TWO_DAYS_MS = 48 * 60 * 60 * 1000;
 
 function escXml(s) {

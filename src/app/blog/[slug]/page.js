@@ -16,6 +16,7 @@ import {
     createOrganizationSchema,
     createPageMetadata,
     createWebPageSchema,
+    loadOrgSchemaConfig,
 } from '@/lib/seo';
 
 async function normalizePost(post) {
@@ -39,6 +40,36 @@ async function getPostBySlug(slug) {
     return normalizePost(row);
 }
 
+// Pick up to 4 related posts: same category first, then back-fill with the
+// latest published posts so the section is never empty.
+async function getRelatedPosts(post, limit = 4) {
+    if (!post?._id) return [];
+    const blogPosts = await col('blog_posts');
+    const excludeFilter = { slug: { $ne: post.slug } };
+
+    let rows = [];
+    if (post.category) {
+        rows = await blogPosts
+            .find({ category: post.category, ...excludeFilter })
+            .sort({ publishedAt: -1, createdAt: -1 })
+            .limit(limit)
+            .toArray();
+    }
+
+    if (rows.length < limit) {
+        const excludeSlugs = [post.slug, ...rows.map(r => r.slug)].filter(Boolean);
+        const fill = await blogPosts
+            .find({ slug: { $nin: excludeSlugs } })
+            .sort({ publishedAt: -1, createdAt: -1 })
+            .limit(limit - rows.length)
+            .toArray();
+        rows = rows.concat(fill);
+    }
+
+    const normalized = await Promise.all(rows.map(normalizePost));
+    return normalized.filter(Boolean);
+}
+
 export async function generateStaticParams() {
     try {
         const blogPosts = await col('blog_posts');
@@ -59,7 +90,7 @@ export async function generateMetadata({ params }) {
 
     if (!post) {
         return createPageMetadata({
-            title: 'Blog Post Not Found - Saturnrealcon',
+            title: 'Blog Post Not Found',
             description: 'The requested blog post could not be found.',
             path: '/blog',
         });
@@ -101,12 +132,13 @@ export async function generateMetadata({ params }) {
 
     const meta = createPageMetadata({
         title: perPostTitle || seo.title,
-        description: perPostDescription || seo.description || post.excerpt || 'Read this insight from Saturnrealcon.',
+        description: perPostDescription || seo.description || post.excerpt,
         path: postPath,
         keywords: post.keywords
             ? String(post.keywords).split(',').map((k) => k.trim()).filter(Boolean)
-            : ['SaaS insights', 'AI development', 'startup engineering'],
+            : [],
         image,
+        siteName: brand?.siteName,
         type: 'article',
     });
 
@@ -147,7 +179,7 @@ export default async function BlogDetailRoute({ params }) {
         image: post.heroImage || post.image,
         ...(publishedAt ? { datePublished: publishedAt } : {}),
         ...(modifiedAt ? { dateModified: modifiedAt } : {}),
-        author: { '@type': 'Person', name: post.author || 'Saturnrealcon Team' },
+        ...(post.author ? { author: { '@type': 'Person', name: post.author } } : {}),
         publisher: { '@id': `${SITE_URL}/#organization` },
     };
 
@@ -155,14 +187,11 @@ export default async function BlogDetailRoute({ params }) {
         createWebPageSchema({
             path: postPath,
             name: post.title,
-            description: post.metaDescription || post.excerpt || 'Detailed article from Saturnrealcon.',
+            description: post.metaDescription || post.excerpt || post.title,
             type: 'WebPage',
             aboutOrg: true,
         }),
-        createOrganizationSchema({
-            description: 'Saturnrealcon builds AI-first SaaS products for founders and fast-moving teams.',
-            sameAs: ['https://www.linkedin.com/company/Saturnrealcon/'],
-        }),
+        createOrganizationSchema(await loadOrgSchemaConfig()),
         createBreadcrumbSchema([
             { name: 'Home', path: '/' },
             { name: 'Blog', path: '/blog' },
@@ -195,13 +224,15 @@ export default async function BlogDetailRoute({ params }) {
 
     const blogSchema = { '@context': 'https://schema.org', '@graph': graph };
 
+    const relatedPosts = await getRelatedPosts(post, 4);
+
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }}
             />
-            <BlogDetailPage post={post} />
+            <BlogDetailPage post={post} relatedPosts={relatedPosts} />
         </>
     );
 }

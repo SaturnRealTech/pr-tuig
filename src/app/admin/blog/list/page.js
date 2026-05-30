@@ -217,7 +217,7 @@ export default function BlogList() {
 
         const confirm = await Swal.fire({
             title: `Import ${files.length} blog file(s)?`,
-            text: 'Files whose title already exists will be skipped.',
+            text: 'Posts with a matching slug will be updated; the rest will be created.',
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Yes, import',
@@ -254,23 +254,23 @@ export default function BlogList() {
             }
 
             const inserted = result.inserted || 0;
-            const skipped = result.skipped || 0;
+            const updated = result.updated || 0;
             const failed = (result.failed || 0) + parseErrors.length;
             const allDetails = [...parseErrors, ...(result.details || [])];
             const failedRows = allDetails.filter(d => d.status === 'failed');
-            const skippedRows = allDetails.filter(d => d.status === 'skipped');
+            const updatedRows = allDetails.filter(d => d.status === 'updated');
 
             const failedHtml = failedRows.length
                 ? `<details class="mt-3 text-left"><summary class="cursor-pointer font-semibold text-red-600">Failed (${failedRows.length})</summary><ul class="text-xs text-gray-600 mt-2 max-h-40 overflow-y-auto">${failedRows.map(d => `<li>• ${d.source}: ${d.error || ''}</li>`).join('')}</ul></details>`
                 : '';
-            const skippedHtml = skippedRows.length
-                ? `<details class="mt-2 text-left"><summary class="cursor-pointer font-semibold text-gray-600">Skipped (${skippedRows.length})</summary><ul class="text-xs text-gray-600 mt-2 max-h-40 overflow-y-auto">${skippedRows.map(d => `<li>• ${d.source} — title already exists</li>`).join('')}</ul></details>`
+            const updatedHtml = updatedRows.length
+                ? `<details class="mt-2 text-left"><summary class="cursor-pointer font-semibold text-gray-600">Updated (${updatedRows.length})</summary><ul class="text-xs text-gray-600 mt-2 max-h-40 overflow-y-auto">${updatedRows.map(d => `<li>• ${d.source} — slug matched existing post</li>`).join('')}</ul></details>`
                 : '';
 
             await Swal.fire({
                 icon: failed > 0 ? 'warning' : 'success',
                 title: 'Bulk Import Complete',
-                html: `<div class="text-left text-sm"><p><strong>Inserted:</strong> ${inserted}</p><p><strong>Skipped:</strong> ${skipped}</p><p><strong>Failed:</strong> ${failed}</p>${skippedHtml}${failedHtml}</div>`,
+                html: `<div class="text-left text-sm"><p><strong>Inserted:</strong> ${inserted}</p><p><strong>Updated:</strong> ${updated}</p><p><strong>Failed:</strong> ${failed}</p>${updatedHtml}${failedHtml}</div>`,
             });
             fetchBlogs();
         } catch (err) {

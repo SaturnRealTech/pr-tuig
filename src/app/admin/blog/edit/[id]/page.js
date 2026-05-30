@@ -33,6 +33,23 @@ const SAMPLE_BLOG_PAYLOAD = {
 };
 const UPDATE_BLOG_PAYLOAD = { title: 'Updated Blog Title' };
 
+function toLocalInputValue(d) {
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function formatHumanDate(d) {
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function parseToInputValue(blog) {
+    const raw = blog.publishedAt || blog.date || blog.createdAt;
+    if (!raw) return toLocalInputValue(new Date());
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return toLocalInputValue(new Date());
+    return toLocalInputValue(d);
+}
+
 export default function EditBlog() {
     const router = useRouter();
     const params = useParams();
@@ -59,6 +76,7 @@ export default function EditBlog() {
         robotsMeta: null,           // null = use Titles & Meta default
         schemaTemplates: [],        // array of template _id values
         autogenerateImageOverride: 'inherit', // 'inherit' | 'on' | 'off'
+        publishedAt: toLocalInputValue(new Date()),
     });
 
     useEffect(() => {
@@ -104,6 +122,7 @@ export default function EditBlog() {
                     robotsMeta: blog.robotsMeta || null,
                     schemaTemplates: Array.isArray(blog.schemaTemplates) ? blog.schemaTemplates.map(String) : [],
                     autogenerateImageOverride: blog.autogenerateImageOverride || 'inherit',
+                    publishedAt: parseToInputValue(blog),
                 });
             }
         } catch (error) {
@@ -186,6 +205,7 @@ export default function EditBlog() {
         setLoading(true);
 
         try {
+            const publishedDate = formData.publishedAt ? new Date(formData.publishedAt) : new Date();
             const blogData = {
                 slug: formData.slug,
                 title: formData.title,
@@ -193,6 +213,8 @@ export default function EditBlog() {
                 category: formData.category,
                 author: formData.author,
                 readTime: formData.readTime,
+                publishedAt: publishedDate.toISOString(),
+                date: formatHumanDate(publishedDate),
                 heroImage: formData.heroImage,
                 heroImageAlt: formData.heroImageAlt,
                 content: formData.content,
@@ -358,6 +380,22 @@ export default function EditBlog() {
                                         onChange={handleChange}
                                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream"
                                     />
+                                </div>
+
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Published Date & Time
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        name="publishedAt"
+                                        value={formData.publishedAt}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gold focus:ring-2 focus:ring-cream text-gray-900"
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Controls homepage order — newest published date appears first.
+                                    </p>
                                 </div>
                             </div>
                         </div>

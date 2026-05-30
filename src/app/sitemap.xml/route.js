@@ -4,7 +4,7 @@ import { readSitemapSettings } from '@/lib/sitemap';
 
 export const dynamic = 'force-dynamic';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://SaturnRealcon.com';
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '');
 
 const staticRoutes = ['/', '/blog'];
 

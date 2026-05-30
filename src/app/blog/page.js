@@ -5,12 +5,12 @@ import {
     createBreadcrumbSchema,
     createOrganizationSchema,
     createPageMetadata,
+    loadOrgSchemaConfig,
 } from '@/lib/seo';
 
 const blogPath = '/blog';
-const blogTitle = 'Blog - Saturnrealcon';
-const blogDescription =
-    'Read practical insights on SaaS development, product strategy, AI implementation, and startup execution from the Saturnrealcon team.';
+const blogTitle = 'Blog';
+const blogDescription = '';
 
 function normalizePost(post) {
     if (!post) return null;
@@ -29,7 +29,7 @@ async function getBlogPageData() {
     ]);
 
     const [posts, categories, pageRow] = await Promise.all([
-        blogPosts.find({}).sort({ date: -1, createdAt: -1 }).toArray().then(rs => rs.map(normalizePost).filter(Boolean)),
+        blogPosts.find({}).sort({ publishedAt: -1, createdAt: -1 }).toArray().then(rs => rs.map(normalizePost).filter(Boolean)),
         blogCats.find({}).collation({ locale: 'en', strength: 2 }).sort({ name: 1 }).toArray(),
         pages.findOne({ type: 'blog' }),
     ]);
@@ -79,7 +79,7 @@ export async function generateMetadata() {
         title: blogTitle,
         description: blogDescription,
         path: blogPath,
-        keywords: ['real estate blog', 'property tips', 'market trends', 'Saturnrealcon blog'],
+        keywords: [],
     });
 }
 
@@ -105,7 +105,7 @@ export default async function BlogPage() {
                 description,
                 url: `${SITE_URL}${blogPath}`,
                 ...(pageData.desktopBanner ? { image: pageData.desktopBanner } : {}),
-                publisher: { '@type': 'Organization', name: 'Saturn RealCon', url: SITE_URL },
+                publisher: { '@id': `${SITE_URL}/#organization` },
                 blogPost: posts.slice(0, 20).map(post => ({
                     '@type': 'BlogPosting',
                     headline: post.title,
@@ -133,7 +133,7 @@ export default async function BlogPage() {
                     },
                 })),
             },
-            createOrganizationSchema({ sameAs: ['https://www.linkedin.com/company/Saturnrealcon/'] }),
+            createOrganizationSchema(await loadOrgSchemaConfig()),
             createBreadcrumbSchema([
                 { name: 'Home', path: '/' },
                 { name: 'Blog', path: blogPath },

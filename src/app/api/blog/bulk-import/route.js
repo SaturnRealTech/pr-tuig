@@ -2,10 +2,6 @@ import { NextResponse } from 'next/server';
 import { requirePermission } from '@/lib/authHelper';
 import { col, nowIso } from '@/lib/db';
 
-function reEscape(s) {
-    return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 function slugify(title) {
     return String(title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
@@ -20,8 +16,8 @@ function unwrap(raw) {
 
 // POST /api/blog/bulk-import
 // Body: { blogs: [<blog | { success, data: blog }>, ...] }
-// Inserts each blog into `blog_posts`, skipping any whose title already exists
-// (case-insensitive exact match). Returns a per-item summary.
+// For each blog: if a doc with the same slug (or, fallback, the same title)
+// already exists, update it in place. Otherwise insert a new doc.
 export async function POST(request) {
     const guard = await requirePermission(request, 'blog', 'create');
     if (guard) return NextResponse.json({ success: false, error: guard.error }, { status: guard.status });
@@ -41,7 +37,7 @@ export async function POST(request) {
     const blogPosts = await col('blog_posts');
     const now = nowIso();
     const details = [];
-    let inserted = 0, skipped = 0, failed = 0;
+    let inserted = 0, updated = 0, failed = 0;
 
     for (let i = 0; i < items.length; i++) {
         const sourceName = items[i]?.__source || `#${i + 1}`;
@@ -54,20 +50,31 @@ export async function POST(request) {
                 continue;
             }
 
-            const titleRegex = new RegExp(`^${reEscape(title)}$`, 'i');
-            const existing = await blogPosts.findOne({ title: titleRegex }, { projection: { _id: 1 } });
+            // Match by slug only. If slug exists → update; if not → insert below.
+            const incomingSlug = blog?.slug || slugify(title);
+            const existing = await blogPosts.findOne(
+                { slug: incomingSlug },
+                { projection: { _id: 1, slug: 1 } }
+            );
+
+            // Strip control fields the client shouldn't be able to override.
+            const { __source, _id, createdAt, updatedAt, ...rest } = blog;
+
             if (existing) {
-                skipped++;
-                details.push({ source: sourceName, title, status: 'skipped', reason: 'title already exists' });
+                const updateDoc = {
+                    ...rest,
+                    slug: rest.slug || existing.slug || incomingSlug,
+                    updatedAt: now,
+                };
+                await blogPosts.updateOne({ _id: existing._id }, { $set: updateDoc });
+                updated++;
+                details.push({ source: sourceName, title, status: 'updated', _id: String(existing._id) });
                 continue;
             }
 
-            // Drop the source-file marker and any externally-supplied _id so
-            // Mongo generates a fresh ObjectId.
-            const { __source, _id, createdAt, updatedAt, ...rest } = blog;
             const doc = {
                 ...rest,
-                slug: rest.slug || slugify(title),
+                slug: rest.slug || incomingSlug,
                 createdAt: createdAt || now,
                 updatedAt: now,
             };
@@ -80,5 +87,5 @@ export async function POST(request) {
         }
     }
 
-    return NextResponse.json({ success: true, inserted, skipped, failed, total: items.length, details });
+    return NextResponse.json({ success: true, inserted, updated, failed, total: items.length, details });
 }

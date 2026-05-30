@@ -6,16 +6,16 @@ import {
 } from '@/lib/seo';
 
 const sitemapPath = '/sitemap';
-const sitemapTitle = 'Sitemap - SaturnRealcon';
-const sitemapDescription = 'Quickly navigate all important pages on SaturnRealcon.';
+const sitemapTitle = 'Sitemap';
+const sitemapDescription = 'Quickly navigate all important pages on the site.';
 
 const sitemapPageSchema = {
     '@context': 'https://schema.org',
     '@graph': [
         createWebPageSchema({
             path: sitemapPath,
-            name: 'Sitemap - SaturnRealcon',
-            description: 'Browse key pages and sections of the SaturnRealcon website.',
+            name: 'Sitemap',
+            description: 'Browse key pages and sections of the website.',
             type: 'CollectionPage',
         }),
         createBreadcrumbSchema([

@@ -3,7 +3,7 @@ import { Upload } from '@aws-sdk/lib-storage';
 
 const REGION = process.env.AWS_REGION;
 const BUCKET = process.env.AWS_BUCKET_NAME;
-const KEY_PREFIX = ('tuig').replace(/^\/+|\/+$/g, '');
+const KEY_PREFIX = (process.env.S3_KEY_PREFIX).replace(/^\/+|\/+$/g, '');
 
 if (!REGION || !BUCKET) {
     console.warn('[s3] AWS_REGION or AWS_BUCKET_NAME not set — uploads will fail.');

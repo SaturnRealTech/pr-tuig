@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://saturnrealcon.com').replace(/\/$/, '');
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '');
 
 export async function GET() {
     const now = new Date().toISOString();

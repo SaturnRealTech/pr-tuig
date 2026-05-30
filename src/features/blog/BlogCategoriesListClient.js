@@ -47,7 +47,7 @@ export default function BlogCategoriesListClient({ categories = [], pageData = {
                             <span className="text-gray-400">/</span>
                             <span className="text-white">Categories</span>
                         </nav>
-                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">{bannerTitle}</h1>
+                        <h1 className="font-display text-4xl md:text-5xl font-bold text-white mb-2 [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">{bannerTitle}</h1>
                         {bannerDescription && (
                             <p className="text-gray-200 text-lg [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">{bannerDescription}</p>
                         )}
@@ -64,7 +64,7 @@ export default function BlogCategoriesListClient({ categories = [], pageData = {
                             <span className="text-[#c49a20]">/</span>
                             <span className="text-white">Categories</span>
                         </nav>
-                        <h1 className="text-4xl md:text-5xl font-bold mb-2">{bannerTitle}</h1>
+                        <h1 className="font-display text-4xl md:text-5xl font-bold mb-2">{bannerTitle}</h1>
                         {bannerDescription && <p className="text-[#faf0d0] mt-1">{bannerDescription}</p>}
                         <p className="text-[#faf0d0] mt-2 text-sm">
                             {categories.length} categor{categories.length !== 1 ? 'ies' : 'y'}

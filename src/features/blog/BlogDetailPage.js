@@ -5,12 +5,12 @@ import WhatsAppIcon from '@/components/WhatsAppIcon';
 import Footer from '@/components/Footer';
 import NavbarClient from '@/features/home/components/NavbarClient';
 
-export default function BlogDetailPage({ post }) {
+export default function BlogDetailPage({ post, relatedPosts = [] }) {
     if (!post) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-4">Post Not Found</h1>
+                    <h1 className="font-display text-4xl font-bold text-gray-800 mb-4">Post Not Found</h1>
                     <a href="/blog" className="text-[#b27e02] hover:underline">← Back to Blog</a>
                 </div>
             </div>
@@ -36,7 +36,7 @@ export default function BlogDetailPage({ post }) {
                         <span className="text-xs font-bold px-3 py-1 bg-[#faf0d0] text-[#b27e02] rounded-full inline-block mb-3 md:mb-4">
                             {post.category}
                         </span>
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-3 md:mb-6 leading-tight break-words">
+                        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-3 md:mb-6 leading-tight break-words">
                             {post.title}
                         </h1>
                     </div>
@@ -91,13 +91,56 @@ export default function BlogDetailPage({ post }) {
                         <ShareButtons url={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://tangledupingreen.in'}/blog/${post.slug || post._id}`} title={post.title} />
                     </div>
                     {/* Related Posts */}
-                    <div className="mb-16">
-                        <h3 className="text-3xl font-bold text-black mb-8">Related Articles</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* Related posts would be fetched dynamically */}
-                            <p className="text-gray-600 col-span-2">More articles coming soon...</p>
+                    {relatedPosts.length > 0 && (
+                        <div className="mb-16">
+                            <h3 className="font-display text-3xl font-bold text-black mb-8">Related Articles</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {relatedPosts.map((rp) => {
+                                    const slug = rp.slug || rp._id;
+                                    const img = (typeof rp.heroImage === 'string' && rp.heroImage)
+                                        || (typeof rp.image === 'string' && rp.image)
+                                        || null;
+                                    return (
+                                        <a
+                                            key={rp._id || slug}
+                                            href={`/blog/${slug}`}
+                                            className="group flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-[#b27e02]/40 transition"
+                                        >
+                                            <div className="relative h-40 bg-gray-100 overflow-hidden">
+                                                {img ? (
+                                                    <img
+                                                        src={img}
+                                                        alt={rp.heroImageAlt || rp.title}
+                                                        loading="lazy"
+                                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-4xl">📝</div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col flex-1 p-4">
+                                                {rp.category && (
+                                                    <span className="self-start text-[10px] font-bold px-2.5 py-1 bg-[#faf0d0] text-[#b27e02] rounded-full uppercase tracking-wider mb-2">
+                                                        {rp.category}
+                                                    </span>
+                                                )}
+                                                <h4 className="font-display text-base font-semibold text-black leading-snug line-clamp-2 group-hover:text-[#b27e02] transition-colors">
+                                                    {rp.title}
+                                                </h4>
+                                                {rp.excerpt && (
+                                                    <p className="mt-2 text-sm text-gray-600 line-clamp-2 flex-1">{rp.excerpt}</p>
+                                                )}
+                                                <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                                                    <span>{rp.date || ''}</span>
+                                                    <span className="font-semibold text-[#b27e02] group-hover:underline">Read →</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    );
+                                })}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Share Buttons removed from bottom */}
                 </div>

@@ -102,11 +102,11 @@ export default function Footer() {
                         <h4 className="text-white font-bold mb-4">Get In Touch</h4>
                         <div className="space-y-3">
                             <a
-                                href="mailto:SaturnRealcon@gmail.com"
+                                href="mailto:info@example.com"
                                 className="flex items-center gap-3 text-gray-300 hover:text-gold transition text-sm group"
                             >
                                 <MdEmail className="text-xl text-gold group-hover:text-gold flex-shrink-0" />
-                                <span>SaturnRealcon@gmail.com</span>
+                                <span>info@example.com</span>
                             </a>
                             {contactPhone && (
                                 <a

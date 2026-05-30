@@ -162,8 +162,8 @@ export default function Contact() {
                                     <h3 className="text-xl font-bold text-black">Email</h3>
                                 </div>
                                 <p className="text-gray-600 mb-2">Send us an email and we'll respond as soon as possible.</p>
-                                <a href="mailto:SaturnRealcon@gmail.com" className="text-[#b27e02] font-semibold hover:text-[#8a6002]">
-                                    SaturnRealcon@gmail.com
+                                <a href="mailto:info@example.com" className="text-[#b27e02] font-semibold hover:text-[#8a6002]">
+                                    info@example.com
                                 </a>
                             </div>
 
