@@ -162,9 +162,9 @@ export default function Footer() {
                     {cinNumber ? (
                         <p className="text-gray-400 text-xs leading-relaxed">{cinNumber}</p>
                     ) : null}
-                    <p className="text-gray-400 text-xs">
-                        {copyrightText || `© ${new Date().getFullYear()} ${siteName || 'Saturn RealCon'}`}
-                    </p>
+                    {copyrightText ? (
+                        <p className="text-gray-400 text-xs">{copyrightText}</p>
+                    ) : null}
                 </div>
             </div>
         </footer>
