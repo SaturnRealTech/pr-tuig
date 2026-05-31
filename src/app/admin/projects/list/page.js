@@ -4,11 +4,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     MdEdit, MdDelete, MdAdd,
-    MdVisibility, MdVisibilityOff, MdSearch, MdWork
+    MdVisibility, MdVisibilityOff, MdSearch, MdWork,
+    MdSend,
 } from 'react-icons/md';
 import Swal from 'sweetalert2';
 import AdminSidebar from '@/components/AdminSidebar';
 import BulkUploadButton from '@/components/BulkUploadButton';
+import SendApprovalModal from '@/components/SendApprovalModal';
 
 const TABS = [
     { key: 'all', label: 'All' },
@@ -25,6 +27,7 @@ export default function ProjectsList() {
     const [tab, setTab] = useState('all');
     const [search, setSearch] = useState('');
     const [selectedIds, setSelectedIds] = useState([]);
+    const [approvalProject, setApprovalProject] = useState(null);
 
     useEffect(() => {
         const userData = localStorage.getItem('user');
@@ -260,6 +263,11 @@ export default function ProjectsList() {
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-center gap-1">
+                                                    <button onClick={() => setApprovalProject(project)}
+                                                        className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition"
+                                                        title="Send this project for approval">
+                                                        <MdSend size={14} /> Approve
+                                                    </button>
                                                     <button onClick={() => router.push(`/admin/projects/edit/${project._id}`)}
                                                         className="p-1.5 text-gray-400 hover:text-gold hover:bg-cream rounded-lg transition" title="Edit">
                                                         <MdEdit size={16} />
@@ -280,6 +288,13 @@ export default function ProjectsList() {
                     )}
                 </div>
             </main>
+
+            {approvalProject && (
+                <SendApprovalModal
+                    entity={{ type: 'project', id: approvalProject._id, title: approvalProject.title }}
+                    onClose={() => setApprovalProject(null)}
+                />
+            )}
         </div>
     );
 }

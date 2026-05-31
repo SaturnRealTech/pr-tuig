@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { col, deleteByAnyId, findOneByAnyId, updateByAnyId, nowIso } from '@/lib/db';
 import { getUserFromRequest, requirePermission } from '@/lib/authHelper';
+import { logActivity } from '@/lib/activityLog';
 
 // GET - Fetch all users (excluding password)
 export async function GET() {
@@ -43,6 +44,13 @@ export async function PATCH(request) {
         }
 
         await updateByAnyId('users', id, { disabled, updatedAt: nowIso() });
+        await logActivity(request, {
+            type: 'user',
+            action: 'edit',
+            section: disabled ? 'Disable user' : 'Enable user',
+            refId: id,
+            refTitle: target.email || target.name || '',
+        });
         return NextResponse.json({ success: true, message: disabled ? 'User disabled' : 'User enabled' });
     } catch (error) {
         console.error('Error toggling user disabled:', error);
@@ -60,10 +68,17 @@ export async function DELETE(request) {
         if (!userId) {
             return NextResponse.json({ success: false, error: 'User ID is required' }, { status: 400 });
         }
+        const target = await findOneByAnyId('users', userId);
         const changes = await deleteByAnyId('users', userId);
         if (!changes) {
             return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
         }
+        await logActivity(request, {
+            type: 'user',
+            action: 'delete',
+            refId: userId,
+            refTitle: target?.email || target?.name || '',
+        });
         return NextResponse.json({ success: true, message: 'User deleted successfully' });
     } catch (error) {
         console.error('Error deleting user:', error);

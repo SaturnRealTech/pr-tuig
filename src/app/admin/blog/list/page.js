@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
 import {
-    MdEdit, MdDelete, MdVisibility, MdArticle, MdImage,
+    MdEdit, MdDelete, MdVisibility, MdArticle, MdImage, MdSend,
 } from 'react-icons/md';
 import AdminSidebar from '@/components/AdminSidebar';
+import SendApprovalModal from '@/components/SendApprovalModal';
 import { calculateReadTime } from '@/utils/readTime';
 
 const MediaPicker = dynamic(() => import('@/components/MediaPicker'), { ssr: false });
@@ -59,6 +60,7 @@ export default function BlogList() {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedBlogs, setSelectedBlogs] = useState([]);
+    const [approvalBlog, setApprovalBlog] = useState(null);
     const [saving, setSaving] = useState(false);
     const [showImport, setShowImport] = useState(false);
     const [jsonText, setJsonText] = useState('');
@@ -673,6 +675,11 @@ export default function BlogList() {
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center justify-end gap-2">
+                                                            <button onClick={() => setApprovalBlog(blog)}
+                                                                className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition"
+                                                                title="Send this blog for approval">
+                                                                <MdSend size={14} /> Approve
+                                                            </button>
                                                             <a href={`/blog/${blog.slug || blog._id || blog.id}`} target="_blank"
                                                                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View">
                                                                 <MdVisibility size={20} />
@@ -700,6 +707,13 @@ export default function BlogList() {
 
                 </div>
             </main>
+
+            {approvalBlog && (
+                <SendApprovalModal
+                    entity={{ type: 'blog', id: approvalBlog._id || approvalBlog.id, title: approvalBlog.title }}
+                    onClose={() => setApprovalBlog(null)}
+                />
+            )}
         </div>
     );
 }

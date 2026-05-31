@@ -2,8 +2,30 @@ import { NextResponse } from 'next/server';
 import { requirePermission } from '@/lib/authHelper';
 import { col, upsertByKey, nowIso } from '@/lib/db';
 import { setLeadsPassword } from '@/lib/leadsLock';
+import { logActivity } from '@/lib/activityLog';
 
 const TYPE = 'brand';
+
+// Map raw field keys to friendly section labels for the activity log.
+// Keeps "Mary edited Footer" instead of "Mary edited footerTagline,
+// footerDescription, footerLogo" in the audit trail.
+function sectionLabelFromKeys(keys) {
+    const set = new Set(keys);
+    const groups = [];
+    const groupMap = [
+        { label: 'Brand', keys: ['siteName', 'siteLogo', 'favicon'] },
+        { label: 'Theme colors', keys: ['primaryColor', 'primaryDark', 'primaryLight', 'headerScrollBg', 'themeBackground', 'themeForeground', 'themeLeaf', 'themeMoss', 'themeForest', 'themeBark', 'themeGold', 'themeCream'] },
+        { label: 'Footer', keys: ['footerLogo', 'footerLogoMode', 'footerTagline', 'footerDescription', 'footerTrustText', 'cinNumber', 'copyrightText'] },
+        { label: 'Contact', keys: ['contactPhone', 'whatsappNumber'] },
+        { label: 'Mail / SMTP', keys: ['smtpHost', 'smtpPort', 'smtpSecure', 'smtpUser', 'smtpPass', 'mailFromName', 'mailFrom', 'mailTo', 'mailSubject'] },
+        { label: 'Live chat (Tawk.to)', keys: ['tawktoEmbedSrc'] },
+        { label: 'IndexNow', keys: ['indexNowKey'] },
+    ];
+    for (const g of groupMap) {
+        if (g.keys.some(k => set.has(k))) groups.push(g.label);
+    }
+    return groups.join(', ') || 'Settings';
+}
 
 async function readBrand() {
     const settings = await col('settings');
@@ -120,6 +142,18 @@ export async function PUT(request) {
         const payload = { data: merged, updatedAt: nowIso() };
         if (!existing) payload.createdAt = nowIso();
         await upsertByKey('settings', 'type', TYPE, payload);
+
+        const changedKeys = Object.keys(blob);
+        const sections = sectionLabelFromKeys(changedKeys);
+        const includedLeads = typeof body.leadsPassword === 'string' || body.leadsPassword === null;
+        const sectionLabel = includedLeads
+            ? (sections === 'Settings' ? 'Leads vault password' : `${sections}, Leads vault password`)
+            : sections;
+        await logActivity(request, {
+            type: 'settings',
+            action: 'edit',
+            section: sectionLabel,
+        });
 
         return NextResponse.json({ success: true });
     } catch (error) {

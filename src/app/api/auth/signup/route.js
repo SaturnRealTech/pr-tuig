@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { col, insertRow, nowIso } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import { logActivity } from '@/lib/activityLog';
 
 export async function POST(request) {
     try {
@@ -28,6 +29,14 @@ export async function POST(request) {
             password: hashedPassword,
             role: finalRole,
             createdAt: nowIso(),
+        });
+
+        await logActivity(request, {
+            type: 'user',
+            action: 'create',
+            section: `Role: ${finalRole}`,
+            refId: String(insertedId),
+            refTitle: email,
         });
 
         return NextResponse.json(

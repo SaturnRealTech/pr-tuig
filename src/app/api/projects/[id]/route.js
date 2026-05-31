@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/authHelper';
 import { pingSearchEngines } from '@/lib/seoPing';
 import { deleteFromS3 } from '@/lib/s3-upload';
 import { readJsonBody } from '@/lib/serverBody';
+import { logActivity } from '@/lib/activityLog';
 
 // Walk a project doc and return every image URL stored on it (top-level
 // banners + nested gallery / master plan / floor plan / detailed-overview).
@@ -67,11 +68,18 @@ export async function PATCH(request, { params }) {
         if (!changes) {
             return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 });
         }
+        const row = await findOneByAnyId('projects', id);
         if (body && body.publishStatus === 'published') {
-            const row = await findOneByAnyId('projects', id);
             const url = projectUrlFor(row);
             if (url) pingSearchEngines([url]);
         }
+        await logActivity(request, {
+            type: 'project',
+            action: 'edit',
+            section: Object.keys(body || {}).join(', '),
+            refId: id,
+            refTitle: row?.title || '',
+        });
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -97,6 +105,12 @@ export async function PUT(request, { params }) {
             const url = projectUrlFor(row);
             if (url) pingSearchEngines([url]);
         }
+        await logActivity(request, {
+            type: 'project',
+            action: 'edit',
+            refId: id,
+            refTitle: row?.title || '',
+        });
         return NextResponse.json({ success: true, data: row });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -130,6 +144,12 @@ export async function DELETE(request, { params }) {
             return NextResponse.json({ success: false, error: 'Project not found' }, { status: 404 });
         }
         if (wasPublishedUrl) pingSearchEngines([wasPublishedUrl], { type: 'URL_DELETED' });
+        await logActivity(request, {
+            type: 'project',
+            action: 'delete',
+            refId: id,
+            refTitle: row.title || '',
+        });
         return NextResponse.json({ success: true, message: 'Project deleted' });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

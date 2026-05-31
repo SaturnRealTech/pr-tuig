@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { MdAdd, MdEdit, MdDelete, MdImage, MdSave } from 'react-icons/md';
+import { MdAdd, MdEdit, MdDelete, MdImage, MdSave, MdSend } from 'react-icons/md';
+import SendApprovalModal from '@/components/SendApprovalModal';
 import AdminSidebar from '@/components/AdminSidebar';
 import Swal from 'sweetalert2';
 
@@ -54,6 +55,7 @@ export default function BlogCategoriesPage() {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [approvalCategory, setApprovalCategory] = useState(null);
     const [pageData, setPageData] = useState({
         desktopBanner: '', desktopBannerAlt: '',
         mobileBanner: '', mobileBannerAlt: '',
@@ -327,6 +329,13 @@ export default function BlogCategoriesPage() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={() => setApprovalCategory(cat)}
+                                                            className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition"
+                                                            title="Send this category for approval"
+                                                        >
+                                                            <MdSend size={14} /> Approve
+                                                        </button>
                                                         <a
                                                             href={`/admin/blog/categories/edit/${cat._id}`}
                                                             className="p-2 text-gray-500 hover:text-gold hover:bg-cream rounded-lg transition inline-flex"
@@ -353,6 +362,13 @@ export default function BlogCategoriesPage() {
 
                 </div>
             </main>
+
+            {approvalCategory && (
+                <SendApprovalModal
+                    entity={{ type: 'blog-category', id: approvalCategory._id, title: approvalCategory.name || approvalCategory.title }}
+                    onClose={() => setApprovalCategory(null)}
+                />
+            )}
         </div>
     );
 }

@@ -5,6 +5,7 @@
 import { NextResponse } from 'next/server';
 import { col, upsertByKey, nowIso } from '@/lib/db';
 import { ACTIONS, DEFAULT_PERMISSIONS, MODULES, ROLES, getPermissions, requireAdmin } from '@/lib/authHelper';
+import { logActivity } from '@/lib/activityLog';
 
 const TYPE = 'brand';
 
@@ -58,6 +59,12 @@ export async function PUT(request) {
         const payload = { data, updatedAt: now };
         if (!existing) payload.createdAt = now;
         await upsertByKey('settings', 'type', TYPE, payload);
+
+        await logActivity(request, {
+            type: 'user',
+            action: 'permissions',
+            section: 'Role permissions matrix',
+        });
 
         return NextResponse.json({ success: true, data: { permissions: clean } });
     } catch (error) {

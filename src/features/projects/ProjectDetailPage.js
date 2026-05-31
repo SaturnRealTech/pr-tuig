@@ -462,13 +462,17 @@ function ProjectDescription({ project }) {
                     </>
                 )}
                 {project.contentImage && (
-                    <div className="relative mb-8 flex items-center justify-center h-72 md:h-[480px]">
+                    <div
+                        className={`relative mb-8 flex items-center justify-center ${project.contentImageType === 'logo' ? 'h-28 md:h-36 max-w-sm md:max-w-md mx-auto rounded-2xl overflow-hidden' : 'h-72 md:h-[480px]'}`}
+                        style={project.contentImageType === 'logo' && project.contentImageBgColor ? { backgroundColor: project.contentImageBgColor } : undefined}
+                    >
                         <Image
                             src={project.contentImage}
                             alt={project.contentTitle || project.title || "Overview image"}
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1300px) 80vw, 1040px"
-                            className="object-contain"
+                            unoptimized={/\.svg(\?.*)?$/i.test(project.contentImage)}
+                            className={`object-contain ${project.contentImageType === 'logo' ? 'py-3 px-6 md:py-4 md:px-10' : ''}`}
                         />
                     </div>
                 )}
@@ -590,13 +594,20 @@ function DetailedOverview({ project }) {
                                 </div>
                             )}
                             {block.image && (
-                                <div className="relative mb-8 flex items-center justify-center h-72 md:h-[480px]">
+                                <div
+                                    className={`relative mb-8 flex items-center justify-center ${block.imageType === 'logo' ? 'h-28 md:h-36 max-w-sm md:max-w-md mx-auto rounded-2xl overflow-hidden' : 'h-72 md:h-[480px]'}`}
+                                    style={block.imageType === 'logo' && block.imageBgColor ? { backgroundColor: block.imageBgColor } : undefined}
+                                >
                                     <Image
                                         src={block.image}
                                         alt={block.imageAlt || block.title || "Overview image"}
                                         fill
                                         sizes="(max-width: 768px) 100vw, (max-width: 1300px) 80vw, 1040px"
-                                        className="object-contain"
+                                        /* SVGs need `unoptimized` — Next.js's optimizer
+                                           rasterises them by default which kills
+                                           transparency and crispness. */
+                                        unoptimized={/\.svg(\?.*)?$/i.test(block.image)}
+                                        className={`object-contain ${block.imageType === 'logo' ? 'py-3 px-6 md:py-4 md:px-10' : ''}`}
                                     />
                                 </div>
                             )}
@@ -1414,7 +1425,7 @@ function Enquiry({ project }) {
     };
 
     return (
-        <section id="enquiry" className="bg-moss text-background pt-4 md:pt-6 pb-16 md:pb-24">
+        <section id="enquiry" className="bg-moss text-background pt-16 md:pt-24 pb-0">
             <div className="max-w-[1300px] mx-auto px-6 grid md:grid-cols-12 gap-10">
                 <div className="md:col-span-5">
                     <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-gold">ENQUIRE</div>
@@ -1431,8 +1442,8 @@ function Enquiry({ project }) {
                     )}
                 </div>
 
-                <form onSubmit={onSubmit} className="md:col-span-7 bg-background text-moss rounded-2xl p-7 md:p-8 grid sm:grid-cols-2 gap-4">
-                    <div className="sm:col-span-2 border-b border-moss/10 pb-4">
+                <form onSubmit={onSubmit} className="md:col-span-7 bg-background text-moss rounded-2xl p-7 md:p-8 grid sm:grid-cols-2 gap-5">
+                    <div className="sm:col-span-2 border-b border-moss/10 pb-5">
                         <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-gold">Get in Touch</p>
                         <p className="mt-1.5 font-display text-xl md:text-2xl text-moss">Tell us about you</p>
                     </div>
@@ -1456,7 +1467,7 @@ function Enquiry({ project }) {
                     <button
                         type="submit"
                         disabled={status.loading}
-                        className="sm:col-span-2 mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-moss text-background px-7 py-4 text-sm font-semibold hover:bg-leaf transition disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="sm:col-span-2 inline-flex items-center justify-center gap-2 rounded-full bg-moss text-background px-7 py-4 text-sm font-semibold hover:bg-leaf transition disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                         {status.loading ? "Submitting…" : "Submit Enquiry"}
                         <span aria-hidden>→</span>

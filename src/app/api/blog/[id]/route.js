@@ -3,6 +3,7 @@ import { findOneByAnyId, updateByAnyId, deleteByAnyId, nowIso } from '@/lib/db';
 import { requirePermission } from '@/lib/authHelper';
 import { pingSearchEngines } from '@/lib/seoPing';
 import { deleteFromS3 } from '@/lib/s3-upload';
+import { logActivity } from '@/lib/activityLog';
 
 function buildUpdate(body) {
     const out = { ...body, updatedAt: nowIso() };
@@ -45,6 +46,13 @@ export async function PUT(request, { params }) {
         const slug = row?.slug || (row?._id ? String(row._id) : '');
         if (slug && isPublished) pingSearchEngines([`/blog/${slug}`]);
 
+        await logActivity(request, {
+            type: 'blog',
+            action: 'edit',
+            refId: id,
+            refTitle: row?.title || '',
+        });
+
         return NextResponse.json({ success: true, data: row });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -73,6 +81,12 @@ export async function DELETE(request, { params }) {
         const wasPublished = !row.publishStatus || row.publishStatus === 'published';
         await deleteByAnyId('blog_posts', id);
         if (slug && wasPublished) pingSearchEngines([`/blog/${slug}`], { type: 'URL_DELETED' });
+        await logActivity(request, {
+            type: 'blog',
+            action: 'delete',
+            refId: id,
+            refTitle: row.title || '',
+        });
         return NextResponse.json({ success: true, message: 'Blog post and images deleted' });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

@@ -21,9 +21,9 @@
   --color-gold: var(--gold);
   --color-cream: var(--cream);
   --font-sans:
-    var(--font-inter), system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-display:
-    var(--font-playfair), "Times New Roman", serif;
+    var(--font-inter), system-ui, -apple-system, "Segoe UI", Helvetica, Arial,
+    sans-serif;
+  --font-display: var(--font-playfair), "Times New Roman", serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -35,23 +35,24 @@
   font-weight: inherit;
 }
 
-html {
+/* html {
   overflow-x: hidden !important;
-}
+} */
 
-html,
+/* html,
 body,
 * {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
-}
-html::-webkit-scrollbar,
+} */
+
+/* html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 *::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
-}
+} */
 
 /* Admin shell exception — long edit/create forms need a visible scrollbar
    so admins can drag the thumb to scrub through the form quickly. Scoped

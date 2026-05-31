@@ -241,6 +241,7 @@ export default function UsersManagement() {
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Role</th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Joined</th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Last Login</th>
                                             <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Actions</th>
                                         </tr>
                                     </thead>
@@ -287,6 +288,21 @@ export default function UsersManagement() {
                                                             day: 'numeric',
                                                         })
                                                         : 'N/A'}
+                                                </td>
+                                                <td className="px-6 py-4 text-gray-700 text-sm">
+                                                    {userData.lastLoginAt ? (
+                                                        <div>
+                                                            <div className="font-medium">
+                                                                {new Date(userData.lastLoginAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                                            </div>
+                                                            <div className="text-xs text-gray-500">
+                                                                {new Date(userData.lastLoginAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                                                                {userData.lastLoginIp ? ` · ${userData.lastLoginIp}` : ''}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-gray-400 italic">Never</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center justify-end gap-2">

@@ -180,7 +180,27 @@ function DetailedOverviewItem({ item, index, onUpdate, onRemove }) {
             </div>
 
             <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Image</label>
+                <div className="flex items-center justify-between mb-2 gap-3">
+                    <label className="block text-sm font-semibold text-gray-700">Image</label>
+                    <div className="flex bg-white border border-gray-200 rounded-lg overflow-hidden">
+                        {[
+                            { value: 'image', label: 'Normal Image' },
+                            { value: 'logo', label: 'Logo (small)' },
+                        ].map(opt => {
+                            const active = (item.imageType || 'image') === opt.value;
+                            return (
+                                <button
+                                    key={opt.value}
+                                    type="button"
+                                    onClick={() => onUpdate('imageType', opt.value)}
+                                    className={`px-3 py-1.5 text-xs font-semibold transition ${active ? 'bg-gold text-white' : 'bg-white text-gray-600 hover:bg-cream'}`}
+                                >
+                                    {opt.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
                 {item.image ? (
                     <div className="relative group rounded-xl overflow-hidden border border-gray-200">
                         <img src={item.image} alt={item.imageAlt || 'overview'} className="w-full h-48 object-cover" />
@@ -201,6 +221,33 @@ function DetailedOverviewItem({ item, index, onUpdate, onRemove }) {
                 <input type="text" value={item.imageAlt || ''} onChange={e => onUpdate('imageAlt', e.target.value)}
                     placeholder="Image Alt Text"
                     className="w-full mt-2 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold text-gray-800 text-sm" />
+                {item.imageType === 'logo' && (
+                    <>
+                        <div className="mt-3 flex items-center gap-3 p-3 border border-gray-200 rounded-lg bg-white">
+                            <label className="text-xs font-semibold text-gray-700 flex-shrink-0">Logo background</label>
+                            <input type="color" value={item.imageBgColor || '#ffffff'}
+                                onChange={e => onUpdate('imageBgColor', e.target.value)}
+                                className="w-10 h-8 rounded cursor-pointer border border-gray-200 bg-white" />
+                            <input type="text" value={item.imageBgColor || ''}
+                                onChange={e => onUpdate('imageBgColor', e.target.value)}
+                                placeholder="#ffffff or transparent"
+                                className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-gold text-gray-800 text-xs" />
+                            {item.imageBgColor && (
+                                <button type="button" onClick={() => onUpdate('imageBgColor', '')}
+                                    className="text-xs text-gray-500 hover:text-red-500 font-semibold">Clear</button>
+                            )}
+                        </div>
+                        {item.image && (
+                            <div className="mt-3">
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Live preview</p>
+                                <div className="h-28 md:h-36 max-w-sm mx-auto rounded-2xl overflow-hidden flex items-center justify-center"
+                                    style={item.imageBgColor ? { backgroundColor: item.imageBgColor } : { backgroundColor: '#f9fafb' }}>
+                                    <img src={item.image} alt={item.imageAlt || 'logo preview'} className="max-h-full max-w-full object-contain py-3 px-6 md:py-4 md:px-10" />
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
 
             {showPicker && (
@@ -286,6 +333,8 @@ export default function EditProject() {
                 ...(p('lng', 'longitude') !== undefined && { lng: str('lng', 'longitude') }),
                 ...(p('contentTitle') !== undefined && { contentTitle: str('contentTitle') }),
                 ...(p('contentImage') !== undefined && { contentImage: str('contentImage') }),
+                ...(p('contentImageType') !== undefined && { contentImageType: str('contentImageType') }),
+                ...(p('contentImageBgColor') !== undefined && { contentImageBgColor: str('contentImageBgColor') }),
                 ...(p('content', 'body', 'html', 'description') !== undefined && { content: str('content', 'body', 'html', 'description') }),
                 ...(p('metaTitle', 'seoTitle') !== undefined && { metaTitle: str('metaTitle', 'seoTitle') }),
                 ...(p('metaDescription', 'seoDescription') !== undefined && { metaDescription: str('metaDescription', 'seoDescription') }),
@@ -398,6 +447,8 @@ export default function EditProject() {
         shortOverview: '',
         contentTitle: '',
         contentImage: '',
+        contentImageType: 'image',
+        contentImageBgColor: '',
         content: '',
         metaTitle: '',
         metaDescription: '',
@@ -509,6 +560,8 @@ export default function EditProject() {
                 shortOverview: p.shortOverview || '',
                 contentTitle: p.contentTitle || '',
                 contentImage: p.contentImage || '',
+                contentImageType: p.contentImageType || 'image',
+                contentImageBgColor: p.contentImageBgColor || '',
                 content: p.content || '',
                 metaTitle: p.metaTitle || '',
                 metaDescription: p.metaDescription || '',
@@ -1246,7 +1299,27 @@ export default function EditProject() {
                                                 placeholder="e.g. About This Project" />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Featured Image</label>
+                                            <div className="flex items-center justify-between mb-2 gap-3">
+                                                <label className="block text-sm font-semibold text-gray-700">Featured Image</label>
+                                                <div className="flex bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                                    {[
+                                                        { value: 'image', label: 'Normal Image' },
+                                                        { value: 'logo', label: 'Logo (small)' },
+                                                    ].map(opt => {
+                                                        const active = (formData.contentImageType || 'image') === opt.value;
+                                                        return (
+                                                            <button
+                                                                key={opt.value}
+                                                                type="button"
+                                                                onClick={() => setFormData(prev => ({ ...prev, contentImageType: opt.value }))}
+                                                                className={`px-3 py-1.5 text-xs font-semibold transition ${active ? 'bg-gold text-white' : 'bg-white text-gray-600 hover:bg-cream'}`}
+                                                            >
+                                                                {opt.label}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
                                             <BannerPicker
                                                 label="Featured Image"
                                                 hint="landscape recommended"
@@ -1255,6 +1328,33 @@ export default function EditProject() {
                                                 value={formData.contentImage}
                                                 onChange={(url) => setFormData(prev => ({ ...prev, contentImage: url }))}
                                             />
+                                            {formData.contentImageType === 'logo' && (
+                                                <>
+                                                    <div className="mt-3 flex items-center gap-3 p-3 border border-gray-200 rounded-lg bg-white">
+                                                        <label className="text-xs font-semibold text-gray-700 flex-shrink-0">Logo background</label>
+                                                        <input type="color" value={formData.contentImageBgColor || '#ffffff'}
+                                                            onChange={e => setFormData(prev => ({ ...prev, contentImageBgColor: e.target.value }))}
+                                                            className="w-10 h-8 rounded cursor-pointer border border-gray-200 bg-white" />
+                                                        <input type="text" value={formData.contentImageBgColor || ''}
+                                                            onChange={e => setFormData(prev => ({ ...prev, contentImageBgColor: e.target.value }))}
+                                                            placeholder="#ffffff or transparent"
+                                                            className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-gold text-gray-800 text-xs" />
+                                                        {formData.contentImageBgColor && (
+                                                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, contentImageBgColor: '' }))}
+                                                                className="text-xs text-gray-500 hover:text-red-500 font-semibold">Clear</button>
+                                                        )}
+                                                    </div>
+                                                    {formData.contentImage && (
+                                                        <div className="mt-3">
+                                                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Live preview</p>
+                                                            <div className="h-28 md:h-36 max-w-sm mx-auto rounded-2xl overflow-hidden flex items-center justify-center"
+                                                                style={formData.contentImageBgColor ? { backgroundColor: formData.contentImageBgColor } : { backgroundColor: '#f9fafb' }}>
+                                                                <img src={formData.contentImage} alt={formData.contentTitle || 'logo preview'} className="max-h-full max-w-full object-contain py-3 px-6 md:py-4 md:px-10" />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
                                         </div>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { col, nowIso } from '@/lib/db';
 import { requirePermission } from '@/lib/authHelper';
 import { pingSearchEngines } from '@/lib/seoPing';
+import { logActivity } from '@/lib/activityLog';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,6 +65,13 @@ export async function POST(request) {
             const path = slug === '/' ? '/' : (slug.startsWith('/') ? slug : `/${slug}`);
             pingSearchEngines([path]);
         }
+
+        await logActivity(request, {
+            type: 'project',
+            action: 'create',
+            refId: String(result.insertedId),
+            refTitle: row?.title || '',
+        });
 
         return NextResponse.json(
             { success: true, data: row },

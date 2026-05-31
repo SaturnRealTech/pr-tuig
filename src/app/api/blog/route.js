@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requirePermission } from '@/lib/authHelper';
 import { col, nowIso } from '@/lib/db';
 import { pingSearchEngines } from '@/lib/seoPing';
+import { logActivity } from '@/lib/activityLog';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,6 +53,13 @@ export async function POST(request) {
         const isPublished = !row?.publishStatus || row.publishStatus === 'published';
         const slug = row?.slug || (row?._id ? String(row._id) : '');
         if (slug && isPublished) pingSearchEngines([`/blog/${slug}`]);
+
+        await logActivity(request, {
+            type: 'blog',
+            action: 'create',
+            refId: String(result.insertedId),
+            refTitle: row?.title || '',
+        });
 
         return NextResponse.json(
             { success: true, data: row },

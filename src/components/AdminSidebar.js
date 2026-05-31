@@ -5,7 +5,7 @@ import { useSettings } from '@/lib/SettingsContext';
 import {
     MdDashboard, MdArticle, MdWork, MdPeople, MdLogout,
     MdMenu, MdClose, MdCategory, MdFormatQuote, MdImage, MdHome, MdPrivacyTip, MdGavel, MdCookie, MdBusiness, MdContactMail, MdInbox,
-    MdSwapHoriz, MdShowChart, MdAdminPanelSettings, MdImageAspectRatio, MdSearch,
+    MdSwapHoriz, MdShowChart, MdAdminPanelSettings, MdImageAspectRatio, MdSearch, MdHistory,
 } from 'react-icons/md';
 
 const NAV_ITEMS = [
@@ -80,6 +80,17 @@ export default function AdminSidebar({ user, sidebarOpen, setSidebarOpen }) {
                         >
                             <MdPeople size={24} />
                             {sidebarOpen && <span>Users</span>}
+                        </a>
+                    )}
+
+                    {user?.role === 'admin' && (
+                        <a
+                            href="/admin/activity"
+                            className={`flex items-center gap-3 p-3 rounded-lg transition ${isActive('/admin/activity') ? 'bg-gold' : 'hover:bg-gold'
+                                }`}
+                        >
+                            <MdHistory size={24} />
+                            {sidebarOpen && <span>Activity Log</span>}
                         </a>
                     )}
                 </nav>

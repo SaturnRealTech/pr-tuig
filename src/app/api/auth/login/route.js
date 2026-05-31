@@ -2,8 +2,18 @@ import { NextResponse } from 'next/server';
 import { col } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { logActivity } from '@/lib/activityLog';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+
+function ipFrom(request) {
+    const h = request.headers;
+    return (
+        h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+        h.get('x-real-ip') ||
+        ''
+    );
+}
 
 export async function POST(request) {
     try {
@@ -38,6 +48,24 @@ export async function POST(request) {
             { userId, email: user.email, role: user.role },
             JWT_SECRET,
         );
+
+        const nowIso = new Date().toISOString();
+        try {
+            await users.updateOne(
+                { _id: user._id },
+                { $set: { lastLoginAt: nowIso, lastLoginIp: ipFrom(request) } },
+            );
+        } catch (e) {
+            console.error('[login] lastLoginAt update failed:', e.message);
+        }
+        await logActivity(null, {
+            type: 'auth',
+            action: 'login',
+            userId,
+            userEmail: user.email,
+            userRole: user.role,
+            ip: ipFrom(request),
+        });
 
         const response = NextResponse.json(
             {
